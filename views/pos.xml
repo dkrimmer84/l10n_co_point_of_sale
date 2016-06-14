@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+
+      <template id="l10n_co_point_of_sale_js" name="l10n_co_point_of_sale_js" inherit_id="point_of_sale.assets">
+          <xpath expr="." position="inside">
+              <script type="text/javascript" src="/l10n_co_point_of_sale/static/src/js/main.js"></script>
+          </xpath>
+      </template>
+
+    </data>
+</openerp>
