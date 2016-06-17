@@ -8,7 +8,9 @@
         if(models[i].model == 'res.partner') {
             models[i].fields.push('x_name1');
             models[i].fields.push('x_name2');
-            models[i].fields.push(['x_lastname1', 'x_lastname2']);
+            models[i].fields.push('x_lastname1');
+            models[i].fields.push('x_lastname2');
+            models[i].fields.push('is_company');
         }
     }
 

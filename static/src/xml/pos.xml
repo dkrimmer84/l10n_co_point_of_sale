@@ -2,56 +2,84 @@
 
 <templates xml:space="preserve" noupdate="1">
 
-    <t t-extend="ClientDetailsEdit">
+    <t t-extend="ClientDetails">
         <t t-jquery="div.client-details-box" t-operation="prepend">
+            <div class='is-company'>
+                <span class='label'>Es empresa?</span>
+                <t t-if='partner.is_company'>
+                    <input class='detail client-is-company' name='is_company' type='checkbox' disabled='disabled' checked='checked'></input>
+                </t>
+                <t t-if='!partner.is_company'>
+                    <input class='detail client-is-company' name='is_company' type='checkbox' disabled='disabled'></input>
+                </t>
+
+            </div>
             <div class='client-details-left'>
                 <div class='client-detail'>
-                    <span class='label'>Tipo de persona</span>
-                    <select class='detail client-person-type' name='personType'>
-                        <option value=''>None</option>
-                        <!-- <t t-foreach='widget.pos.countries' t-as='country'>
-                            <option t-att-value='country.id' t-att-selected="partner.country_id ? ((country.id === partner.country_id[0]) ? true : undefined) : undefined">
-                                <t t-esc='country.name'/>
-                            </option>
-                        </t> -->
-                    </select>
+                    <span class='label'>Primer nombre</span>
+                    <span class='detail client-first-name'><t t-esc='partner.x_name1' /></span>
                 </div>
-
                 <div class='client-detail'>
-                    <span class='label'>Primer Nombre</span>
-                    <input class='detail client-first-name' name='first_name' t-att-value='partner.x_name1' placeholder='Primer nombre'></input>
-                </div>
-
-                <div class='client-detail'>
-                    <span class='label'>Segundo Nombre</span>
-                    <input class='detail client-second-name' name='second_name' t-att-value='partner.x_name2' placeholder='Segundo nombre'></input>
+                    <span class='label'>Segundo nombre</span>
+                    <span class='detail client-second-name'><t t-esc='partner.x_name2' /></span>
                 </div>
             </div>
-
             <div class='client-details-right'>
                 <div class='client-detail'>
-                    <span class='label'>Tipo de identificacion</span>
-                    <select class='detail client-doc-type' name='docType'>
-                        <option value=''>None</option>
-                        <!-- <t t-foreach='widget.pos.countries' t-as='country'>
-                            <option t-att-value='country.id' t-att-selected="partner.country_id ? ((country.id === partner.country_id[0]) ? true : undefined) : undefined">
-                                <t t-esc='country.name'/>
-                            </option>
-                        </t> -->
-                    </select>
-                </div>
-
-                <div class='client-detail'>
                     <span class='label'>Primer Apellido</span>
-                    <input class='detail client-first-lastname' name='first_lastname' t-att-value='partner.x_lastname1' placeholder='Primer apellido'></input>
+                    <span class='detail client-first-lastname'><t t-esc='partner.x_lastname1' /></span>
                 </div>
 
                 <div class='client-detail'>
                     <span class='label'>Segundo Apellido</span>
-                    <input class='detail client-second-lastname' name='second_lastname' t-att-value='partner.x_lastname2' placeholder='Segundo apellido'></input>
+                    <span class='detail client-second-lastname'><t t-esc='partner.x_lastname2' /></span>
                 </div>
             </div>
         </t>
     </t>
+
+    <t t-extend="ClientDetailsEdit">
+        <t t-jquery="div.edit-buttons" t-operation="after">
+            <div class='is-company'>
+                <span class='label'>Es empresa?</span>
+                <t t-if='partner.is_company'>
+                    <input class='detail client-is-company' name='is_company' type='checkbox' checked='checked' t-att-value='partner.is_company'></input>
+                </t>
+                <t t-if='!partner.is_company'>
+                    <input class='detail client-is-company' name='is_company' type='checkbox' t-att-value='partner.is_company'></input>
+                </t>
+            </div>
+        </t>
+
+        <t t-jquery="div.client-details-box" t-operation="prepend">
+            <div class='client-details-left'>
+                <div class='client-detail'>
+                    <span class='label'>Primer Nombre</span>
+                    <input class='detail client-first-name' name='x_name1' t-att-value='partner.x_name1' placeholder='Primer nombre'></input>
+                </div>
+
+                <div class='client-detail'>
+                    <span class='label'>Segundo Nombre</span>
+                    <input class='detail client-second-name' name='x_name2' t-att-value='partner.x_name2' placeholder='Segundo nombre'></input>
+                </div>
+            </div>
+
+            <div class='client-details-right'>
+
+
+                <div class='client-detail'>
+                    <span class='label'>Primer Apellido</span>
+                    <input class='detail client-first-lastname' name='x_lastname1' t-att-value='partner.x_lastname1' placeholder='Primer apellido'></input>
+                </div>
+
+                <div class='client-detail'>
+                    <span class='label'>Segundo Apellido</span>
+                    <input class='detail client-second-lastname' name='x_lastname2' t-att-value='partner.x_lastname2' placeholder='Segundo apellido'></input>
+                </div>
+            </div>
+        </t>
+    </t>
+
+
 
 </templates>
