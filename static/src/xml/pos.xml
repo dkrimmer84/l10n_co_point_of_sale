@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates xml:space="preserve" noupdate="1">
+
+    <t t-extend="ClientDetailsEdit">
+        <t t-jquery="div.client-details-box" t-operation="prepend">
+            <div class='client-details-left'>
+                <div class='client-detail'>
+                    <span class='label'>Tipo de persona</span>
+                    <select class='detail client-person-type' name='personType'>
+                        <option value=''>None</option>
+                        <!-- <t t-foreach='widget.pos.countries' t-as='country'>
+                            <option t-att-value='country.id' t-att-selected="partner.country_id ? ((country.id === partner.country_id[0]) ? true : undefined) : undefined">
+                                <t t-esc='country.name'/>
+                            </option>
+                        </t> -->
+                    </select>
+                </div>
+
+                <div class='client-detail'>
+                    <span class='label'>Primer Nombre</span>
+                    <input class='detail client-first-name' name='first_name' t-att-value='partner.x_name1' placeholder='Primer nombre'></input>
+                </div>
+
+                <div class='client-detail'>
+                    <span class='label'>Segundo Nombre</span>
+                    <input class='detail client-second-name' name='second_name' t-att-value='partner.x_name2' placeholder='Segundo nombre'></input>
+                </div>
+            </div>
+
+            <div class='client-details-right'>
+                <div class='client-detail'>
+                    <span class='label'>Tipo de identificacion</span>
+                    <select class='detail client-doc-type' name='docType'>
+                        <option value=''>None</option>
+                        <!-- <t t-foreach='widget.pos.countries' t-as='country'>
+                            <option t-att-value='country.id' t-att-selected="partner.country_id ? ((country.id === partner.country_id[0]) ? true : undefined) : undefined">
+                                <t t-esc='country.name'/>
+                            </option>
+                        </t> -->
+                    </select>
+                </div>
+
+                <div class='client-detail'>
+                    <span class='label'>Primer Apellido</span>
+                    <input class='detail client-first-lastname' name='first_lastname' t-att-value='partner.x_lastname1' placeholder='Primer apellido'></input>
+                </div>
+
+                <div class='client-detail'>
+                    <span class='label'>Segundo Apellido</span>
+                    <input class='detail client-second-lastname' name='second_lastname' t-att-value='partner.x_lastname2' placeholder='Segundo apellido'></input>
+                </div>
+            </div>
+        </t>
+    </t>
+
+</templates>

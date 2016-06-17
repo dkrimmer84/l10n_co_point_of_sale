@@ -12,7 +12,7 @@
 Colombia Punto de Venta:
 ======================
 
-    * Include into point_of_sale the fields from partner/contact from module l10n_co_res_partner 
+    * Include into point_of_sale the fields from partner/contact from module l10n_co_res_partner
 
     """,
     'depends': [
@@ -20,7 +20,8 @@ Colombia Punto de Venta:
         'l10n_co_res_partner'
     ],
     'data': [
-        'views/pos.xml',
+        'views/pos_view.xml',
     ],
+    'qweb': ['static/src/xml/*.xml'],
     'installable': True,
 }
