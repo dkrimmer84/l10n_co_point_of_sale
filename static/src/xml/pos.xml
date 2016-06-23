@@ -62,13 +62,13 @@
             </div>
             <div class='client-detail'>
                 <span class='label'>Tipo persona</span>
-                <select class='detail client-person-type' name='personType'>
+                <select class='detail client-person-type' disabled='disabled' name='personType'>
                     <!-- FIXME estas opciones se necesitan obtener desde el backend -->
                     <t t-if='partner.personType'>
                         <option t-att-value='partner.personType'><t t-esc='partner.personType' /></option>
                     </t>
-                    <t t-if='!partner.personType'>
-                        <option value='1'>persona</option>
+                    <t t-if='!partner.personType and !partner.is_company'>
+                        <option disabled='disabled' selected='selected' value='1'>natural</option>
                     </t>
                 </select>
             </div>
@@ -86,7 +86,7 @@
                     </select>
                 </div>
             </div>
-            <div class='client-details-right'>
+            <div class='client-details-right indentification-number'>
                 <div class='client-detail'>
                     <span class='label'>Número identificación</span>
                     <input class='detail client-identification-number' name='xidentification' t-att-value='partner.xidentification' placeholder='Número de identificación'></input>

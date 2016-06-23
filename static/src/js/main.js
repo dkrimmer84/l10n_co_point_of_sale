@@ -3,6 +3,8 @@
 
 var core = require('web.core');
 var module = require('point_of_sale.models');
+var Model = require('web.DataModel');
+var gui = require('point_of_sale.gui');
 var screens = require('point_of_sale.screens');
 var _t = core._t;
 
@@ -39,12 +41,13 @@ screens.ClientListScreenWidget.include({
         }
     },
 
-    edit_client_details: function(partner) {
+    display_client_details: function(visibility,partner,clickpos) {
         var self = this;
-        this._super(partner);
+        this._super(visibility,partner,clickpos);
         this.$('.client-is-company').click(function(event){
             self.is_company_click_handler(event, $(this));
         });
+
     },
 });
 
