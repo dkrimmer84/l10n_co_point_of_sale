@@ -92,25 +92,25 @@
                     <input class='detail client-identification-number' name='xidentification' t-att-value='partner.xidentification' placeholder='Número de identificación'></input>
                 </div>
             </div>
-            <div class='client-details-left'>
+            <div class='client-details-left partner-names'>
                 <div class='client-detail'>
                     <span class='label'>Primer Nombre</span>
                     <input class='detail client-first-name' name='x_name1' t-att-value='partner.x_name1' placeholder='Primer nombre'></input>
                 </div>
             </div>
-            <div class='client-details-right'>
+            <div class='client-details-right partner-names'>
                 <div class='client-detail'>
                     <span class='label'>Segundo Nombre</span>
                     <input class='detail client-second-name' name='x_name2' t-att-value='partner.x_name2' placeholder='Segundo nombre'></input>
                 </div>
             </div>
-            <div class='client-details-left'>
+            <div class='client-details-left partner-names'>
                 <div class='client-detail'>
                     <span class='label'>Primer Apellido</span>
                     <input class='detail client-first-lastname' name='x_lastname1' t-att-value='partner.x_lastname1' placeholder='Primer apellido'></input>
                 </div>
             </div>
-            <div class='client-details-right'>
+            <div class='client-details-right partner-names'>
                 <div class='client-detail'>
                     <span class='label'>Segundo Apellido</span>
                     <input class='detail client-second-lastname' name='x_lastname2' t-att-value='partner.x_lastname2' placeholder='Segundo apellido'></input>
