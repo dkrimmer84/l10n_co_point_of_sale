@@ -45,8 +45,10 @@ screens.ClientListScreenWidget.include({
             $(".client-first-lastname").val("");
             $(".client-second-lastname").val("");
             $('.partner-names').hide();
+            name.attr("placeholder", _t("Nombre de la compañía"));
         } else {
             name.attr("disabled", "disabled");
+            name.attr("placeholder", _t("Nombre"));
             $('.partner-names').show();
         }
 
@@ -72,7 +74,6 @@ screens.ClientListScreenWidget.include({
                      ".client-second-lastname"];
 
         $(names.join(", ")).keyup(function(event) {
-              console.log("test");
               self._concat_names(event, $(".client-details"));
         });
         this.$('.client-is-company').click(function(event){
@@ -84,6 +85,23 @@ screens.ClientListScreenWidget.include({
         this._super(visibility,partner,clickpos);
         this.setup_res_partner_logic();
     },
+
+    save_client_details: function(partner) {
+        var self = this;
+        var first_name = $(".client-first-name").val();
+        var first_lastname = $(".client-first-lastname").val();
+        var is_company = $(".client-is-company").is(":checked");
+
+        if(!is_company) {
+            if(!first_name && !first_lastname) {
+                this.gui.show_popup('error',_t('El primer nombre y el primer apellido son requeridos'));
+                return;
+            }
+        }
+
+        this._super(partner);
+    },
+
 });
 
 });
