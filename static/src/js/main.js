@@ -1,9 +1,9 @@
- odoo.define('l10n_co_point_of_sale.main', function(require) {
+odoo.define('l10n_co_point_of_sale.main', function(require) {
 "use strict";
 
 var core = require('web.core');
 var module = require('point_of_sale.models');
-var Model = require('web.DataModel');
+var Model = require('web.Model');
 var gui = require('point_of_sale.gui');
 var screens = require('point_of_sale.screens');
 var _t = core._t;
@@ -34,11 +34,11 @@ set_fields_to_model(partner_fields, models);
 screens.ClientListScreenWidget.include({
 
     is_company_click_handler: function($el) {
-        var is_company = $(".client-is-company");
+        var is_company = $(".client-is-company").is(":checked");
         var name = $(".client-name");
 
         name.val("");
-        if(is_company.is(":checked")) {
+        if(is_company) {
             name.removeAttr("disabled");
             $(".client-first-name").val("");
             $(".client-second-name").val("");
@@ -79,6 +79,44 @@ screens.ClientListScreenWidget.include({
         this.$('.client-is-company').click(function(event){
             self.is_company_click_handler($(this));
         });
+
+        new Model('res.partner').call('get_persontype').then(function(values){
+            $.each(values, function(key, value) {
+                $('.client-persontype').append($('<option>', {
+                    value: key,
+                    text : value
+                }));
+            });
+        });
+
+        new Model('res.partner').call('get_doctype').then(function(values){
+            $.each(values, function(key, value) {
+                $('.client-doctype').append($('<option>', {
+                    value: key,
+                    text : value
+                }));
+            });
+        });
+
+        this.$('.client-doctype').on('change', function(event) {
+            self.doctype_event_handler(event);
+        });
+
+        this.$('.client-persontype').on('change', function(event) {
+            self.persontype_event_handler(event);
+        });
+
+    },
+
+    persontype_event_handler: function(event) {
+        console.log(event);
+        if ($(this).val() == '31') {
+
+        }
+    },
+
+    doctype_event_handler: function(event) {
+        console.log(event);
     },
 
     display_client_details: function(visibility,partner,clickpos) {

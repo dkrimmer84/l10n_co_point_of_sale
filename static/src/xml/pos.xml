@@ -62,27 +62,13 @@
             </div>
             <div class='client-detail'>
                 <span class='label'>Tipo persona</span>
-                <select class='detail client-person-type' disabled='disabled' name='personType'>
-                    <!-- FIXME estas opciones se necesitan obtener desde el backend -->
-                    <t t-if='partner.personType'>
-                        <option t-att-value='partner.personType'><t t-esc='partner.personType' /></option>
-                    </t>
-                    <t t-if='!partner.personType and !partner.is_company'>
-                        <option disabled='disabled' selected='selected' value='1'>natural</option>
-                    </t>
+                <select class='detail client-persontype' name='personType'>
                 </select>
             </div>
             <div class='client-details-left'>
                 <div class='client-detail'>
                     <span class='label'>Tipo identificación</span>
-                    <select class='detail client-doc-type' name='doctype'>
-                        <!-- FIXME estas opciones se necesitan obtener desde el backend -->
-                        <t t-if='partner.doctype'>
-                            <option t-att-value='partner.doctype'><t t-esc='partner.doctype' /></option>
-                        </t>
-                        <t t-if='!partner.doctype'>
-                            <option value='1'>Sin identificación</option>
-                        </t>
+                    <select class='detail client-doctype' name='doctype'>
                     </select>
                 </div>
             </div>
