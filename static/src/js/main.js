@@ -16,7 +16,8 @@ var partner_fields = ['x_name1',
                       'is_company',
                       'personType',
                       'doctype',
-                      'xidentification'];
+                      'xidentification',
+                      'formatedNit'];
 
 var set_fields_to_model = function(fields, models) {
     for(var i = 0; i < models.length; i++) {
@@ -107,18 +108,35 @@ screens.ClientListScreenWidget.include({
         $('.identification-number').css("visibility", "hidden")
                                    .attr("disabled", "disabled");
 
+       $('.formated-nit').css("visibility", "hidden")
+                         .attr("disabled", "disabled");
+
         $('.client-identification-number').on('change', function(event) {
             var xidentification = $(event.target).val();
             var doctype = $('.client-doctype').val();
+            var nit_field = $('.client-formatednit');
 
             if(doctype == 31) {
-                self._check_ident(event);
-                self._check_ident_num(event);
+                var have_min = self._check_ident(event);
+                var have_letter = self._check_ident_num(event);
 
-                var dv = self._check_dv(xidentification);
-                console.log(dv);
+                if(!have_letter && have_min) {
+                    var dv = self._check_dv(xidentification);
+                    var formatedNit = self.formated_nit(xidentification);
+                    nit_field.val(formatedNit + "-" + dv);
+                } else {
+                    nit_field.val("");
+                }
             }
         });
+    },
+
+    formated_nit: function(nit) {
+        nit = nit.toString();
+        var pattern = /(-?\d+)(\d{3})/;
+        while (pattern.test(nit))
+          nit = nit.replace(pattern, "$1.$2");
+        return nit;
     },
 
     _check_dv: function(nit) {
@@ -152,7 +170,6 @@ screens.ClientListScreenWidget.include({
             result = 11 - result;
             return result.toString();
         }
-
     },
 
     _check_ident: function(event) {
@@ -161,9 +178,10 @@ screens.ClientListScreenWidget.include({
         if(xidentification.length < 2 || xidentification.length > 12) {
             this.gui.show_popup('error', _t('La número de identificación debe ser no mayor a 12 dígitos ni menor a 2'));
             this.not_save = true;
-        } else {
-            this.not_save = false;
+            return false;
         }
+        this.not_save = false;
+        return true;
     },
 
     _check_ident_num: function(event) {
@@ -175,35 +193,36 @@ screens.ClientListScreenWidget.include({
                 if(xidentification.search(/^[\d]+$/) != 0) {
                     this.gui.show_popup('error', _t('¡Error! El número de identificación sólo permite números'));
                     this.not_save = true;
+                    return true;
                 } else {
                     this.not_save = false;
                 }
             }
         }
-    },
-
-    formated_nit: function(event) {
-
+        return false;
     },
 
     doctype_event_handler: function(event) {
         var target = $(event.target);
+        var id_field = $('.identification-number');
+        var nit_field = $('.formated-nit');
 
         if(target.val() == 1 || target.val() == 43) {
-            $('.identification-number').css("visibility", "hidden")
-                                       .attr("disabled", "disabled")
-                                       .val("");
-
+            id_field.css("visibility", "hidden")
+                    .attr("disabled", "disabled");
         } else {
-            $('.identification-number').css("visibility", "visible")
-                                       .removeAttr("disabled", "disabled")
-                                       .val("");
+            id_field.css("visibility", "visible")
+                    .removeAttr("disabled", "disabled");
         }
 
         if(target.val() == 31) {
-            var xidentification = $(".client-identification-number").val();
-            var formatedNit = this.formated_nit(xidentification);
+            nit_field.css("visibility", "visible")
+                     .removeAttr("disabled", "disabled");
+        } else {
+            nit_field.css("visibility", "hidden")
+                     .removeAttr("disabled", "disabled");
         }
+        id_field.val("");
 
     },
 

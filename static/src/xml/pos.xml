@@ -14,15 +14,31 @@
                 </t>
 
             </div>
-            <div class='client-detail'>
-                <span class='label'>Tipo persona</span>
-                <span class='detail client-person-type'><t t-esc='partner.personType' /></span>
+            <div class='client-details-left'>
+                <div class='client-detail'>
+                    <span class='label'>Tipo persona</span>
+                    <span class='detail client-person-type'><t t-esc='partner.personType' /></span>
+                </div>
+            </div>
+            <div class='client-details-right'>
+                <div class='client-detail'>
+                    <span class='label'>Número identificación</span>
+                    <span class='detail client-identification-number'><t t-esc='partner.xidentification' /></span>
+                </div>
             </div>
             <div class='client-details-left'>
                 <div class='client-detail'>
                     <span class='label'>Tipo identificación</span>
                     <span class='detail client-identification-type'><t t-esc='partner.doctype' /></span>
                 </div>
+            </div>
+            <div class='client-details-right'>
+                <div class='client-detail'>
+                    <span class='label'>FormatedNit</span>
+                    <span class='detail client-formatednit'><t t-esc='partner.formatedNit' /></span>
+                </div>
+            </div>
+            <div class='client-details-left'>
                 <div class='client-detail'>
                     <span class='label'>Primer nombre</span>
                     <span class='detail client-first-name'><t t-esc='partner.x_name1' /></span>
@@ -33,10 +49,6 @@
                 </div>
             </div>
             <div class='client-details-right'>
-                <div class='client-detail'>
-                    <span class='label'>Número identificación</span>
-                    <span class='detail client-identification-number'><t t-esc='partner.xidentification' /></span>
-                </div>
                 <div class='client-detail'>
                     <span class='label'>Segundo nombre</span>
                     <span class='detail client-second-name'><t t-esc='partner.x_name2' /></span>
@@ -60,10 +72,16 @@
                     <input class='detail client-is-company' name='is_company' type='checkbox' t-att-value='partner.is_company'></input>
                 </t>
             </div>
-            <div class='client-detail'>
+            <div class='client-details-left'>
                 <span class='label'>Tipo persona</span>
                 <select class='detail client-persontype' name='personType'>
                 </select>
+            </div>
+            <div class='client-details-right identification-number'>
+                <div class='client-detail'>
+                    <span class='label'>Número identificación</span>
+                    <input class='detail client-identification-number' name='xidentification' t-att-value='partner.xidentification' placeholder='Número de identificación'></input>
+                </div>
             </div>
             <div class='client-details-left'>
                 <div class='client-detail'>
@@ -72,10 +90,10 @@
                     </select>
                 </div>
             </div>
-            <div class='client-details-right identification-number'>
+            <div class='client-details-right formated-nit'>
                 <div class='client-detail'>
-                    <span class='label'>Número identificación</span>
-                    <input class='detail client-identification-number' name='xidentification' t-att-value='partner.xidentification' placeholder='Número de identificación'></input>
+                    <span class='label'>FormatedNit</span>
+                    <input class='detail client-formatednit' name='formatedNit' t-att-value='partner.formatedNit' disabled='disabled' readonly='readonly'></input>
                 </div>
             </div>
             <div class='client-details-left partner-names'>
