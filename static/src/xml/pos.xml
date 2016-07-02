@@ -72,7 +72,7 @@
                     </select>
                 </div>
             </div>
-            <div class='client-details-right indentification-number'>
+            <div class='client-details-right identification-number'>
                 <div class='client-detail'>
                     <span class='label'>Número identificación</span>
                     <input class='detail client-identification-number' name='xidentification' t-att-value='partner.xidentification' placeholder='Número de identificación'></input>
