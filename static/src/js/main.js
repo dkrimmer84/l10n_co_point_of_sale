@@ -46,9 +46,11 @@ screens.ClientListScreenWidget.include({
             $(".client-second-lastname").val("");
             $('.partner-names').hide();
             name.attr("placeholder", _t("Nombre de la compañía"));
+            $(".client-persontype").removeAttr("disabled").val('2');
         } else {
             name.attr("disabled", "disabled");
             name.attr("placeholder", _t("Nombre"));
+            $(".client-persontype").attr("disabled", "disabled").val('1');
             $('.partner-names').show();
         }
 
@@ -98,25 +100,111 @@ screens.ClientListScreenWidget.include({
             });
         });
 
-        this.$('.client-doctype').on('change', function(event) {
+        $('.client-doctype').on('change', function(event) {
             self.doctype_event_handler(event);
         });
 
-        this.$('.client-persontype').on('change', function(event) {
-            self.persontype_event_handler(event);
+        $('.identification-number').css("visibility", "hidden")
+                                   .attr("disabled", "disabled");
+
+        $('.client-identification-number').on('change', function(event) {
+            var xidentification = $(event.target).val();
+            var doctype = $('.client-doctype').val();
+
+            if(doctype == 31) {
+                self._check_ident(event);
+                self._check_ident_num(event);
+
+                var dv = self._check_dv(xidentification);
+                console.log(dv);
+            }
         });
+    },
+
+    _check_dv: function(nit) {
+        if($('.client-doctype').val() != 31) {
+            return nit.toString();
+        }
+
+        while (nit.length < 15) nit = "0" + nit;
+        var vl = nit.split("");
+        var result = (
+            vl[0]*71 +
+            vl[1]*67 +
+            vl[2]*59 +
+            vl[3]*53 +
+            vl[4]*47 +
+            vl[5]*43 +
+            vl[6]*41 +
+            vl[7]*37 +
+            vl[8]*29 +
+            vl[9]*23 +
+            vl[10]*19 +
+            vl[11]*17 +
+            vl[12]*13 +
+            vl[13]*7 +
+            vl[14]*3
+        ) % 11;
+
+        if($.inArray(result, [0,1])) {
+            return result.toString();
+        } else {
+            result = 11 - result;
+            return result.toString();
+        }
 
     },
 
-    persontype_event_handler: function(event) {
-        console.log(event);
-        if ($(this).val() == '31') {
+    _check_ident: function(event) {
+        var xidentification = $(event.target).val();
 
+        if(xidentification.length < 2 || xidentification.length > 12) {
+            this.gui.show_popup('error', _t('La número de identificación debe ser no mayor a 12 dígitos ni menor a 2'));
+            this.not_save = true;
+        } else {
+            this.not_save = false;
         }
     },
 
+    _check_ident_num: function(event) {
+        var doctype = $(".client-doctype").val();
+        var xidentification = $(event.target).val();
+
+        if(doctype != 1) {
+            if(xidentification != false && doctype != 21 && doctype != 41) {
+                if(xidentification.search(/^[\d]+$/) != 0) {
+                    this.gui.show_popup('error', _t('¡Error! El número de identificación sólo permite números'));
+                    this.not_save = true;
+                } else {
+                    this.not_save = false;
+                }
+            }
+        }
+    },
+
+    formated_nit: function(event) {
+
+    },
+
     doctype_event_handler: function(event) {
-        console.log(event);
+        var target = $(event.target);
+
+        if(target.val() == 1 || target.val() == 43) {
+            $('.identification-number').css("visibility", "hidden")
+                                       .attr("disabled", "disabled")
+                                       .val("");
+
+        } else {
+            $('.identification-number').css("visibility", "visible")
+                                       .removeAttr("disabled", "disabled")
+                                       .val("");
+        }
+
+        if(target.val() == 31) {
+            var xidentification = $(".client-identification-number").val();
+            var formatedNit = this.formated_nit(xidentification);
+        }
+
     },
 
     display_client_details: function(visibility,partner,clickpos) {
@@ -135,6 +223,11 @@ screens.ClientListScreenWidget.include({
                 this.gui.show_popup('error',_t('El primer nombre y el primer apellido son requeridos'));
                 return;
             }
+        }
+
+        if(this.not_save) {
+            this.gui.show_popup('error', _t('Error! Tiene errores pendientes que corregir antes de porder guardar el cliente'));
+            return;
         }
 
         this._super(partner);
