@@ -121,6 +121,8 @@
                 <div class='client-detail'>
                     <span class='label'>Tipo persona</span>
                     <select class='detail client-persontype' name='personType'>
+
+
                     </select>
                 </div>
             </div>
@@ -144,7 +146,7 @@
             </div>
             <div class='client-details-right formated-nit'>
                 <div class='client-detail'>
-                    <span class='label'>FormatedNit</span>
+                    <span class='label'>Nit</span>
                     <input class='detail client-formatednit' name='formatedNit' t-att-value='partner.formatedNit' disabled='disabled' readonly='readonly'></input>
                 </div>
             </div>
@@ -174,35 +176,31 @@
             </div>
         </t>
 
-        <t t-jquery=".client-details-right div:eq(-1)" t-operation="replace">
+        <t t-jquery=".client-details-right div:eq(-2)" t-operation="replace">
             <div class='client-detail'>
                 <span class='label'>Departamento</span>
                 <select class='detail client-address-department' name=''>
                     <option value=''>None</option>
                     <t t-foreach='widget.pos.departments' t-as='department'>
-                        <option t-att-value='department.id'>
+                        <option t-att-value='department.id' t-att-selected="partner.state_id ? ((department.id === partner.state_id[0]) ? true : undefined) : undefined">
                             <t t-esc='department.name'/>
                         </option>
                     </t>
                 </select>
             </div>
-        </t>
-
-        <t t-jquery=".client-details-left div:eq(-1)" t-operation="after">
             <div class='client-detail'>
                 <span class='label'>Ciudad</span>
                 <select class='detail client-address-city' name='xcity'>
                     <option value=''>None</option>
                     <t t-foreach='widget.pos.cities' t-as='city'>
-                        <option t-att-value='city.id'>
+                        <option t-att-value='city.id' t-att-selected="partner.xcity ? ((city.id === partner.xcity[0]) ? true : undefined) : undefined">
                             <t t-esc='city.name'/>
                         </option>
                     </t>
                 </select>
             </div>
         </t>
+        <t t-jquery=".client-details-right div:eq(-1)" t-operation="replace">
+        </t>
     </t>
-
-
-
 </templates>

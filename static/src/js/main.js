@@ -109,8 +109,7 @@ screens.ClientListScreenWidget.include({
         });
 
         new Model('res.partner').call('get_persontype').then(function(persontypes){
-            self.persontype = persontypes;
-            $.each(self.persontype, function(key, value) {
+            $.each(persontypes, function(key, value) {
                 $('.client-persontype').append($('<option>', {
                     value: key,
                     text : value
@@ -119,8 +118,7 @@ screens.ClientListScreenWidget.include({
         });
 
         new Model('res.partner').call('get_doctype').then(function(doctypes){
-            self.doctype = doctypes;
-            $.each(self.doctype, function(key, value) {
+            $.each(doctypes, function(key, value) {
                 $('.client-doctype').append($('<option>', {
                     value: key,
                     text : value
