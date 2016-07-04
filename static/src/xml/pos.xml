@@ -73,9 +73,16 @@
                 </t>
             </div>
             <div class='client-details-left'>
-                <span class='label'>Tipo persona</span>
-                <select class='detail client-persontype' name='personType'>
-                </select>
+                <div class='client-detail'>
+                    <span class='label'>Tipo persona</span>
+                    <select class='detail client-persontype' name='personType'>
+                    </select>
+                </div>
+            </div>
+            <div class='client-details-right' style="visibility:hidden">
+                <div class='client-detail'>
+                    <span class='label'></span>
+                </div>
             </div>
             <div class='client-details-right identification-number'>
                 <div class='client-detail'>
@@ -119,6 +126,34 @@
                     <span class='label'>Segundo Apellido</span>
                     <input class='detail client-second-lastname' name='x_lastname2' t-att-value='partner.x_lastname2' placeholder='Segundo apellido'></input>
                 </div>
+            </div>
+        </t>
+
+        <t t-jquery=".client-details-right div:eq(-1)" t-operation="replace">
+            <div class='client-detail'>
+                <span class='label'>Departamento</span>
+                <select class='detail client-address-department' name=''>
+                    <option value=''>None</option>
+                    <t t-foreach='widget.pos.departments' t-as='department'>
+                        <option t-att-value='department.id'>
+                            <t t-esc='department.name'/>
+                        </option>
+                    </t>
+                </select>
+            </div>
+        </t>
+
+        <t t-jquery=".client-details-left div:eq(-1)" t-operation="after">
+            <div class='client-detail'>
+                <span class='label'>Ciudad</span>
+                <select class='detail client-address-city' name='xcity'>
+                    <option value=''>None</option>
+                    <t t-foreach='widget.pos.cities' t-as='city'>
+                        <option t-att-value='city.id'>
+                            <t t-esc='city.name'/>
+                        </option>
+                    </t>
+                </select>
             </div>
         </t>
     </t>

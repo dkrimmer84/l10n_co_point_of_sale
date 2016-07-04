@@ -18,6 +18,22 @@ var partner_fields = ['x_name1',
                       'doctype',
                       'xidentification',
                       'formatedNit'];
+models.push(
+    {
+        model:  'res.country.state',
+        fields: ['name'],
+        loaded: function(self, departments) {
+            self.departments = departments;
+        }
+    },
+    {
+        model:  'res.country.state.city',
+        fields: ['name'],
+        loaded: function(self, cities) {
+            self.cities = cities;
+        }
+    }
+);
 
 var set_fields_to_model = function(fields, models) {
     for(var i = 0; i < models.length; i++) {
@@ -140,35 +156,30 @@ screens.ClientListScreenWidget.include({
     },
 
     _check_dv: function(nit) {
-        if($('.client-doctype').val() != 31) {
-            return nit.toString();
-        }
-
         while (nit.length < 15) nit = "0" + nit;
         var vl = nit.split("");
         var result = (
-            vl[0]*71 +
-            vl[1]*67 +
-            vl[2]*59 +
-            vl[3]*53 +
-            vl[4]*47 +
-            vl[5]*43 +
-            vl[6]*41 +
-            vl[7]*37 +
-            vl[8]*29 +
-            vl[9]*23 +
-            vl[10]*19 +
-            vl[11]*17 +
-            vl[12]*13 +
-            vl[13]*7 +
-            vl[14]*3
+            parseInt(vl[0])*71 +
+            parseInt(vl[1])*67 +
+            parseInt(vl[2])*59 +
+            parseInt(vl[3])*53 +
+            parseInt(vl[4])*47 +
+            parseInt(vl[5])*43 +
+            parseInt(vl[6])*41 +
+            parseInt(vl[7])*37 +
+            parseInt(vl[8])*29 +
+            parseInt(vl[9])*23 +
+            parseInt(vl[10])*19 +
+            parseInt(vl[11])*17 +
+            parseInt(vl[12])*13 +
+            parseInt(vl[13])*7 +
+            parseInt(vl[14])*3
         ) % 11;
 
-        if($.inArray(result, [0,1])) {
-            return result.toString();
+        if($.inArray(result, [0,1]) !== -1) {
+            return result;
         } else {
-            result = 11 - result;
-            return result.toString();
+            return (11 - result);
         }
     },
 
