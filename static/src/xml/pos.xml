@@ -12,7 +12,6 @@
                 <t t-if='!partner.is_company'>
                     <input class='detail client-is-company' name='is_company' type='checkbox' disabled='disabled'></input>
                 </t>
-
             </div>
             <div class='client-details-left'>
                 <div class='client-detail'>
@@ -23,7 +22,12 @@
             <div class='client-details-right'>
                 <div class='client-detail'>
                     <span class='label'>Número identificación</span>
-                    <span class='detail client-identification-number'><t t-esc='partner.xidentification' /></span>
+                    <t t-if='partner.xidentification'>
+                        <span class='detail client-identification-number'><t t-esc='partner.xidentification' /></span>
+                    </t>
+                    <t t-if='!partner.xidentification'>
+                        <span class='detail client-identification-number empty'>N/A</span>
+                    </t>
                 </div>
             </div>
             <div class='client-details-left'>
@@ -32,44 +36,85 @@
                     <span class='detail client-identification-type'><t t-esc='partner.doctype' /></span>
                 </div>
             </div>
-            <div class='client-details-right'>
-                <div class='client-detail'>
-                    <span class='label'>FormatedNit</span>
-                    <span class='detail client-formatednit'><t t-esc='partner.formatedNit' /></span>
+            <t t-if='partner.doctype == 31'>
+                <div class='client-details-right'>
+                    <div class='client-detail'>
+                        <span class='label'>Formated nit</span>
+                        <span class='detail client-formatednit'><t t-esc='partner.formatedNit' /></span>
+                    </div>
                 </div>
+            </t>
+            <t t-if='partner.doctype != 31'>
+                <div class='client-details-right' style="visibility:hidden">
+                    <div class='client-detail' >
+                        <span class='label'>Formated nit</span>
+                        <span class='detail empty'>N/A</span>
+                    </div>
+                </div>
+            </t>
+
+            <t t-if='!partner.is_company'>
+                <div class='client-details-left'>
+                    <div class='client-detail'>
+                        <span class='label'>Primer nombre</span>
+                        <span class='detail client-first-name'><t t-esc='partner.x_name1' /></span>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>Primer Apellido</span>
+                        <span class='detail client-first-lastname'><t t-esc='partner.x_lastname1' /></span>
+                    </div>
+                </div>
+                <div class='client-details-right'>
+                    <div class='client-detail'>
+                        <span class='label'>Segundo nombre</span>
+                        <span class='detail client-second-name'><t t-esc='partner.x_name2' /></span>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>Segundo Apellido</span>
+                        <span class='detail client-second-lastname'><t t-esc='partner.x_lastname2' /></span>
+                    </div>
+                </div>
+            </t>
+        </t>
+
+        <t t-jquery=".client-details-right:eq(-1)" t-operation="replace">
+            <div class='client-detail'>
+                <span class='label'>Pais</span>
+                <t t-foreach='widget.pos.countries' t-as='country'>
+                    <t t-if='country.id === partner.country_id[0]'>
+                        <span class='detail client-address-country'><t t-esc='country.name' /></span>
+                    </t>
+                </t>
             </div>
-            <div class='client-details-left'>
-                <div class='client-detail'>
-                    <span class='label'>Primer nombre</span>
-                    <span class='detail client-first-name'><t t-esc='partner.x_name1' /></span>
-                </div>
-                <div class='client-detail'>
-                    <span class='label'>Primer Apellido</span>
-                    <span class='detail client-first-lastname'><t t-esc='partner.x_lastname1' /></span>
-                </div>
+            <div class='client-detail'>
+                <span class='label'>Departamento</span>
+                <t t-foreach='widget.pos.departments' t-as='department'>
+                    <t t-if='department.id === partner.state_id[0]'>
+                    <span class='detail client-address-department'><t t-esc='department.name' /></span>
+                    </t>
+                </t>
             </div>
-            <div class='client-details-right'>
-                <div class='client-detail'>
-                    <span class='label'>Segundo nombre</span>
-                    <span class='detail client-second-name'><t t-esc='partner.x_name2' /></span>
-                </div>
-                <div class='client-detail'>
-                    <span class='label'>Segundo Apellido</span>
-                    <span class='detail client-second-lastname'><t t-esc='partner.x_lastname2' /></span>
-                </div>
+            <div class='client-detail'>
+                <span class='label'>Ciudad</span>
+                <t t-foreach='widget.pos.cities' t-as='city'>
+                    <t t-if='city.id === partner.xcity[0]'>
+                    <span class='detail client-address-city'><t t-esc='city.name' /></span>
+                    </t>
+                </t>
             </div>
         </t>
     </t>
 
     <t t-extend="ClientDetailsEdit">
         <t t-jquery="div.client-details-box" t-operation="prepend">
+            <input class="detail client-companyname" name="companyName" style="display: none" t-att-value='partner.companyName'></input>
             <div class='client-detail'>
                 <span class='label'>Empresa?</span>
                 <t t-if='partner.is_company'>
                     <input class='detail client-is-company' name='is_company' type='checkbox' checked='checked' t-att-value='partner.is_company'></input>
                 </t>
                 <t t-if='!partner.is_company'>
-                    <input class='detail client-is-company' name='is_company' type='checkbox' t-att-value='partner.is_company'></input>
+                    <input class='detail client-is-company' name='is_company' type='checkbox' t-att-value='false'></input>
                 </t>
             </div>
             <div class='client-details-left'>

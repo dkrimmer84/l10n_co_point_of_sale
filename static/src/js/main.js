@@ -17,7 +17,9 @@ var partner_fields = ['x_name1',
                       'personType',
                       'doctype',
                       'xidentification',
-                      'formatedNit'];
+                      'formatedNit',
+                      'xcity',
+                      'state_id'];
 models.push(
     {
         model:  'res.country.state',
@@ -56,6 +58,7 @@ screens.ClientListScreenWidget.include({
 
         name.val("");
         if(is_company) {
+            $(".client-is-company").val("true");
             name.removeAttr("disabled");
             $(".client-first-name").val("");
             $(".client-second-name").val("");
@@ -64,10 +67,16 @@ screens.ClientListScreenWidget.include({
             $('.partner-names').hide();
             name.attr("placeholder", _t("Nombre de la compañía"));
             $(".client-persontype").removeAttr("disabled").val('2');
+            $(".client-name").change(function(event) {
+                $(".client-companyname").val($(event.target).val());
+            });
         } else {
+            $(".client-is-company").val("false");
             name.attr("disabled", "disabled");
             name.attr("placeholder", _t("Nombre"));
             $(".client-persontype").attr("disabled", "disabled").val('1');
+            $(".client-name").unbind("change");
+            $(".client-companyname").val("");
             $('.partner-names').show();
         }
 
@@ -99,8 +108,9 @@ screens.ClientListScreenWidget.include({
             self.is_company_click_handler($(this));
         });
 
-        new Model('res.partner').call('get_persontype').then(function(values){
-            $.each(values, function(key, value) {
+        new Model('res.partner').call('get_persontype').then(function(persontypes){
+            self.persontype = persontypes;
+            $.each(self.persontype, function(key, value) {
                 $('.client-persontype').append($('<option>', {
                     value: key,
                     text : value
@@ -108,8 +118,9 @@ screens.ClientListScreenWidget.include({
             });
         });
 
-        new Model('res.partner').call('get_doctype').then(function(values){
-            $.each(values, function(key, value) {
+        new Model('res.partner').call('get_doctype').then(function(doctypes){
+            self.doctype = doctypes;
+            $.each(self.doctype, function(key, value) {
                 $('.client-doctype').append($('<option>', {
                     value: key,
                     text : value
