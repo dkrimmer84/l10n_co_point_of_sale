@@ -23,16 +23,18 @@ var partner_fields = ['x_name1',
 models.push(
     {
         model:  'res.country.state',
-        fields: ['name'],
+        fields: ['name', 'country_id'],
         loaded: function(self, departments) {
             self.departments = departments;
+            console.log(departments);
         }
     },
     {
         model:  'res.country.state.city',
-        fields: ['name'],
+        fields: ['name', 'state_id'],
         loaded: function(self, cities) {
             self.cities = cities;
+            console.log(cities);
         }
     },
     {
@@ -146,6 +148,41 @@ screens.ClientListScreenWidget.include({
                     nit_field.val("");
                 }
             }
+        });
+
+        // Asignando a Colombia como país por defecto
+        var country_select = $('.client-address-country');
+        var state_select = $('.client-address-state');
+        var city_select = $('.client-address-city');
+
+        country_select.val("50")
+        country_select.change(function(event) {
+            $.each(opciones, function() {
+                if($(this).attr("country_id") !== country_select.val())
+                {
+                    $(this).hide();
+                }
+            });
+            if(country_select.val()) {
+                state_select.removeAttr("disabled");
+
+            } else {
+                state_select.attr("disabled", "disabled");
+                city_select.attr("disabled", "disabled");
+                state_select.val("");
+                city_select.val("");
+            }
+
+        }).trigger("change");
+
+        state_select.change(function(event) {
+            var opciones = state_select.find('option');
+
+        });
+
+        city_select.attr("disabled", "disabled");
+        city_select.change(function(event) {
+
         });
     },
 
