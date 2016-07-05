@@ -34,6 +34,16 @@ models.push(
         loaded: function(self, cities) {
             self.cities = cities;
         }
+    },
+    {
+        loaded: function(self) {
+            $.when(new Model('res.partner').call('get_doctype').then(function(doctypes){
+                self.doctypes = doctypes;
+            }));
+            $.when(new Model('res.partner').call('get_persontype').then(function(persontypes){
+                self.persontypes = persontypes;
+            }));
+        }
     }
 );
 
@@ -56,33 +66,34 @@ screens.ClientListScreenWidget.include({
         var is_company = $(".client-is-company").is(":checked");
         var name = $(".client-name");
 
-        name.val("");
+        if(name.val() === "" && is_company) {
+            name.attr("placeholder", _t("Nombre de la compañía"));
+        } else {
+            name.attr("placeholder", _t("Nombre"));
+        }
+
         if(is_company) {
-            $(".client-is-company").val("true");
             name.removeAttr("disabled");
+            name.change(function(event) {
+                $(".client-companyname").val($(event.target).val());
+            });
+            $('.partner-names').hide();
+            $(".client-persontype").removeAttr("disabled").val('2');
             $(".client-first-name").val("");
             $(".client-second-name").val("");
             $(".client-first-lastname").val("");
             $(".client-second-lastname").val("");
-            $('.partner-names').hide();
-            name.attr("placeholder", _t("Nombre de la compañía"));
-            $(".client-persontype").removeAttr("disabled").val('2');
-            $(".client-name").change(function(event) {
-                $(".client-companyname").val($(event.target).val());
-            });
         } else {
-            $(".client-is-company").val("false");
             name.attr("disabled", "disabled");
-            name.attr("placeholder", _t("Nombre"));
+            name.unbind("change");
             $(".client-persontype").attr("disabled", "disabled").val('1');
-            $(".client-name").unbind("change");
             $(".client-companyname").val("");
             $('.partner-names').show();
         }
 
     },
 
-    _concat_names: function(event, $el) {
+    _concat_names: function($el) {
         var first_name = $el.find(".client-first-name").val();
         var second_name = $el.find(".client-second-name").val();
         var first_lastname = $el.find(".client-first-lastname").val();
@@ -101,29 +112,11 @@ screens.ClientListScreenWidget.include({
                      ".client-first-lastname",
                      ".client-second-lastname"];
 
-        $(names.join(", ")).keyup(function(event) {
-              self._concat_names(event, $(".client-details"));
+        $(names.join(", ")).keyup(function() {
+              self._concat_names($(".client-details"));
         });
         this.$('.client-is-company').click(function(event){
             self.is_company_click_handler($(this));
-        });
-
-        new Model('res.partner').call('get_persontype').then(function(persontypes){
-            $.each(persontypes, function(key, value) {
-                $('.client-persontype').append($('<option>', {
-                    value: key,
-                    text : value
-                }));
-            });
-        });
-
-        new Model('res.partner').call('get_doctype').then(function(doctypes){
-            $.each(doctypes, function(key, value) {
-                $('.client-doctype').append($('<option>', {
-                    value: key,
-                    text : value
-                }));
-            });
         });
 
         $('.client-doctype').on('change', function(event) {
@@ -243,7 +236,6 @@ screens.ClientListScreenWidget.include({
                      .removeAttr("disabled", "disabled");
         }
         id_field.val("");
-
     },
 
     display_client_details: function(visibility,partner,clickpos) {
@@ -262,6 +254,7 @@ screens.ClientListScreenWidget.include({
                 this.gui.show_popup('error',_t('El primer nombre y el primer apellido son requeridos'));
                 return;
             }
+            $(".client-is-company").remove();
         }
 
         if(this.not_save) {

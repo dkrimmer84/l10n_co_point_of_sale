@@ -16,7 +16,11 @@
             <div class='client-details-left'>
                 <div class='client-detail'>
                     <span class='label'>Tipo persona</span>
-                    <span class='detail client-person-type'><t t-esc='partner.personType' /></span>
+                    <t t-foreach='widget.pos.persontypes' t-as='persontype'>
+                        <t t-if='persontype.id === partner.personType'>
+                            <span class='detail client-person-type'><t t-esc='persontype.name' /></span>
+                        </t>
+                    </t>
                 </div>
             </div>
             <div class='client-details-right'>
@@ -33,7 +37,11 @@
             <div class='client-details-left'>
                 <div class='client-detail'>
                     <span class='label'>Tipo identificación</span>
-                    <span class='detail client-identification-type'><t t-esc='partner.doctype' /></span>
+                    <t t-foreach='widget.pos.doctypes' t-as='doctype'>
+                        <t t-if='doctype.id === partner.doctype'>
+                            <span class='detail client-identification-type'><t t-esc='doctype.name' /></span>
+                        </t>
+                    </t>
                 </div>
             </div>
             <t t-if='partner.doctype == 31'>
@@ -111,18 +119,21 @@
             <div class='client-detail'>
                 <span class='label'>Empresa?</span>
                 <t t-if='partner.is_company'>
-                    <input class='detail client-is-company' name='is_company' type='checkbox' checked='checked' t-att-value='partner.is_company'></input>
+                    <input class='detail client-is-company' name='is_company' type='checkbox' checked='checked'></input>
                 </t>
                 <t t-if='!partner.is_company'>
-                    <input class='detail client-is-company' name='is_company' type='checkbox' t-att-value='false'></input>
+                    <input class='detail client-is-company' name='is_company' type='checkbox'></input>
                 </t>
             </div>
             <div class='client-details-left'>
                 <div class='client-detail'>
                     <span class='label'>Tipo persona</span>
                     <select class='detail client-persontype' name='personType'>
-
-
+                        <t t-foreach='widget.pos.persontypes' t-as='persontype'>
+                            <option t-att-value='persontype.id' t-att-selected="partner.personType ? ((persontype.id === partner.personType[0]) ? true : undefined) : undefined">
+                                <t t-esc='persontype.name'/>
+                            </option>
+                        </t>
                     </select>
                 </div>
             </div>
@@ -141,12 +152,17 @@
                 <div class='client-detail'>
                     <span class='label'>Tipo identificación</span>
                     <select class='detail client-doctype' name='doctype'>
+                        <t t-foreach='widget.pos.doctypes' t-as='doctype'>
+                            <option t-att-value='doctype.id' t-att-selected="partner.xcity ? ((doctype.id === partner.doctype[0]) ? true : undefined) : undefined">
+                                <t t-esc='doctype.name'/>
+                            </option>
+                        </t>
                     </select>
                 </div>
             </div>
             <div class='client-details-right formated-nit'>
                 <div class='client-detail'>
-                    <span class='label'>Nit</span>
+                <span class='label'>Nit</span>
                     <input class='detail client-formatednit' name='formatedNit' t-att-value='partner.formatedNit' disabled='disabled' readonly='readonly'></input>
                 </div>
             </div>
