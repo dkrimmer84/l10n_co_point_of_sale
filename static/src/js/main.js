@@ -26,7 +26,6 @@ models.push(
         fields: ['name', 'country_id'],
         loaded: function(self, departments) {
             self.departments = departments;
-            console.log(departments);
         }
     },
     {
@@ -34,7 +33,6 @@ models.push(
         fields: ['name', 'state_id'],
         loaded: function(self, cities) {
             self.cities = cities;
-            console.log(cities);
         }
     },
     {
@@ -157,15 +155,16 @@ screens.ClientListScreenWidget.include({
 
         country_select.val("50")
         country_select.change(function(event) {
-            $.each(opciones, function() {
+            $.each(state_select.find('option'), function() {
                 if($(this).attr("country_id") !== country_select.val())
                 {
                     $(this).hide();
+                } else {
+                    $(this).show();
                 }
             });
             if(country_select.val()) {
                 state_select.removeAttr("disabled");
-
             } else {
                 state_select.attr("disabled", "disabled");
                 city_select.attr("disabled", "disabled");
@@ -176,14 +175,15 @@ screens.ClientListScreenWidget.include({
         }).trigger("change");
 
         state_select.change(function(event) {
-            var opciones = state_select.find('option');
-
-        });
-
-        city_select.attr("disabled", "disabled");
-        city_select.change(function(event) {
-
-        });
+            $.each(city_select.find('option'), function() {
+                if($(this).attr("state_id") !== state_select.val()) {
+                    $(this).hide();
+                } else {
+                    $(this).show();
+                }
+            });
+            city_select.removeAttr("disabled");
+        }).trigger("change");
     },
 
     formated_nit: function(nit) {

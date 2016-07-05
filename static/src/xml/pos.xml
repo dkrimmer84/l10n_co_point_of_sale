@@ -209,7 +209,7 @@
                 <select class='detail client-address-city' name='xcity'>
                     <option value=''>None</option>
                     <t t-foreach='widget.pos.cities' t-as='city'>
-                        <option t-att-value='city.id' t-att-state_id="city.state_id" t-att-selected="partner.xcity ? ((city.id === partner.xcity[0]) ? true : undefined) : undefined">
+                        <option t-att-value='city.id' t-att-state_id="city.state_id[0]" t-att-selected="partner.xcity ? ((city.id === partner.xcity[0]) ? true : undefined) : undefined">
                             <t t-esc='city.name'/>
                         </option>
                     </t>
