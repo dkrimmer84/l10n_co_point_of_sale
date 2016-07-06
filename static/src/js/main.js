@@ -74,6 +74,7 @@ screens.ClientListScreenWidget.include({
 
         if(is_company) {
             name.removeAttr("disabled");
+            $(".client-name").css("visibility", "visible");
             name.change(function(event) {
                 $(".client-companyname").val($(event.target).val());
             });
@@ -86,6 +87,7 @@ screens.ClientListScreenWidget.include({
         } else {
             name.attr("disabled", "disabled");
             name.unbind("change");
+            $(".client-name").css("visibility", "hidden");
             $(".client-persontype").attr("disabled", "disabled").val('1');
             $(".client-companyname").val("");
             $('.partner-names').show();
@@ -94,17 +96,25 @@ screens.ClientListScreenWidget.include({
     },
 
     _concat_names: function($el) {
-        var first_name = $el.find(".client-first-name").val();
-        var second_name = $el.find(".client-second-name").val();
-        var first_lastname = $el.find(".client-first-lastname").val();
-        var second_lastname = $el.find(".client-second-lastname").val();
+        var names = [
+            $el.find(".client-first-name").val(),
+            $el.find(".client-second-name").val(),
+            $el.find(".client-first-lastname").val(),
+            $el.find(".client-second-lastname").val()
+         ];
 
-        $el.find(".client-name").val(first_name + " " + second_name + " " +
-                              first_lastname+ " " + second_lastname);
+        var concatenated_name = $.grep(names, Boolean).join(" ");
+
+       if(concatenated_name.length > 0) {
+           $el.find(".client-name").val(concatenated_name);
+           $el.find(".client-name").css("visibility", "visible");
+       } else {
+           $el.find(".client-name").css("visibility", "hidden");
+       }
     },
 
     setup_res_partner_logic: function() {
-        this.is_company_click_handler($(this));
+
         var self = this;
 
         var names = [".client-first-name",
@@ -277,6 +287,17 @@ screens.ClientListScreenWidget.include({
 
     display_client_details: function(visibility,partner,clickpos) {
         this._super(visibility,partner,clickpos);
+        var client_name = $(".client-name");
+
+        if (visibility === 'show') {
+            client_name.css("visibility", "visible");
+        } else if (visibility === 'edit') {
+            this.is_company_click_handler($(this));
+            if(client_name.val()) {
+                client_name.css("visibility", "visible");
+            }
+        }
+
         this.setup_res_partner_logic();
     },
 
@@ -291,7 +312,6 @@ screens.ClientListScreenWidget.include({
                 this.gui.show_popup('error',_t('El primer nombre y el primer apellido son requeridos'));
                 return;
             }
-            $(".client-is-company").remove();
         }
 
         if(this.not_save) {
@@ -299,7 +319,9 @@ screens.ClientListScreenWidget.include({
             return;
         }
 
+        $(".client-is-company").hide();
         this._super(partner);
+
     },
 
 });

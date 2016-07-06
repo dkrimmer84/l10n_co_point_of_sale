@@ -29,9 +29,6 @@
                     <t t-if='partner.xidentification'>
                         <span class='detail client-identification-number'><t t-esc='partner.xidentification' /></span>
                     </t>
-                    <t t-if='!partner.xidentification'>
-                        <span class='detail client-identification-number empty'>N/A</span>
-                    </t>
                 </div>
             </div>
             <div class='client-details-left'>
@@ -217,6 +214,8 @@
             </div>
         </t>
         <t t-jquery=".client-details-right div:eq(-1)" t-operation="replace">
+        </t>
+        <t t-jquery=".client-details-left div:eq(-3)" t-operation="replace">
         </t>
     </t>
 </templates>
