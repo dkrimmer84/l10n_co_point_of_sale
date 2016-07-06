@@ -78,6 +78,7 @@ screens.ClientListScreenWidget.include({
             name.change(function(event) {
                 $(".client-companyname").val($(event.target).val());
             });
+            $(".client-doctype").val("31").trigger("change");
             $('.partner-names').hide();
             $(".client-persontype").removeAttr("disabled").val('2');
             $(".client-first-name").val("");
@@ -87,6 +88,7 @@ screens.ClientListScreenWidget.include({
         } else {
             name.attr("disabled", "disabled");
             name.unbind("change");
+            $(".client-doctype").val("1").trigger("change");
             $(".client-name").css("visibility", "hidden");
             $(".client-persontype").attr("disabled", "disabled").val('1');
             $(".client-companyname").val("");
@@ -139,7 +141,7 @@ screens.ClientListScreenWidget.include({
        $('.formated-nit').css("visibility", "hidden")
                          .attr("disabled", "disabled");
 
-        $('.client-identification-number').on('change', function(event) {
+        $('.client-identification-number').on('focusout', function(event) {
             var xidentification = $(event.target).val();
             var doctype = $('.client-doctype').val();
             var nit_field = $('.client-formatednit');
@@ -249,7 +251,7 @@ screens.ClientListScreenWidget.include({
         var xidentification = $(event.target).val();
 
         if(doctype != 1) {
-            if(xidentification != false && doctype != 21 && doctype != 41) {
+            if(xidentification && doctype != 21 && doctype != 41) {
                 if(xidentification.search(/^[\d]+$/) != 0) {
                     this.gui.show_popup('error', _t('¡Error! El número de identificación sólo permite números'));
                     this.not_save = true;
@@ -312,6 +314,11 @@ screens.ClientListScreenWidget.include({
                 this.gui.show_popup('error',_t('El primer nombre y el primer apellido son requeridos'));
                 return;
             }
+            $(".client-is-company").removeClass("detail");
+        }
+
+        if($(".client-doctype").val() === '1' || $(".client-doctype").val() === '43') {
+            $(".client-identification-number").removeClass("detail");
         }
 
         if(this.not_save) {
@@ -319,9 +326,10 @@ screens.ClientListScreenWidget.include({
             return;
         }
 
-        $(".client-is-company").hide();
-        this._super(partner);
 
+        this._super(partner);
+        $(".client-identification-number").addClass("detail");
+        $(".client-is-company").addClass("detail");
     },
 
 });
