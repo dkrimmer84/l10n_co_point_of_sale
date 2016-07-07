@@ -82,7 +82,7 @@ screens.ClientListScreenWidget.include({
                 $(".client-doctype").val("31").trigger("change");
             }
             $('.partner-names').hide();
-            $(".client-persontype").removeAttr("disabled").val('2');
+            $(".client-persontype").removeAttr("disabled").val('2').parent().css("visibility", "visible");
             $(".client-first-name").val("");
             $(".client-second-name").val("");
             $(".client-first-lastname").val("");
@@ -94,7 +94,7 @@ screens.ClientListScreenWidget.include({
                 $(".client-doctype").val("1").trigger("change");
             }
             $(".client-name").css("visibility", "hidden");
-            $(".client-persontype").attr("disabled", "disabled").val('1');
+            $(".client-persontype").attr("disabled", "disabled").val('1').parent().css("visibility", "hidden");;
             $(".client-companyname").val("");
             $('.partner-names').show();
         }
@@ -161,6 +161,9 @@ screens.ClientListScreenWidget.include({
                 } else {
                     nit_field.val("");
                 }
+            }
+            if(this.not_save) {
+                this.not_save = false;
             }
         });
 
@@ -293,6 +296,7 @@ screens.ClientListScreenWidget.include({
 
     display_client_details: function(visibility,partner,clickpos) {
         this._super(visibility,partner,clickpos);
+        this.not_save = false;
         var client_name = $(".client-name");
         var client_doctype = $(".client-doctype");
         var partner_exist = false;
@@ -323,7 +327,7 @@ screens.ClientListScreenWidget.include({
         var is_company = $(".client-is-company").is(":checked");
 
         if(!is_company) {
-            if(!first_name && !first_lastname) {
+            if(!first_name || !first_lastname) {
                 this.gui.show_popup('error',_t('El primer nombre y el primer apellido son requeridos'));
                 return;
             }
