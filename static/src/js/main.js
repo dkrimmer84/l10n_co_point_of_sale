@@ -62,7 +62,7 @@ set_fields_to_model(partner_fields, models);
 // extending client screen behavior
 screens.ClientListScreenWidget.include({
 
-    is_company_click_handler: function($el) {
+    is_company_click_handler: function($el, partner_exist) {
         var is_company = $(".client-is-company").is(":checked");
         var name = $(".client-name");
 
@@ -78,7 +78,9 @@ screens.ClientListScreenWidget.include({
             name.change(function(event) {
                 $(".client-companyname").val($(event.target).val());
             });
-            $(".client-doctype").val("31").trigger("change");
+            if(!partner_exist) {
+                $(".client-doctype").val("31").trigger("change");
+            }
             $('.partner-names').hide();
             $(".client-persontype").removeAttr("disabled").val('2');
             $(".client-first-name").val("");
@@ -88,7 +90,9 @@ screens.ClientListScreenWidget.include({
         } else {
             name.attr("disabled", "disabled");
             name.unbind("change");
-            $(".client-doctype").val("1").trigger("change");
+            if(!partner_exist) {
+                $(".client-doctype").val("1").trigger("change");
+            }
             $(".client-name").css("visibility", "hidden");
             $(".client-persontype").attr("disabled", "disabled").val('1');
             $(".client-companyname").val("");
@@ -132,7 +136,7 @@ screens.ClientListScreenWidget.include({
         });
 
         $('.client-doctype').on('change', function(event) {
-            self.doctype_event_handler(event);
+            self.doctype_event_handler(event.target);
         });
 
         $('.identification-number').css("visibility", "hidden")
@@ -264,8 +268,8 @@ screens.ClientListScreenWidget.include({
         return false;
     },
 
-    doctype_event_handler: function(event) {
-        var target = $(event.target);
+    doctype_event_handler: function(target) {
+        var target = $(target);
         var id_field = $('.identification-number');
         var nit_field = $('.formated-nit');
 
@@ -290,17 +294,26 @@ screens.ClientListScreenWidget.include({
     display_client_details: function(visibility,partner,clickpos) {
         this._super(visibility,partner,clickpos);
         var client_name = $(".client-name");
+        var client_doctype = $(".client-doctype");
+        var partner_exist = false;
+
+        this.setup_res_partner_logic();
 
         if (visibility === 'show') {
             client_name.css("visibility", "visible");
         } else if (visibility === 'edit') {
-            this.is_company_click_handler($(this));
+            if(partner.id) {
+                partner_exist = true;
+            }
+            this.is_company_click_handler($(this), partner_exist);
+
+            if(client_doctype.val() != 1) {
+                client_doctype.trigger("change");
+            }
             if(client_name.val()) {
                 client_name.css("visibility", "visible");
             }
         }
-
-        this.setup_res_partner_logic();
     },
 
     save_client_details: function(partner) {

@@ -127,7 +127,7 @@
                     <span class='label'>Tipo persona</span>
                     <select class='detail client-persontype' name='personType'>
                         <t t-foreach='widget.pos.persontypes' t-as='persontype'>
-                            <option t-att-value='persontype.id' t-att-selected="partner.personType ? ((persontype.id === partner.personType[0]) ? true : undefined) : undefined">
+                            <option t-att-value='persontype.id' t-att-selected="partner.personType ? ((persontype.id === partner.personType) ? true : undefined) : undefined">
                                 <t t-esc='persontype.name'/>
                             </option>
                         </t>
@@ -150,7 +150,7 @@
                     <span class='label'>Tipo identificación</span>
                     <select class='detail client-doctype' name='doctype'>
                         <t t-foreach='widget.pos.doctypes' t-as='doctype'>
-                            <option t-att-value='doctype.id' t-att-selected="partner.doctype ? ((doctype.id === partner.doctype[0]) ? true : undefined) : undefined">
+                            <option t-att-value='doctype.id' t-att-selected="partner.doctype ? ((doctype.id === partner.doctype) ? true : undefined) : undefined">
                                 <t t-esc='doctype.name'/>
                             </option>
                         </t>
