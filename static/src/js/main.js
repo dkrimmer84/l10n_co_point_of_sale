@@ -279,6 +279,7 @@ screens.ClientListScreenWidget.include({
         if(target.val() == 1 || target.val() == 43) {
             id_field.css("visibility", "hidden")
                     .attr("disabled", "disabled");
+            this.not_save = false;
         } else {
             id_field.css("visibility", "visible")
                     .removeAttr("disabled", "disabled");
