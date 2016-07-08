@@ -67,7 +67,7 @@ screens.ClientListScreenWidget.include({
         var name = $(".client-name");
 
         if(name.val() === "" && is_company) {
-            name.attr("placeholder", _t("Nombre de la compañía"));
+            name.attr("placeholder", _t("Nombre de la Compañía"));
         } else {
             name.attr("placeholder", _t("Nombre"));
         }

@@ -1,0 +1,25 @@
+.pos .clientlist-screen .client-details-box{
+    font-size: 13px;
+}
+
+.pos .clientlist-screen .client-detail > .label{
+    width: 175px;
+    font-weight:normal;
+}
+
+.pos .clientlist-screen .client-details input, .pos .clientlist-screen .client-details select{
+    width: 240px;
+}
+
+.pos .clientlist-screen .client-details select {
+    height: 30px;
+}
+
+.pos .clientlist-screen .client-details input.client-name{
+    font-size: 18px;
+}
+
+input.detail.client-formatednit.pnposnit {
+    background: #F0EEEE;
+    border: 1px solid #F0EEEE;
+}

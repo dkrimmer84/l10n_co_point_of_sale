@@ -5,7 +5,7 @@
     <t t-extend="ClientDetails">
         <t t-jquery="div.client-details-box" t-operation="prepend">
             <div class='client-detail'>
-                <span class='label'>Empresa?</span>
+                <span class='label'>¿Es una empresa?</span>
                 <t t-if='partner.is_company'>
                     <input class='detail client-is-company' name='is_company' type='checkbox' disabled='disabled' checked='checked'></input>
                 </t>
@@ -15,7 +15,7 @@
             </div>
             <div class='client-details-left'>
                 <div class='client-detail'>
-                    <span class='label'>Tipo persona</span>
+                    <span class='label'>Tipo de persona</span>
                     <t t-foreach='widget.pos.persontypes' t-as='persontype'>
                         <t t-if='persontype.id === partner.personType'>
                             <span class='detail client-person-type'><t t-esc='persontype.name' /></span>
@@ -159,20 +159,20 @@
             </div>
             <div class='client-details-right formated-nit'>
                 <div class='client-detail'>
-                <span class='label'>Nit</span>
-                    <input class='detail client-formatednit' name='formatedNit' t-att-value='partner.formatedNit' disabled='disabled' readonly='readonly'></input>
+                <span class='label'>NIT</span>
+                    <input class='detail client-formatednit pnposnit' name='formatedNit' t-att-value='partner.formatedNit' disabled='disabled' readonly='readonly'></input>
                 </div>
             </div>
             <div class='client-details-left partner-names'>
                 <div class='client-detail'>
                     <span class='label'>Primer Nombre</span>
-                    <input class='detail client-first-name' name='x_name1' t-att-value='partner.x_name1' placeholder='Primer nombre'></input>
+                    <input class='detail client-first-name' name='x_name1' t-att-value='partner.x_name1' placeholder='Primer Nombre'></input>
                 </div>
             </div>
             <div class='client-details-right partner-names'>
                 <div class='client-detail'>
                     <span class='label'>Segundo Nombre</span>
-                    <input class='detail client-second-name' name='x_name2' t-att-value='partner.x_name2' placeholder='Segundo nombre'></input>
+                    <input class='detail client-second-name' name='x_name2' t-att-value='partner.x_name2' placeholder='Segundo Nombre'></input>
                 </div>
             </div>
             <div class='client-details-left partner-names'>
