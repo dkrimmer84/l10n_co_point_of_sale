@@ -1,12 +1,12 @@
-Localización Colombia: Terceros Punto de Venta
+Localización Colombia: Terceros en Punto de Venta
 ======
-
-![main_screenshot.png](http://www.plastinorte.com/images/main_screenshot.png)
 
 What you get
 -----------------
 - Including fields of partner/contact from the module l10n_co_res_partner
   into the point_of_sale module
+- It includes all the fields from the Colombian Partner / Contact Module
+- This guarantees a consistent and clean contact database as these data can be maintained in both sides: POS and normal Interface
 
 License
 -----------------
@@ -24,7 +24,6 @@ Contact
 -----------------
 This is how you can reach us:
 
-Twitter: @dkrimmer84 (Dominic), @ldasilvaf (Luis Alfredo da Silva),
-Mail for technical subjects: dominic@plastinorte.com (Dominic Krimmer),
-                             luis.adasilvaf@gmail.com (Luis Alfredo da Silva),
-Mail concerning the content: quipus.total@gmail.com (Hector Ivan)
+Dominic Krimmer: dominic@plastinorte.com
+Luis Alfredo da Silva: luis.adasilvaf@gmail.com
+Hector Ivan: quipus.total@gmail.com
