@@ -3,7 +3,7 @@ odoo.define('l10n_co_point_of_sale.main', function(require) {
 
 var core = require('web.core');
 var module = require('point_of_sale.models');
-var Model = require('web.Model');
+var Model = require('web.DataModel');
 var gui = require('point_of_sale.gui');
 var screens = require('point_of_sale.screens');
 var _t = core._t;
@@ -67,9 +67,9 @@ screens.ClientListScreenWidget.include({
         var name = $(".client-name");
 
         if(name.val() === "" && is_company) {
-            name.attr("placeholder", _t("Nombre de la Compañía"));
+            name.attr("placeholder", _t("Company name"));
         } else {
-            name.attr("placeholder", _t("Nombre"));
+            name.attr("placeholder", _t("Name"));
         }
 
         if(is_company) {
@@ -245,7 +245,7 @@ screens.ClientListScreenWidget.include({
         var xidentification = $(event.target).val();
 
         if(xidentification.length < 2 || xidentification.length > 12) {
-            this.gui.show_popup('error', _t('La número de identificación debe ser no mayor a 12 dígitos ni menor a 2'));
+            this.gui.show_popup('error', _t('Error! Number of digits in Identification number must be between 2 and 12'));
             this.not_save = true;
             return false;
         }
@@ -260,7 +260,7 @@ screens.ClientListScreenWidget.include({
         if(doctype != 1) {
             if(xidentification && doctype != 21 && doctype != 41) {
                 if(xidentification.search(/^[\d]+$/) != 0) {
-                    this.gui.show_popup('error', _t('¡Error! El número de identificación sólo permite números'));
+                    this.gui.show_popup('error', _t('¡Error! Identification number can only have numbers'));
                     this.not_save = true;
                     return true;
                 } else {
@@ -321,6 +321,11 @@ screens.ClientListScreenWidget.include({
         }
     },
 
+    perform_search: function(query, associate_result){
+
+        this._super(query, associate_result);
+    },
+
     save_client_details: function(partner) {
         var self = this;
         var first_name = $(".client-first-name").val();
@@ -329,7 +334,7 @@ screens.ClientListScreenWidget.include({
 
         if(!is_company) {
             if(!first_name || !first_lastname) {
-                this.gui.show_popup('error',_t('El primer nombre y el primer apellido son requeridos'));
+                this.gui.show_popup('error',_t('First name and Lastname are required'));
                 return;
             }
             $(".client-is-company").removeClass("detail");
@@ -340,7 +345,7 @@ screens.ClientListScreenWidget.include({
         }
 
         if(this.not_save) {
-            this.gui.show_popup('error', _t('Error! Tiene errores pendientes que corregir antes de porder guardar el cliente'));
+            this.gui.show_popup('error', _t('Error! You have pending errors, please fix them before you save the client'));
             return;
         }
 

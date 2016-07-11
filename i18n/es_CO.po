@@ -1,0 +1,200 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* l10n_co_point_of_sale
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 9.0c-20160428\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-07-11 20:47+0000\n"
+"PO-Revision-Date: 2016-07-11 20:47+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:103
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:217
+#, python-format
+msgid "City"
+msgstr "Ciudad"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:70
+#, python-format
+msgid "Company name"
+msgstr "Nombre de la compañía"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:87
+#, python-format
+msgid "Country"
+msgstr "País"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:95
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:206
+#, python-format
+msgid "Department"
+msgstr "Departamento"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:248
+#, python-format
+msgid "Error! Number of digits in Identification number must be between 2 and 12"
+msgstr "Error! Los dígitos en el número de identificación deben ser entre 2 y 12"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:348
+#, python-format
+msgid "Error! You have pending errors, please fix them before you save the client"
+msgstr "Error! Tienes errores pendientes, por favor corrígelos antes de terminar con el cliente"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:337
+#, python-format
+msgid "First Name and Lastname are required"
+msgstr "Primer nombre y primer apellido son requeridos"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:64
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:180
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:181
+#, python-format
+msgid "First name"
+msgstr "Primer nombre"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:47
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:55
+#, python-format
+msgid "Formated nit"
+msgstr "NIT"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:121
+#, python-format
+msgid "Identification"
+msgstr "Identificación"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:28
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:156
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:157
+#, python-format
+msgid "Identification number"
+msgstr "Número de identificación"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:36
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:162
+#, python-format
+msgid "Identification type"
+msgstr "Tipo de identificación"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:8
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:129
+#, python-format
+msgid "Is a company?"
+msgstr "¿Es una empresa?"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:68
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:192
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:193
+#, python-format
+msgid "Lastname"
+msgstr "Primer apellido"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:56
+#, python-format
+msgid "N/A"
+msgstr "N/A"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:174
+#, python-format
+msgid "NIT"
+msgstr "NIT"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:72
+#, python-format
+msgid "Name"
+msgstr "Nombre"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:208
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:219
+#, python-format
+msgid "None"
+msgstr "Ninguno"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:157
+#, python-format
+msgid "Número de identificación"
+msgstr "Número de identificación"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model,name:l10n_co_point_of_sale.model_res_partner
+msgid "Partner"
+msgstr "Asociado"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:18
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:139
+#, python-format
+msgid "Person type"
+msgstr "Person type"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:78
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:198
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:199
+#, python-format
+msgid "Second lastname"
+msgstr "Segundo apellido"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:74
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:186
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:187
+#, python-format
+msgid "Second name"
+msgstr "Segundo nombre"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:263
+#, python-format
+msgid "¡Error! Identification number can only have numbers"
+msgstr "¡Error! El número de identificación debe contener solo números"
+
