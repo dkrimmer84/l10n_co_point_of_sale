@@ -1,6 +1,7 @@
 odoo.define('l10n_co_point_of_sale.main', function(require) {
 "use strict";
 
+var PosDB = require('point_of_sale.DB');
 var core = require('web.core');
 var module = require('point_of_sale.models');
 var Model = require('web.DataModel');
@@ -58,6 +59,23 @@ var set_fields_to_model = function(fields, models) {
     }
 }
 set_fields_to_model(partner_fields, models);
+
+PosDB.include({
+
+    _partner_search_string: function(partner) {
+        var str = this._super(partner);
+        str = str.replace('\n', '');
+
+        if(partner.xidentification) {
+            str += '|' + partner.xidentification;
+        }
+        str += '\n';
+
+        console.log(str);
+        return str;
+    },
+
+});
 
 // extending client screen behavior
 screens.ClientListScreenWidget.include({
@@ -321,9 +339,10 @@ screens.ClientListScreenWidget.include({
         }
     },
 
-    perform_search: function(query, associate_result){
-
-        this._super(query, associate_result);
+    _partner_search_string: function(partner) {
+        var str = this._super(partner);
+        console.log(str);
+        return str;
     },
 
     save_client_details: function(partner) {
