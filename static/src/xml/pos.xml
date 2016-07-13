@@ -112,7 +112,11 @@
 
     <t t-extend="ClientLine">
       <t t-jquery=".client-line td:eq(-1)" t-operation="replace">
-        <td><t t-esc='partner.xidentification' /></td>
+        <td>
+            <t t-if='partner.xidentification'>
+                <t t-esc='partner.xidentification' />
+            </t>
+        </td>
       </t>
     </t>
 
