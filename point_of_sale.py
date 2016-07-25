@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+# This is very ugly: copied the whole original class in order to fix the bug
+# as the field insert_data does not receive any values from outside.
+# So no chance to add inherit here. Odoo fixed the bug already
+# (https://github.com/odoo/odoo/commit/150bf7dba650bf149720f5e2ac32d42543a672f9)
+# but many people won't have this update. That's the reason for the commit.
+# Anyway, soon we will get rid of this file.
+
 import logging
 import time
 from datetime import datetime
