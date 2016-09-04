@@ -5,4 +5,3 @@
 # Author        Luis Alfredo da Silva, luis.adasilvaf@gmail.com
 # Co-Authors    Dominic Krimmer, dominic.krimmer@gmail.com
 import res_partner
-import point_of_sale
