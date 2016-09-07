@@ -55,6 +55,21 @@ var set_fields_to_model = function(fields, models) {
             for(var j = 0; j < fields.length; j++){
                 model.fields.push(fields[j]);
             }
+            var old_domain = model.domain;
+            model.domain = function(self) {
+                return ['|', old_domain[0], ['id','=',self.company.partner_id[0]]];
+            }
+
+            var old_loaded = model.loaded;
+            model.loaded = function(self, partners) {
+                for(var i = 0; i < partners.length; i++) {
+                    if(partners[i].id == self.company.partner_id[0]) {
+                        var company_partner = partners.splice(i, 1);
+                        self.company_partner = company_partner;
+                    }
+                }
+                old_loaded(self, partners);
+            }
         }
     }
 }
@@ -71,7 +86,6 @@ PosDB.include({
         }
         str += '\n';
 
-        console.log(str);
         return str;
     },
 
@@ -341,7 +355,6 @@ screens.ClientListScreenWidget.include({
 
     _partner_search_string: function(partner) {
         var str = this._super(partner);
-        console.log(str);
         return str;
     },
 
@@ -375,5 +388,16 @@ screens.ClientListScreenWidget.include({
     },
 
 });
+
+var __super__ = module.Order.prototype;
+var Order = module.Order.extend({
+    export_for_printing: function() {
+        var receipt = __super__.export_for_printing.apply(this);
+        var street = this.pos.company_partner[0].street.split(",").map(function(text) { return text.trim() + '<br />'; });
+        receipt.company.street = street.join("");
+        return receipt;
+    }
+});
+module.Order = Order;
 
 });
