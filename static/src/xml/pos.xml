@@ -240,10 +240,10 @@
             <div class="pos-sale-ticket">
                 <div class="pos-center-align">
                     <t t-esc="widget.pos.company.name"/><br />
-                    <t t-if="widget.pos.company_partner[0].formatedNit">
-                        <t t-esc="widget.pos.company_partner[0].formatedNit" />
+                    <t t-if="receipt.company.formatedNit">
+                        <t t-esc="receipt.company.formatedNit" />
                      </t>
-                     <t t-if="! widget.pos.company_partner[0].formatedNit">
+                     <t t-if="! receipt.company.formatedNit">
                         no posee
                      </t><br />
                     <t t-raw="receipt.company.street"/><br />
