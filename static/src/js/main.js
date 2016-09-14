@@ -393,10 +393,23 @@ var __super__ = module.Order.prototype;
 var Order = module.Order.extend({
     export_for_printing: function() {
         var receipt = __super__.export_for_printing.apply(this);
-        var street = this.pos.company_partner[0].street.split(",").map(function(text) { return text.trim() + '<br />'; });
-        receipt.company.street = street.join("");
+        var company_partner = this.pos.company_partner[0];
+
+        if(company_partner.street) {
+            street = company_partner.street.split(",").map(function(text) { return text.trim() + '<br />'; });
+            receipt.company.street = street.join("");
+        } else {
+            receipt.company.street = "compañía sin dirección";
+        }
+
+        receipt.company.formatedNit = company_partner.formatedNit ? company_partner.formatedNit : "no posee";
         return receipt;
+    },
+    get_client_xidentification: function() {
+        var client = this.get('client');
+        return client ? client.xidentification : "";
     }
+
 });
 module.Order = Order;
 
