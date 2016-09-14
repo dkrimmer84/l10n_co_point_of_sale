@@ -396,7 +396,12 @@ var Order = module.Order.extend({
         var street = this.pos.company_partner[0].street.split(",").map(function(text) { return text.trim() + '<br />'; });
         receipt.company.street = street.join("");
         return receipt;
+    },
+    get_client_xidentification: function() {
+        var client = this.get('client');
+        return client ? client.xidentification : "";
     }
+
 });
 module.Order = Order;
 

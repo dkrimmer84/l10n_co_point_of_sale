@@ -238,8 +238,6 @@
     <t t-extend="PosTicket">
         <t t-jquery=".pos-sale-ticket" t-operation="replace">
             <div class="pos-sale-ticket">
-                <!--<div class="pos-center-align"><t t-esc="moment().format('L LT')"/> <t t-esc="order.name"/></div>
-                <br />-->
                 <div class="pos-center-align">
                     <t t-esc="widget.pos.company.name"/><br />
                     <t t-if="widget.pos.company_partner[0].formatedNit">
@@ -251,7 +249,7 @@
                     <t t-raw="receipt.company.street"/><br />
                 </div>
                 <br />
-                
+
                 <t t-if="receipt.header">
                     <div style='text-align:center'>
                         <t t-esc="receipt.header" />
@@ -259,12 +257,13 @@
                     <br />
                 </t>
 
+                Fecha: <t t-esc="moment().format('L LT')"/><br />
                 Factura de Venta N: <t t-esc="order.name"/>
-                Cliente: <t t-esc="order.get_client().name"/><br />
-                NIC: <t t-if="order.get_client().xidentification">
-                        <t t-esc="order.get_client().xidentification" />
+                Cliente: <t t-esc="order.get_client_name()"/><br />
+                NIC: <t t-if="order.get_client_xidentification()">
+                        <t t-esc="order.get_client_xidentification()" />
                      </t>
-                     <t t-if="! order.get_client().xidentification">
+                     <t t-if="! order.get_client_xidentification()">
                         no posee
                      </t><br />
 
