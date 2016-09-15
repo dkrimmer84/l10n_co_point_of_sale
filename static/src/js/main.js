@@ -396,7 +396,7 @@ var Order = module.Order.extend({
         var company_partner = this.pos.company_partner[0];
 
         if(company_partner.street) {
-            street = company_partner.street.split(",").map(function(text) { return text.trim() + '<br />'; });
+            var street = company_partner.street.split(",").map(function(text) { return text.trim() + '<br />'; });
             receipt.company.street = street.join("");
         } else {
             receipt.company.street = "compañía sin dirección";
