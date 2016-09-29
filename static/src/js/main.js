@@ -37,6 +37,23 @@ models.push(
         }
     },
     {
+        model: 'ir.sequence',
+        fields: ['remaining_numbers', 'remaining_days', 'dian_resolution_ids'],
+        domain: function(self){ return [['name', '=', self.config.sequence_id]]; },
+        loaded : function(self, sequences) {
+            console.log(sequences[0]);
+            self.dian_resolutions = sequences[0].dian_resolution_ids;
+        }
+    },
+    {
+        model: 'ir.sequence.dian_resolution',
+        fields: ['resolution_number', 'number_from', 'number_to', 'active'],
+        domain: function(self){ return [['id','=', self.dian_resolutions],['active', '=', true]]; },
+        loaded: function(self, resolutions) {
+            console.log(resolutions[0]);
+        }
+    },
+    {
         loaded: function(self) {
             $.when(new Model('res.partner').call('get_doctype').then(function(doctypes){
                 self.doctypes = doctypes;
