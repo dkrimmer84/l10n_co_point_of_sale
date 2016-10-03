@@ -258,14 +258,15 @@
                 </t>
 
                 Fecha: <t t-esc="moment().format('L LT')"/><br />
-                Factura de Venta N: <t t-esc="order.name"/>
-                Cliente: <t t-esc="order.get_client_name()"/><br />
-                NIC: <t t-if="order.get_client_xidentification()">
-                        <t t-esc="order.get_client_xidentification()" />
-                     </t>
-                     <t t-if="! order.get_client_xidentification()">
-                        no posee
-                     </t><br />
+                Factura de Venta N: <t t-esc="order.sequence_dian" /><br />
+                Número Resolución DIAN: <t t-esc="receipt.dian_resolution_sequence.resolution_number" /><br />
+                Secuencia: <t t-esc="receipt.dian_resolution_sequence.number_from" /> - <t t-esc="receipt.dian_resolution_sequence.number_to" /><br />
+                <t t-if="order.get_client_name()" >
+                    Cliente: <t t-esc="order.get_client_name()"/><br />
+                    <t t-if="order.get_client_xidentification()">
+                        NIC: <t t-esc="order.get_client_xidentification()" />
+                    </t>
+                </t>
 
                 <br />
                 <table class='receipt-orderlines'>
