@@ -39,18 +39,17 @@ models.push(
     {
         model: 'ir.sequence',
         fields: ['remaining_numbers', 'remaining_days', 'dian_resolution_ids'],
-        domain: function(self){ return [['name', '=', self.config.sequence_id]]; },
+        domain: function(self){ return [['name', 'in', self.config.sequence_id]]; },
         loaded : function(self, sequences) {
-            console.log(sequences[0]);
-            self.dian_resolutions = sequences[0].dian_resolution_ids;
+            self.dian_resolutions = sequences[0];
         }
     },
     {
         model: 'ir.sequence.dian_resolution',
-        fields: ['resolution_number', 'number_from', 'number_to', 'active'],
-        domain: function(self){ return [['id','=', self.dian_resolutions],['active', '=', true]]; },
+        fields: ['resolution_number', 'number_from', 'number_to', 'number_next', 'active_resolution'],
+        domain: function(self){ return [['id','in', self.dian_resolutions.dian_resolution_ids],['active_resolution', '=', true]]; },
         loaded: function(self, resolutions) {
-            console.log(resolutions[0]);
+            self.dian_resolution_sequence = resolutions[0]
         }
     },
     {
@@ -408,9 +407,22 @@ screens.ClientListScreenWidget.include({
 
 var __super__ = module.Order.prototype;
 var Order = module.Order.extend({
+    initialize: function(attributes,options) {
+        var initial = __super__.initialize.apply(this,[attributes,options]);
+
+        initial.sequence_dian = this.pos.dian_resolution_sequence.number_next++;
+        return initial;
+    },
+    export_as_JSON: function() {
+        var json = __super__.export_as_JSON.apply(this);
+        json.sequence_dian = this.sequence_dian ? this.sequence_dian : "";
+        console.log(json);
+        return json;
+    },
     export_for_printing: function() {
         var receipt = __super__.export_for_printing.apply(this);
         var company_partner = this.pos.company_partner[0];
+        var dian_resolution_sequence = this.pos.dian_resolution_sequence
 
         if(company_partner.street) {
             var street = company_partner.street.split(",").map(function(text) { return text.trim() + '<br />'; });
@@ -419,7 +431,14 @@ var Order = module.Order.extend({
             receipt.company.street = "compañía sin dirección";
         }
 
+        receipt.dian_resolution_sequence = dian_resolution_sequence;
+
         receipt.company.formatedNit = company_partner.formatedNit ? company_partner.formatedNit : "no posee";
+
+        if (this.sequence_dian == 0) {
+            receipt.sequence_dian = this.sequence_dian;
+        }
+
         return receipt;
     },
     get_client_xidentification: function() {
