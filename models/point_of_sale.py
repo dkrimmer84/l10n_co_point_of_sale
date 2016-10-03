@@ -17,15 +17,13 @@ class PosOrder(models.Model):
 
     def _order_fields(self, cr, uid, ui_order, context=None):
         order = super(PosOrder, self)._order_fields(cr, uid, ui_order, context=context)
-        order['name'] = ui_order['sequence_dian']
         return order
 
     def create(self, cr, uid, values, context=None):
         if values.get('session_id'):
             # set name based on the sequence specified on the config
             session = self.pool['pos.session'].browse(cr, uid, values['session_id'], context=context)
-            #values['name'] = session.config_id.sequence_id._next()
-            _logger.info(session.config_id.sequence_id._next())
+            values['name'] = session.config_id.sequence_id._next()
             values.setdefault('session_id', session.config_id.pricelist_id.id)
         else:
             # fallback on any pos.order sequence

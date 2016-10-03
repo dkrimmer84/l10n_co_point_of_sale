@@ -413,12 +413,6 @@ var Order = module.Order.extend({
         initial.sequence_dian = this.pos.dian_resolution_sequence.number_next++;
         return initial;
     },
-    export_as_JSON: function() {
-        var json = __super__.export_as_JSON.apply(this);
-        json.sequence_dian = this.sequence_dian ? this.sequence_dian : "";
-        console.log(json);
-        return json;
-    },
     export_for_printing: function() {
         var receipt = __super__.export_for_printing.apply(this);
         var company_partner = this.pos.company_partner[0];
