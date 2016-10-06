@@ -49,7 +49,13 @@ models.push(
         fields: ['resolution_number', 'number_from', 'number_to', 'number_next', 'active_resolution'],
         domain: function(self){ return [['id','in', self.dian_resolutions.dian_resolution_ids],['active_resolution', '=', true]]; },
         loaded: function(self, resolutions) {
-            self.dian_resolution_sequence = resolutions[0]
+            if(resolutions[0]) {
+                self.dian_resolution_sequence = resolutions[0];
+            } else {
+                self.dian_resolution_sequence = {
+                    active_resolution: false
+                }
+            }
         }
     },
     {
@@ -410,7 +416,12 @@ var Order = module.Order.extend({
     initialize: function(attributes,options) {
         var initial = __super__.initialize.apply(this,[attributes,options]);
 
-        initial.sequence_dian = this.pos.dian_resolution_sequence.number_next++;
+        try {
+            initial.number_next_dian = this.pos.dian_resolution_sequence.number_next++;
+        } catch(err) {
+
+        }
+
         return initial;
     },
     export_for_printing: function() {
@@ -425,12 +436,14 @@ var Order = module.Order.extend({
             receipt.company.street = "compañía sin dirección";
         }
 
-        receipt.dian_resolution_sequence = dian_resolution_sequence;
+        if(dian_resolution_sequence.active_resolution != false) {
+            receipt.dian_resolution_sequence = dian_resolution_sequence;
+        }
 
         receipt.company.formatedNit = company_partner.formatedNit ? company_partner.formatedNit : "no posee";
 
-        if (this.sequence_dian == 0) {
-            receipt.sequence_dian = this.sequence_dian;
+        if (this.number_next_dian == 0) {
+            receipt.number_next_dian = this.number_next_dian;
         }
 
         return receipt;

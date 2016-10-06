@@ -258,9 +258,16 @@
                 </t>
 
                 Fecha: <t t-esc="moment().format('L LT')"/><br />
-                Factura de Venta N: <t t-esc="order.sequence_dian" /><br />
-                Número Resolución DIAN: <t t-esc="receipt.dian_resolution_sequence.resolution_number" /><br />
-                Secuencia: <t t-esc="receipt.dian_resolution_sequence.number_from" /> - <t t-esc="receipt.dian_resolution_sequence.number_to" /><br />
+                Factura de Venta N: <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
+                                      <t t-esc="order.number_next_dian" />
+                                    </t>
+                                    <t t-if="! widget.pos.dian_resolution_sequence.active_resolution">
+                                      <t t-esc="order.get_name()" />
+                                    </t><br />
+                <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
+                  Número Resolución DIAN: <t t-esc="receipt.dian_resolution_sequence.resolution_number" /><br />
+                  Secuencia: <t t-esc="receipt.dian_resolution_sequence.number_from" /> - <t t-esc="receipt.dian_resolution_sequence.number_to" /><br />
+                </t>
                 <t t-if="order.get_client_name()" >
                     Cliente: <t t-esc="order.get_client_name()"/><br />
                     <t t-if="order.get_client_xidentification()">
