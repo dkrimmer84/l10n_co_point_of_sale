@@ -251,19 +251,13 @@
               <div><t t-esc='receipt.shop.name' /></div>
             </t>
             <t t-if='receipt.company.contact_address'>
-              <div><t t-esc='receipt.company.contact_address' /></div>
+              <div><t t-esc='receipt.company.contact_address' /> | <t t-raw="receipt.company.street"/></div>
             </t>
             <t t-if='receipt.company.formatedNit'>
-              <div><t t-esc="receipt.company.formatedNit" /></div>
-            </t>
-            <t t-if='receipt.company.street' >
-              <div><t t-raw="receipt.company.street"/></div>
+              <div>NIT: <t t-esc="receipt.company.formatedNit" /></div>
             </t>
             <t t-if='receipt.company.phone'>
-              <div>Tel:<t t-esc='receipt.company.phone' /></div>
-            </t>
-            <t t-if='receipt.company.email'>
-              <div><t t-esc='receipt.company.email' /></div>
+              <div>Tel:<t t-esc='receipt.company.phone' /> | <t t-esc='receipt.company.email' /></div>
             </t>
             <t t-if='receipt.company.website'>
               <div><t t-esc='receipt.company.website' /></div>
@@ -272,7 +266,7 @@
                     <t t-raw='receipt.header_xml' />
                 </t>
                 <t t-if='!receipt.header_xml and receipt.header'>
-                    <div><t t-esc='receipt.header' /></div>
+                    <div><br /><t t-esc='receipt.header' /></div>
                 </t>
                 <t t-if='receipt.cashier'>
                     <div class='cashier'>
@@ -281,12 +275,11 @@
                     </div>
                 </t>
             </div>
-            <br /><br />
+            <br />
 
-            <line indent='1'>
               <left>
                 Fecha: <t t-esc="moment().format('L LT')"/><br />
-                Factura de Venta N: <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
+                Factura de Venta No. <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
                                       <t t-esc="order.number_next_dian" />
                                     </t>
                                     <t t-if="! widget.pos.dian_resolution_sequence.active_resolution">
@@ -294,16 +287,16 @@
                                     </t><br />
                 <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
                   Número Resolución DIAN: <t t-esc="receipt.dian_resolution_sequence.resolution_number" /><br />
-                  Secuencia: <t t-esc="receipt.dian_resolution_sequence.number_from" /> - <t t-esc="receipt.dian_resolution_sequence.number_to" /><br />
+                  Rango Facturación: <t t-esc="receipt.dian_resolution_sequence.number_from" /> - <t t-esc="receipt.dian_resolution_sequence.number_to" /><br />
                 </t>
                 <t t-if="order.get_client_name()" >
+                    <div>--------------------------------</div>
                     Cliente: <t t-esc="order.get_client_name()"/><br />
                     <t t-if="order.get_client_xidentification()">
-                        NIC: <t t-esc="order.get_client_xidentification()" />
+                        NIT: <t t-esc="order.get_client_xidentification()" />
                     </t>
                 </t>
-              </left>
-            </line>
+              </left><br /><br />
 
 
             <!-- Orderlines -->
@@ -328,9 +321,9 @@
                                     <t t-esc='line.quantity' />
                                 </value>
                                 <t t-if='line.unit_name !== "Unit(s)"'>
-                                    <t t-esc='line.unit_name' /> 
+                                    <t t-esc='line.unit_name' />
                                 </t>
-                                x 
+                                x
                                 <value value-decimals='2'>
                                     <t t-esc='line.price' />
                                 </value>
@@ -374,14 +367,14 @@
                     <right><value><t t-esc='line.get_amount()'/></value></right>
                 </line>
             </t>
-            <br/> 
+            <br/>
 
             <line size='double-height'>
                 <left><pre>        CHANGE</pre></left>
                 <right><value><t t-esc='receipt.change' /></value></right>
             </line>
             <br/>
-            
+
             <!-- Extra Payment Info -->
 
             <t t-if='receipt.total_discount'>
