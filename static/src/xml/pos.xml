@@ -235,6 +235,195 @@
         </t>
     </t>
 
+    <t t-name="XmlReceipt">
+      <t t-jquery="receipt" t-operation="replace">
+        <receipt align='center' width='40' value-thousands-separator='.' >
+          <t t-if='receipt.company.logo'>
+            <img t-att-src='receipt.company.logo' />
+            <br/>
+          </t>
+          <t t-if='!receipt.company.logo'>
+            <h1><t t-esc='receipt.company.name' /></h1>
+            <br/>
+          </t>
+          <div font='b'>
+            <t t-if='receipt.shop.name'>
+              <div><t t-esc='receipt.shop.name' /></div>
+            </t>
+            <t t-if='receipt.company.contact_address'>
+              <div><t t-esc='receipt.company.contact_address' /> | <t t-raw="receipt.company.street"/></div>
+            </t>
+            <t t-if='receipt.company.formatedNit'>
+              <div>NIT: <t t-esc="receipt.company.formatedNit" /></div>
+            </t>
+            <t t-if='receipt.company.phone'>
+              <div>Tel:<t t-esc='receipt.company.phone' /> | <t t-esc='receipt.company.email' /></div>
+            </t>
+            <t t-if='receipt.company.website'>
+              <div><t t-esc='receipt.company.website' /></div>
+            </t>
+                <t t-if='receipt.header_xml'>
+                    <t t-raw='receipt.header_xml' />
+                </t>
+                <t t-if='!receipt.header_xml and receipt.header'>
+                    <div><br /><t t-esc='receipt.header' /></div>
+                </t>
+                <t t-if='receipt.cashier'>
+                    <div class='cashier'>
+                        <div>--------------------------------</div>
+                        <div>Served by <t t-esc='receipt.cashier' /></div>
+                    </div>
+                </t>
+            </div>
+            <br />
+
+              <left>
+
+                <b>Factura de Venta No.: <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
+                                      <t t-esc="order.number_next_dian" />
+                                    </t>
+                                    <t t-if="! widget.pos.dian_resolution_sequence.active_resolution">
+                                      <t t-esc="order.get_name()" />
+                                    </t></b><br />
+                  Fecha: <t t-esc="moment().format('L LT')"/><br />
+                <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
+                  Rango Facturación: <t t-esc="receipt.dian_resolution_sequence.number_from" /> - <t t-esc="receipt.dian_resolution_sequence.number_to" /><br />
+                    Número Resolución DIAN: <t t-esc="receipt.dian_resolution_sequence.resolution_number" /><br />
+                  Fecha de Resolución: <t t-esc="moment(receipt.dian_resolution_sequence.date_from).format('DD/MM/YYYY')" />
+                </t>
+                <t t-if="order.get_client_name()" >
+                    <div>--------------------------------</div>
+                    Cliente: <t t-esc="order.get_client_name()"/><br />
+                    <t t-if="order.get_client_xidentification()">
+                        NIT: <t t-esc="order.get_client_xidentification()" />
+                    </t>
+                </t>
+              </left><br /><br />
+
+
+            <!-- Orderlines -->
+
+            <div class='orderlines' line-ratio='0.6'>
+                <t t-foreach='receipt.orderlines' t-as='line'>
+                    <t t-set='simple' t-value='line.discount === 0 and line.unit_name === "Unit(s)" and line.quantity === 1' />
+                    <t t-if='simple'>
+                        <line>
+                            <left><t t-esc='line.product_name' /></left>
+                            <right><value><t t-esc='line.price_display' /></value></right>
+                        </line>
+                    </t>
+                    <t t-if='!simple'>
+                        <line><left><t t-esc='line.product_name' /></left></line>
+                        <t t-if='line.discount !== 0'>
+                            <line indent='1'><left>Discount: <t t-esc='line.discount' />%</left></line>
+                        </t>
+                        <line indent='1'>
+                            <left>
+                                <value value-decimals='3' value-autoint='on'>
+                                    <t t-esc='line.quantity' />
+                                </value>
+                                <t t-if='line.unit_name !== "Unit(s)"'>
+                                    <t t-esc='line.unit_name' />
+                                </t>
+                                x
+                                <value value-decimals='2'>
+                                    <t t-esc='line.price' />
+                                </value>
+                            </left>
+                            <right>
+                                <value><t t-esc='line.price_display' /></value>
+                            </right>
+                        </line>
+                    </t>
+                </t>
+            </div>
+
+            <!-- Subtotal -->
+
+            <t t-set='taxincluded' t-value='Math.abs(receipt.subtotal - receipt.total_with_tax) &lt;= 0.000001' />
+            <t t-if='!taxincluded'>
+                <line><right>--------</right></line>
+                <line><left>Subtotal</left><right> <value><t t-esc="receipt.subtotal" /></value></right></line>
+                <t t-foreach='receipt.tax_details' t-as='tax'>
+                    <line>
+                        <left><t t-esc='tax.name' /></left>
+                        <right><value><t t-esc='tax.amount' /></value></right>
+                    </line>
+                </t>
+            </t>
+
+            <!-- Total -->
+
+            <line><right>--------</right></line>
+            <line class='total' size='double-height'>
+                <left><pre>        TOTAL</pre></left>
+                <right><value><t t-esc='receipt.total_with_tax' /></value></right>
+            </line>
+            <br/><br/>
+
+            <!-- Payment Lines -->
+
+            <t t-foreach='paymentlines' t-as='line'>
+                <line>
+                    <left><t t-esc='line.name' /></left>
+                    <right><value><t t-esc='line.get_amount()'/></value></right>
+                </line>
+            </t>
+            <br/>
+
+            <line size='double-height'>
+                <left><pre>        CHANGE</pre></left>
+                <right><value><t t-esc='receipt.change' /></value></right>
+            </line>
+            <br/>
+
+            <!-- Extra Payment Info -->
+
+            <t t-if='receipt.total_discount'>
+                <line>
+                    <left>Discounts</left>
+                    <right><value><t t-esc='receipt.total_discount'/></value></right>
+                </line>
+            </t>
+            <t t-if='taxincluded'>
+                <t t-foreach='receipt.tax_details' t-as='tax'>
+                    <line>
+                        <left><t t-esc='tax.name' /></left>
+                        <right><value><t t-esc='tax.amount' /></value></right>
+                    </line>
+                </t>
+                <line>
+                    <left>Total Taxes</left>
+                    <right><value><t t-esc='receipt.total_tax'/></value></right>
+                </line>
+            </t>
+
+            <div class='before-footer' />
+
+            <!-- Footer -->
+            <t t-if='receipt.footer_xml'>
+              <t t-raw='receipt.footer_xml' />
+            </t>
+
+            <t t-if='!receipt.footer_xml and receipt.footer'>
+              <br/>
+              <t t-esc='receipt.footer' />
+              <br/>
+              <br/>
+            </t>
+
+            <div class='after-footer' />
+
+            <br/>
+            <div font='b'>
+              <div><t t-esc='receipt.name' /></div>
+              <div><t t-esc='receipt.date.localestring' /></div>
+            </div>
+
+          </receipt>
+      </t>
+    </t>
+
     <t t-extend="PosTicket">
         <t t-jquery=".pos-sale-ticket" t-operation="replace">
             <div class="pos-sale-ticket">
@@ -242,9 +431,6 @@
                     <t t-esc="widget.pos.company.name"/><br />
                     <t t-if="receipt.company.formatedNit">
                         <t t-esc="receipt.company.formatedNit" />
-                     </t>
-                     <t t-if="! receipt.company.formatedNit">
-                        no posee
                      </t><br />
                     <t t-raw="receipt.company.street"/><br />
                 </div>
@@ -265,8 +451,10 @@
                                       <t t-esc="order.get_name()" />
                                     </t><br />
                 <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
+                  <br />
                   Número Resolución DIAN: <t t-esc="receipt.dian_resolution_sequence.resolution_number" /><br />
-                  Secuencia: <t t-esc="receipt.dian_resolution_sequence.number_from" /> - <t t-esc="receipt.dian_resolution_sequence.number_to" /><br />
+                  Numeración autorizada desde <t t-esc="receipt.dian_resolution_sequence.number_from" /> hasta <t t-esc="receipt.dian_resolution_sequence.number_to" /><br />
+                  Fecha de Resolución: <t t-esc="moment(receipt.dian_resolution_sequence.date_from).format('DD/MM/YYYY')" /> <br />
                 </t>
                 <t t-if="order.get_client_name()" >
                     Cliente: <t t-esc="order.get_client_name()"/><br />

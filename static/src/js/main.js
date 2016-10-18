@@ -38,7 +38,7 @@ models.push(
     },
     {
         model: 'ir.sequence',
-        fields: ['remaining_numbers', 'remaining_days', 'dian_resolution_ids'],
+        fields: ['prefix','remaining_numbers', 'remaining_days', 'dian_resolution_ids'],
         domain: function(self){ return [['name', 'in', self.config.sequence_id]]; },
         loaded : function(self, sequences) {
             self.dian_resolutions = sequences[0];
@@ -46,7 +46,7 @@ models.push(
     },
     {
         model: 'ir.sequence.dian_resolution',
-        fields: ['resolution_number', 'number_from', 'number_to', 'number_next', 'active_resolution'],
+        fields: ['resolution_number', 'date_from', 'number_from', 'number_to', 'number_next', 'active_resolution'],
         domain: function(self){ return [['id','in', self.dian_resolutions.dian_resolution_ids],['active_resolution', '=', true]]; },
         loaded: function(self, resolutions) {
             if(resolutions[0]) {
@@ -417,7 +417,7 @@ var Order = module.Order.extend({
         var initial = __super__.initialize.apply(this,[attributes,options]);
 
         try {
-            initial.number_next_dian = this.pos.dian_resolution_sequence.number_next++;
+            initial.number_next_dian = this.pos.dian_resolutions.prefix + this.pos.dian_resolution_sequence.number_next++;
         } catch(err) {
 
         }
@@ -437,7 +437,17 @@ var Order = module.Order.extend({
         }
 
         if(dian_resolution_sequence.active_resolution != false) {
+            function zero_pad(num,size){
+                var s = ""+num;
+                while (s.length < size) {
+                    s = "0" + s;
+                }
+                return s;
+            }
+            dian_resolution_sequence.number_from  = zero_pad(dian_resolution_sequence.number_from, 4)
+            dian_resolution_sequence.number_to  = zero_pad(dian_resolution_sequence.number_to, 4)
             receipt.dian_resolution_sequence = dian_resolution_sequence;
+
         }
 
         receipt.company.formatedNit = company_partner.formatedNit ? company_partner.formatedNit : "no posee";
