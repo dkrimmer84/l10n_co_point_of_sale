@@ -1,10 +1,17 @@
-from openerp.osv import osv
+# -*- coding: utf-8 -*-
+###############################################################################
+#    License, author and contributors information in:                         #
+#    __openerp__.py file at the root folder of this module.                   #
+###############################################################################
+
+from openerp import models, fields, api
+from openerp.tools.translate import _
 
 
-class res_partner(osv.osv):
+class ResPartner(models.Model):
     _inherit = 'res.partner'
 
-    def create_from_ui(self, cr, uid, partner, context=None):
+    def create_from_ui(self, partner):
         if('doctype' in partner):
             doctype = int(partner['doctype'])
             del partner['doctype']
@@ -15,5 +22,4 @@ class res_partner(osv.osv):
             del partner['personType']
             partner['personType'] = personType
 
-        return super(res_partner, self).create_from_ui(cr, uid, partner,
-                                                       context)
+        return super(ResPartner, self).create_from_ui(partner)
