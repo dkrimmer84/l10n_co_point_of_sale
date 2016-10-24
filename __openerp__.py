@@ -21,7 +21,8 @@ Colombia Punto de Venta:
         'l10n_co_res_partner'
     ],
     'data': [
-        'views/pos_view.xml'
+        'views/pos_view.xml',
+        'views/point_of_sale_view.xml'
     ],
     'qweb': ['static/src/xml/*.xml'],
     'installable': True,
