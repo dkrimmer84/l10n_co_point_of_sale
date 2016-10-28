@@ -35,16 +35,9 @@ class PosOrder(models.Model):
     _inherit = "pos.order"
 
     def _compute_company_taxes(self):
-        company_tax_line = self.env['pos.order.line.company_tax']
         for order in self:
-            vals = [(0, 0, {
-                'description': "prueba",
-                'account_id': 1234,
-                'amount': 123.5,
-                'order_id': order.id
-            })]
-
             tax_grouped = {}
+
             if order.company_id.partner_id.property_account_position_id:
                 fp = self.env['account.fiscal.position'].search(
                     [('id', '=', self.company_id.partner_id.property_account_position_id.id)])
@@ -58,15 +51,13 @@ class PosOrder(models.Model):
                     val = {
                         'order_id': order.id,
                         'description': tax['name'],
-#                        'tax_id': tax['id'],
+                        'tax_id': tax['id'],
                         'amount': tax['amount'],
-#                        'sequence': tax['sequence'],
-#                        'account_id': self.type in ('out_invoice', 'in_invoice') and tax['account_id'] or tax['refund_account_id'],
-                        'account_id': tax['account_id']
+                        'sequence': tax['sequence'],
+                        'account_id': tax['account_id'] #or tax['']
                     }
 
-#                    key = self.env['account.tax'].browse(tax['id']).get_grouping_key(val)
-                    key = tax['name']
+                    key = tax['id']
                     if key not in tax_grouped:
                         tax_grouped[key] = val
                     else:
@@ -84,9 +75,7 @@ class PosOrder(models.Model):
             else:
                 raise UserError(_('Debe definir una posicion fiscal para el partner asociado a la compañía actual'))
         return
-#            res = company_tax_line.create(vals)
 
-#        self.write({'company_taxes': res})
 
     company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes',
                                     readonly=True)
@@ -117,8 +106,44 @@ class PosOrder(models.Model):
 
     @api.multi
     def _create_account_move_line(self, session=None, move_id=None):
-        _logger.info("testing again")
-        return super(PosOrder, self)._create_account_move_line(session, move_id)
+        res = super(PosOrder, self)._create_account_move_line(session, move_id)
+
+        move = self.env['account.move'].sudo().browse(move_id)
+        move.ensure_one()
+
+        all_lines = []
+        for order in self:
+            _logger.info(order)
+            for line in order.company_taxes:
+
+                values = {
+                    'name': "Testing",
+                    'quantity': 1,
+                    'account_id': line.account_id.id,
+                    'credit': ((line.amount>0) and line.amount) or 0.0,
+                    'debit': ((line.amount<0) and -line.amount) or 0.0,
+                    'tax_line_id': line.tax_id.id,
+                    'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
+                    'move_id': move_id
+                }
+                all_lines.append((0, 0, values))
+                values = {
+                    'name': "Testing",
+                    'quantity': 1,
+                    'account_id': line.account_id.id,
+                    'credit': ((line.amount<0) and -line.amount) or 0.0,
+                    'debit': ((line.amount>0) and line.amount) or 0.0,
+                    'tax_line_id': line.tax_id.id,
+                    'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
+                    'move_id': move_id
+                }
+                all_lines.append((0, 0, values))
+
+        if move_id:
+            move.with_context(dont_create_taxes=True).write({'line_ids': all_lines})
+            move.post()
+        return res
+
 
 class PosOrderLineCompanyTaxes(models.Model):
     _name = 'pos.order.line.company_tax'
@@ -128,3 +153,5 @@ class PosOrderLineCompanyTaxes(models.Model):
         required=True)
     amount = fields.Float("Amount")
     order_id = fields.Many2one('pos.order', string='Order', ondelete='cascade')
+    tax_id = fields.Many2one('account.tax', string='Tax', ondelete='restrict')
+    sequence = fields.Integer(help="Gives the sequence order when displaying a list of invoice tax.")
