@@ -115,9 +115,11 @@ class PosOrder(models.Model):
         for order in self:
             _logger.info(order)
             for line in order.company_taxes:
+                tax = self.env['account.tax'].browse(line.tax_id.id)[0]
+                counter_account_id = tax.account_id_counterpart.id
 
-                values = {
-                    'name': "Testing",
+                values = [{
+                    'name': line.description,
                     'quantity': 1,
                     'account_id': line.account_id.id,
                     'credit': ((line.amount>0) and line.amount) or 0.0,
@@ -125,19 +127,18 @@ class PosOrder(models.Model):
                     'tax_line_id': line.tax_id.id,
                     'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
                     'move_id': move_id
-                }
-                all_lines.append((0, 0, values))
-                values = {
-                    'name': "Testing",
+                },
+                {
+                    'name': line.description,
                     'quantity': 1,
-                    'account_id': line.account_id.id,
+                    'account_id': counter_account_id,
                     'credit': ((line.amount<0) and -line.amount) or 0.0,
                     'debit': ((line.amount>0) and line.amount) or 0.0,
                     'tax_line_id': line.tax_id.id,
                     'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
                     'move_id': move_id
-                }
-                all_lines.append((0, 0, values))
+                }]
+                map(lambda x: all_lines.append((0, 0, x)), values)
 
         if move_id:
             move.with_context(dont_create_taxes=True).write({'line_ids': all_lines})
