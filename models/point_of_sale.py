@@ -34,7 +34,6 @@ class PosOrder(models.Model):
     _name = "pos.order"
     _inherit = "pos.order"
 
-    @api.depends('amount_tax', 'amount_total')
     def _compute_company_taxes(self):
         company_tax_line = self.env['pos.order.line.company_tax']
         for order in self:
@@ -65,47 +64,67 @@ class PosOrder(models.Model):
 #                        'account_id': self.type in ('out_invoice', 'in_invoice') and tax['account_id'] or tax['refund_account_id'],
                         'account_id': tax['account_id']
                     }
-                    _logger.info("%s" % val)
+
 #                    key = self.env['account.tax'].browse(tax['id']).get_grouping_key(val)
                     key = tax['name']
                     if key not in tax_grouped:
                         tax_grouped[key] = val
                     else:
                         tax_grouped[key]['amount'] += val['amount']
+
+                company_taxes = self.company_taxes.browse([])
+
+                for tax in tax_grouped.values():
+                    company_taxes += company_taxes.new(tax)
+
+                _logger.info("%s" % tax_grouped)
+                self.company_taxes = company_taxes
+                _logger.info("%s" % self.company_taxes)
+
             else:
                 raise UserError(_('Debe definir una posicion fiscal para el partner asociado a la compañía actual'))
-
-            company_taxes = self.company_taxes.browse([])
-            for tax in tax_grouped.values():
-                company_taxes += company_taxes.new(tax)
-            self.company_taxes = company_taxes
-
         return
 #            res = company_tax_line.create(vals)
 
 #        self.write({'company_taxes': res})
 
-    company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes', compute=_compute_company_taxes)
+    company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes',
+                                    readonly=True)
 
-    def _order_fields(self, cr, uid, ui_order, context=None):
-        order = super(PosOrder, self)._order_fields(cr, uid, ui_order, context=context)
+    @api.model
+    def _process_order(self, order):
+        order_id = super(PosOrder, self)._process_order(order)
+        order = self.env['pos.order'].browse(order_id)
+        order._compute_company_taxes()
+        return order_id
+
+    @api.model
+    def _order_fields(self, ui_order):
+        order = super(PosOrder, self)._order_fields(ui_order)
         return order
 
-    def create(self, cr, uid, values, context=None):
+    @api.model
+    def create(self, values):
         if values.get('session_id'):
             # set name based on the sequence specified on the config
-            session = self.pool['pos.session'].browse(cr, uid, values['session_id'], context=context)
+            session = self.env['pos.session'].browse(values['session_id'])
             values['name'] = session.config_id.sequence_id._next()
             values.setdefault('session_id', session.config_id.pricelist_id.id)
         else:
             # fallback on any pos.order sequence
-            values['name'] = self.pool.get('ir.sequence').next_by_code(cr, uid, 'pos.order', context=context)
-        return super(models.Model, self).create(cr, uid, values, context=context)
+            values['name'] = self.env['ir.sequence'].next_by_code('pos.order')
+        return super(models.Model, self).create(values)
+
+    @api.multi
+    def _create_account_move_line(self, session=None, move_id=None):
+        _logger.info("testing again")
+        return super(PosOrder, self)._create_account_move_line(session, move_id)
 
 class PosOrderLineCompanyTaxes(models.Model):
     _name = 'pos.order.line.company_tax'
 
     description = fields.Char(string="Tax description")
-    account_id = fields.Integer("Tax Account")
+    account_id = fields.Many2one('account.account', string='Account',
+        required=True)
     amount = fields.Float("Amount")
     order_id = fields.Many2one('pos.order', string='Order', ondelete='cascade')
