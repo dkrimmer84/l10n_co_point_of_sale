@@ -34,18 +34,10 @@ class PosOrder(models.Model):
     _name = "pos.order"
     _inherit = "pos.order"
 
-    @api.depends('amount_tax', 'amount_total')
     def _compute_company_taxes(self):
-        company_tax_line = self.env['pos.order.line.company_tax']
         for order in self:
-            vals = [(0, 0, {
-                'description': "prueba",
-                'account_id': 1234,
-                'amount': 123.5,
-                'order_id': order.id
-            })]
-
             tax_grouped = {}
+
             if order.company_id.partner_id.property_account_position_id:
                 fp = self.env['account.fiscal.position'].search(
                     [('id', '=', self.company_id.partner_id.property_account_position_id.id)])
@@ -59,53 +51,108 @@ class PosOrder(models.Model):
                     val = {
                         'order_id': order.id,
                         'description': tax['name'],
-#                        'tax_id': tax['id'],
+                        'tax_id': tax['id'],
                         'amount': tax['amount'],
-#                        'sequence': tax['sequence'],
-#                        'account_id': self.type in ('out_invoice', 'in_invoice') and tax['account_id'] or tax['refund_account_id'],
-                        'account_id': tax['account_id']
+                        'sequence': tax['sequence'],
+                        'account_id': tax['account_id'] #or tax['']
                     }
-                    _logger.info("%s" % val)
-#                    key = self.env['account.tax'].browse(tax['id']).get_grouping_key(val)
-                    key = tax['name']
+
+                    key = tax['id']
                     if key not in tax_grouped:
                         tax_grouped[key] = val
                     else:
                         tax_grouped[key]['amount'] += val['amount']
+
+                company_taxes = self.company_taxes.browse([])
+
+                for tax in tax_grouped.values():
+                    company_taxes += company_taxes.new(tax)
+
+                _logger.info("%s" % tax_grouped)
+                self.company_taxes = company_taxes
+                _logger.info("%s" % self.company_taxes)
+
             else:
                 raise UserError(_('Debe definir una posicion fiscal para el partner asociado a la compañía actual'))
-
-            company_taxes = self.company_taxes.browse([])
-            for tax in tax_grouped.values():
-                company_taxes += company_taxes.new(tax)
-            self.company_taxes = company_taxes
-
         return
-#            res = company_tax_line.create(vals)
 
-#        self.write({'company_taxes': res})
 
-    company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes', compute=_compute_company_taxes)
+    company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes',
+                                    readonly=True)
 
-    def _order_fields(self, cr, uid, ui_order, context=None):
-        order = super(PosOrder, self)._order_fields(cr, uid, ui_order, context=context)
+    @api.model
+    def _process_order(self, order):
+        order_id = super(PosOrder, self)._process_order(order)
+        order = self.env['pos.order'].browse(order_id)
+        order._compute_company_taxes()
+        return order_id
+
+    @api.model
+    def _order_fields(self, ui_order):
+        order = super(PosOrder, self)._order_fields(ui_order)
         return order
 
-    def create(self, cr, uid, values, context=None):
+    @api.model
+    def create(self, values):
         if values.get('session_id'):
             # set name based on the sequence specified on the config
-            session = self.pool['pos.session'].browse(cr, uid, values['session_id'], context=context)
+            session = self.env['pos.session'].browse(values['session_id'])
             values['name'] = session.config_id.sequence_id._next()
             values.setdefault('session_id', session.config_id.pricelist_id.id)
         else:
             # fallback on any pos.order sequence
-            values['name'] = self.pool.get('ir.sequence').next_by_code(cr, uid, 'pos.order', context=context)
-        return super(models.Model, self).create(cr, uid, values, context=context)
+            values['name'] = self.env['ir.sequence'].next_by_code('pos.order')
+        return super(models.Model, self).create(values)
+
+    @api.multi
+    def _create_account_move_line(self, session=None, move_id=None):
+        res = super(PosOrder, self)._create_account_move_line(session, move_id)
+
+        move = self.env['account.move'].sudo().browse(move_id)
+        move.ensure_one()
+
+        all_lines = []
+        for order in self:
+            _logger.info(order)
+            for line in order.company_taxes:
+                tax = self.env['account.tax'].browse(line.tax_id.id)[0]
+                counter_account_id = tax.account_id_counterpart.id
+
+                values = [{
+                    'name': line.description,
+                    'quantity': 1,
+                    'account_id': line.account_id.id,
+                    'credit': ((line.amount>0) and line.amount) or 0.0,
+                    'debit': ((line.amount<0) and -line.amount) or 0.0,
+                    'tax_line_id': line.tax_id.id,
+                    'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
+                    'move_id': move_id
+                },
+                {
+                    'name': line.description,
+                    'quantity': 1,
+                    'account_id': counter_account_id,
+                    'credit': ((line.amount<0) and -line.amount) or 0.0,
+                    'debit': ((line.amount>0) and line.amount) or 0.0,
+                    'tax_line_id': line.tax_id.id,
+                    'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
+                    'move_id': move_id
+                }]
+                map(lambda x: all_lines.append((0, 0, x)), values)
+
+        if move_id:
+            move.with_context(dont_create_taxes=True).write({'line_ids': all_lines})
+            move.post()
+        return res
+
 
 class PosOrderLineCompanyTaxes(models.Model):
     _name = 'pos.order.line.company_tax'
 
     description = fields.Char(string="Tax description")
-    account_id = fields.Integer("Tax Account")
+    account_id = fields.Many2one('account.account', string='Account',
+        required=True)
     amount = fields.Float("Amount")
     order_id = fields.Many2one('pos.order', string='Order', ondelete='cascade')
+    tax_id = fields.Many2one('account.tax', string='Tax', ondelete='restrict')
+    sequence = fields.Integer(help="Gives the sequence order when displaying a list of invoice tax.")
