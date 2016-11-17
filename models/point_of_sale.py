@@ -150,46 +150,6 @@ class PosOrder(models.Model):
             move.post()
         return res
 
-    # @api.multi
-    # def refund(self):
-    #     """Create a copy of order  for refund order"""
-    #     clone_list = []
-    #     line_obj = self.env['pos.order.line']
-
-    #     for order in self:
-    #         current_session_ids = self.env['pos.session'].search([
-    #             ('state', '!=', 'closed'),
-    #             ('user_id', '=', self.env.user.id)])
-    #         if not current_session_ids:
-    #             raise UserError(_('To return product(s), you need to open a session that will be used to register the refund.'))
-
-    #         clone_id = self.copy({
-    #             'name': order.name + ' REFUND', # not used, name forced by create
-    #             'session_id': current_session_ids.id,
-    #             'date_order': time.strftime('%Y-%m-%d %H:%M:%S'),
-    #         })
-
-    #         clone_list.append(clone_id)
-
-    #     for clone in self.browse(clone_list):
-    #         for order_line in clone.lines:
-    #             line_obj.write({
-    #                 'qty': -order_line.qty
-    #             })
-
-    #     abs = {
-    #         'name': _('Return Products'),
-    #         'view_type': 'form',
-    #         'view_mode': 'form',
-    #         'res_model': 'pos.order',
-    #         'res_id':clone_list[0],
-    #         'view_id': False,
-    #         'context':context,
-    #         'type': 'ir.actions.act_window',
-    #         'target': 'current',
-    #     }
-    #     return abs
-
 class PosOrderLineCompanyTaxes(models.Model):
     _name = 'pos.order.line.company_tax'
 
