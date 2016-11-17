@@ -21,5 +21,16 @@
       </field>
     </record>
 
+    <record model="ir.ui.view" id="view_pos_config_form">
+      <field name="name">pos.config.form.view</field>
+      <field name="model">pos.config</field>
+      <field name="inherit_id" ref="point_of_sale.view_pos_config_form" />
+      <field name="arch" type="xml">
+          <field name="fiscal_position_ids" position="after">
+              <field name="sequence_refund_id" readonly="1" groups="base.group_no_one"/>
+          </field>
+      </field>
+    </record>
+
   </data>
 </openerp>
