@@ -18,6 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.       #
 ###############################################################################
 import logging
+import time
 
 import openerp.addons.decimal_precision as dp
 from openerp import tools, models, SUPERUSER_ID
@@ -97,11 +98,15 @@ class PosOrder(models.Model):
         if values.get('session_id'):
             # set name based on the sequence specified on the config
             session = self.env['pos.session'].browse(values['session_id'])
-            values['name'] = session.config_id.sequence_id._next()
+            if 'REFUND' not in values['name']:
+                values['name'] = session.config_id.sequence_id._next()
+            else:
+                values['name'] = session.config_id.sequence_refund_id._next()
             values.setdefault('session_id', session.config_id.pricelist_id.id)
         else:
             # fallback on any pos.order sequence
             values['name'] = self.env['ir.sequence'].next_by_code('pos.order')
+
         return super(models.Model, self).create(values)
 
     @api.multi
@@ -145,14 +150,36 @@ class PosOrder(models.Model):
             move.post()
         return res
 
-
 class PosOrderLineCompanyTaxes(models.Model):
     _name = 'pos.order.line.company_tax'
 
-    description = fields.Char(string="Tax description")
+    description = fields.Char(related='tax_id.name', string="Tax description")
     account_id = fields.Many2one('account.account', string='Account',
         required=True)
     amount = fields.Float("Amount")
     order_id = fields.Many2one('pos.order', string='Order', ondelete='cascade')
     tax_id = fields.Many2one('account.tax', string='Tax', ondelete='restrict')
     sequence = fields.Integer(help="Gives the sequence order when displaying a list of invoice tax.")
+
+class PosConfig(models.Model):
+    _name = 'pos.config'
+    _inherit = 'pos.config'
+
+    sequence_refund_id = fields.Many2one('ir.sequence', 'Refund Order IDs Sequence', readonly=True,
+                                  help="This sequence is automatically created by Odoo but you can change it "\
+                                  "to customize the reference numbers of your orders.", copy=False)
+
+    @api.model
+    def create(self, values):
+        IrSequence = self.env['ir.sequence']
+
+        val = {
+            'name': 'POS Refund %s' % values['name'],
+            'padding': 4,
+            'prefix': "%s/" % values['name'],
+            'code': "pos.order",
+            'company_id': values.get('company_id', False)
+        }
+        values['sequence_refund_id'] = IrSequence.create(val).id
+
+        return super(PosConfig, self).create(values)
