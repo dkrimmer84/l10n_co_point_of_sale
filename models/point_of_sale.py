@@ -35,6 +35,7 @@ class PosOrder(models.Model):
     _name = "pos.order"
     _inherit = "pos.order"
 
+    @api.depends('amount_total')
     def _compute_company_taxes(self):
         for order in self:
             tax_grouped = {}
@@ -69,23 +70,18 @@ class PosOrder(models.Model):
                 for tax in tax_grouped.values():
                     company_taxes += company_taxes.new(tax)
 
-                _logger.info("%s" % tax_grouped)
                 self.company_taxes = company_taxes
-                _logger.info("%s" % self.company_taxes)
-
             else:
                 raise UserError(_('Debe definir una posicion fiscal para el partner asociado a la compañía actual'))
         return
 
 
     company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes',
-                                    readonly=True)
+                                    compute=_compute_company_taxes, store=True)
 
     @api.model
     def _process_order(self, order):
         order_id = super(PosOrder, self)._process_order(order)
-        order = self.env['pos.order'].browse(order_id)
-        order._compute_company_taxes()
         return order_id
 
     @api.model
@@ -98,16 +94,31 @@ class PosOrder(models.Model):
         if values.get('session_id'):
             # set name based on the sequence specified on the config
             session = self.env['pos.session'].browse(values['session_id'])
-            if 'REFUND' not in values['name']:
+            try:
+                if 'REFUND' not in values['name']:
+                    values['name'] = session.config_id.sequence_id._next()
+                else:
+                    values['name'] = session.config_id.sequence_refund_id._next()
+            except KeyError:
                 values['name'] = session.config_id.sequence_id._next()
-            else:
-                values['name'] = session.config_id.sequence_refund_id._next()
+
             values.setdefault('session_id', session.config_id.pricelist_id.id)
         else:
             # fallback on any pos.order sequence
             values['name'] = self.env['ir.sequence'].next_by_code('pos.order')
 
         return super(models.Model, self).create(values)
+
+    @api.multi
+    def refund(self):
+        abs = super(PosOrder, self).refund()
+
+        refund_ids = abs['res_id']
+        orders = self.env['pos.order'].browse(refund_ids)
+        for order in orders:
+            for company_tax in order.company_taxes:
+                company_tax.write({'amount': -company_tax.amount})
+        return abs
 
     @api.multi
     def _create_account_move_line(self, session=None, move_id=None):
@@ -117,8 +128,9 @@ class PosOrder(models.Model):
         move.ensure_one()
 
         all_lines = []
+        items = {}
         for order in self:
-            _logger.info(order)
+
             for line in order.company_taxes:
                 tax = self.env['account.tax'].browse(line.tax_id.id)[0]
                 counter_account_id = tax.account_id_counterpart.id
