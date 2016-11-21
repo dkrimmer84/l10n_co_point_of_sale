@@ -36,6 +36,7 @@ class PosOrder(models.Model):
     _inherit = "pos.order"
 
     @api.depends('amount_total')
+    @api.onchange('lines.qty')
     def _compute_company_taxes(self):
         for order in self:
             tax_grouped = {}
