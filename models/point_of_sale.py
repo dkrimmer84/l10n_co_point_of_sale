@@ -35,15 +35,16 @@ class PosOrder(models.Model):
     _name = "pos.order"
     _inherit = "pos.order"
 
+    @api.multi
     @api.depends('amount_total')
-    @api.onchange('lines.qty')
+    @api.onchange('lines.price_subtotal')
     def _compute_company_taxes(self):
         for order in self:
             tax_grouped = {}
 
             if order.company_id.partner_id.property_account_position_id:
                 fp = self.env['account.fiscal.position'].search(
-                    [('id', '=', self.company_id.partner_id.property_account_position_id.id)])
+                    [('id', '=', order.company_id.partner_id.property_account_position_id.id)])
                 fp.ensure_one()
 
                 tax_ids = self.env['account.tax'].search([('id', 'in', [tax.tax_id.id for tax in fp.tax_ids_invoice]),
@@ -66,19 +67,17 @@ class PosOrder(models.Model):
                     else:
                         tax_grouped[key]['amount'] += val['amount']
 
-                company_taxes = self.company_taxes.browse([])
+                # company_taxes = self.env['pos.order.line.company_tax']
+                # for tax in tax_grouped.values():
+                #     company_taxes.create(tax)
 
-                for tax in tax_grouped.values():
-                    company_taxes += company_taxes.new(tax)
-
-                self.company_taxes = company_taxes
             else:
                 raise UserError(_('Debe definir una posicion fiscal para el partner asociado a la compañía actual'))
         return
 
 
     company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes',
-                                    compute=_compute_company_taxes, store=True)
+                                    compute=_compute_company_taxes, readonly=True)
 
     @api.model
     def _process_order(self, order):
@@ -117,8 +116,10 @@ class PosOrder(models.Model):
         refund_ids = abs['res_id']
         orders = self.env['pos.order'].browse(refund_ids)
         for order in orders:
-            for company_tax in order.company_taxes:
-                company_tax.write({'amount': -company_tax.amount})
+            order._compute_company_taxes()
+            # for company_tax in order.company_taxes:
+            #     company_tax.write({'amount': -company_tax.amount})
+
         return abs
 
     @api.multi
