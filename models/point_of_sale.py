@@ -35,10 +35,12 @@ class PosOrder(models.Model):
     _name = "pos.order"
     _inherit = "pos.order"
 
+    
+    company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes',
+                                    readonly=True)
+
     @api.multi
-    @api.depends('amount_total')
-    @api.onchange('lines.price_subtotal')
-    def _compute_company_taxes(self):
+    def get_taxes_values(self):
         for order in self:
             tax_grouped = {}
 
@@ -53,7 +55,6 @@ class PosOrder(models.Model):
                     tax = tax_id.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes'][0]
 
                     val = {
-                        'order_id': order.id,
                         'description': tax['name'],
                         'tax_id': tax['id'],
                         'amount': tax['amount'],
@@ -61,23 +62,38 @@ class PosOrder(models.Model):
                         'account_id': tax['account_id'] #or tax['']
                     }
 
-                    key = tax['id']
+                    key = str(tax_id.id) + '-' + str(tax_id.account_id.id)
                     if key not in tax_grouped:
                         tax_grouped[key] = val
                     else:
                         tax_grouped[key]['amount'] += val['amount']
 
-                # company_taxes = self.env['pos.order.line.company_tax']
-                # for tax in tax_grouped.values():
-                #     company_taxes.create(tax)
-
+                    return tax_grouped
             else:
                 raise UserError(_('Debe definir una posicion fiscal para el partner asociado a la compañía actual'))
+
+    @api.multi
+    def _compute_company_taxes(self):
+        company_tax = self.env['pos.order.line.company_tax']
+        ctx = dict(self._context)
+
+        for order in self:
+            tax_grouped = order.get_taxes_values()
+
+            for tax in tax_grouped.values():
+                company_tax.create(tax)
+
+        return self.with_context(ctx).write({'company_taxes': []})
+
+    @api.onchange('lines.price_subtotal', 'amount_total', 'company_taxes')
+    def _onchange_company_taxes(self):
+        tax_grouped = self.get_taxes_values()
+        company_taxes = self.company_taxes.browse([])
+
+        for value in tax_grouped.values():
+            company_taxes += company_taxes.new(value)
+        self.company_taxes = company_taxes
         return
-
-
-    company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes',
-                                    compute=_compute_company_taxes, readonly=True)
 
     @api.model
     def _process_order(self, order):
@@ -107,7 +123,10 @@ class PosOrder(models.Model):
             # fallback on any pos.order sequence
             values['name'] = self.env['ir.sequence'].next_by_code('pos.order')
 
-        return super(models.Model, self).create(values)
+        orders = super(models.Model, self).create(values)
+        for order in orders:
+            order._compute_company_taxes()
+        return orders
 
     @api.multi
     def refund(self):
@@ -116,9 +135,8 @@ class PosOrder(models.Model):
         refund_ids = abs['res_id']
         orders = self.env['pos.order'].browse(refund_ids)
         for order in orders:
-            order._compute_company_taxes()
-            # for company_tax in order.company_taxes:
-            #     company_tax.write({'amount': -company_tax.amount})
+            for tax in order.company_taxes:
+                tax.write({'amount': -tax.amount})
 
         return abs
 
