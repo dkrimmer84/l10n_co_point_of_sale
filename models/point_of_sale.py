@@ -49,12 +49,14 @@ class PosOrder(models.Model):
                     [('id', '=', order.company_id.partner_id.property_account_position_id.id)])
                 fp.ensure_one()
 
-                tax_ids = self.env['account.tax'].search([('id', 'in', [tax.tax_id.id for tax in fp.tax_ids_invoice]),
-                                                          ('type_tax_use', '=', 'sale')])
+                tax_ids = [tax.tax_id.id for tax in fp.tax_ids_invoice]
+                tax_ids = self.env['account.tax'].browse(tax_ids)
+
                 for tax_id in tax_ids:
                     tax = tax_id.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes'][0]
 
                     val = {
+                        'order_id': order.id,
                         'description': tax['name'],
                         'tax_id': tax['id'],
                         'amount': tax['amount'],
@@ -62,13 +64,13 @@ class PosOrder(models.Model):
                         'account_id': tax['account_id'] #or tax['']
                     }
 
-                    key = str(tax_id.id) + '-' + str(tax_id.account_id.id)
+                    key = str(tax['id']) + '-' + str(tax['account_id'])
                     if key not in tax_grouped:
                         tax_grouped[key] = val
                     else:
                         tax_grouped[key]['amount'] += val['amount']
 
-                    return tax_grouped
+                return tax_grouped
             else:
                 raise UserError(_('Debe definir una posicion fiscal para el partner asociado a la compañía actual'))
 
