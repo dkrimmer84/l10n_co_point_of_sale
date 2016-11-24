@@ -35,9 +35,20 @@ class PosOrder(models.Model):
     _name = "pos.order"
     _inherit = "pos.order"
 
-    
+
     company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes',
                                     readonly=True)
+
+
+    def _prepare_tax_line_vals(self, tax):
+        return {
+            'order_id': self.id,
+            'description': tax['name'],
+            'tax_id': tax['id'],
+            'amount': tax['amount'],
+            'sequence': tax['sequence'],
+            'account_id': tax['account_id'] #or tax['']
+        }
 
     @api.multi
     def get_taxes_values(self):
@@ -55,14 +66,7 @@ class PosOrder(models.Model):
                 for tax_id in tax_ids:
                     tax = tax_id.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes'][0]
 
-                    val = {
-                        'order_id': order.id,
-                        'description': tax['name'],
-                        'tax_id': tax['id'],
-                        'amount': tax['amount'],
-                        'sequence': tax['sequence'],
-                        'account_id': tax['account_id'] #or tax['']
-                    }
+                    val = self._prepare_tax_line_vals(tax)
 
                     key = str(tax['id']) + '-' + str(tax['account_id'])
                     if key not in tax_grouped:
@@ -85,12 +89,16 @@ class PosOrder(models.Model):
             for tax in tax_grouped.values():
                 company_tax.create(tax)
 
-        return self.with_context(ctx).write({'company_taxes': []})
+        return self.with_context(ctx).write({'lines': []})
 
-    @api.onchange('lines.price_subtotal', 'amount_total', 'company_taxes')
+    @api.onchange('lines')
     def _onchange_company_taxes(self):
         tax_grouped = self.get_taxes_values()
         company_taxes = self.company_taxes.browse([])
+
+        for company_tax in self.company_taxes:
+            key =  str(company_tax.tax_id.id) + '-' + str(company_tax.account_id.id)
+            company_tax.write({'amount': tax_grouped[key]['amount']})
 
         for value in tax_grouped.values():
             company_taxes += company_taxes.new(value)
@@ -134,8 +142,10 @@ class PosOrder(models.Model):
     def refund(self):
         abs = super(PosOrder, self).refund()
 
+
         refund_ids = abs['res_id']
         orders = self.env['pos.order'].browse(refund_ids)
+
         for order in orders:
             for tax in order.company_taxes:
                 tax.write({'amount': -tax.amount})
@@ -191,7 +201,7 @@ class PosOrderLineCompanyTaxes(models.Model):
     account_id = fields.Many2one('account.account', string='Account',
         required=True)
     amount = fields.Float("Amount")
-    order_id = fields.Many2one('pos.order', string='Order', ondelete='cascade')
+    order_id = fields.Many2one('pos.order', string='Order', ondelete='cascade', index=True)
     tax_id = fields.Many2one('account.tax', string='Tax', ondelete='restrict')
     sequence = fields.Integer(help="Gives the sequence order when displaying a list of invoice tax.")
 
