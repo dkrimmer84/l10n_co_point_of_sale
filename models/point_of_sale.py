@@ -167,6 +167,7 @@ class PosOrder(models.Model):
                 tax = self.env['account.tax'].browse(line.tax_id.id)[0]
                 counter_account_id = tax.account_id_counterpart.id
 
+                key = (order.partner_id.id, line.tax_id.id)
                 values = [{
                     'name': line.description,
                     'quantity': 1,
@@ -187,12 +188,107 @@ class PosOrder(models.Model):
                     'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
                     'move_id': move_id
                 }]
-                map(lambda x: all_lines.append((0, 0, x)), values)
+                if key not in items:
+                    items[key] = values
+                else:
+                    move_lines = items[key]
+                    move_lines[0]['credit'] += values[0]['credit']
+                    move_lines[0]['debit'] += values[0]['debit']
+                    move_lines[1]['credit'] += values[1]['credit']
+                    move_lines[1]['debit'] += values[1]['debit']
+
+        map(lambda x: map (lambda y: all_lines.append((0, 0, y)), x), items.values())
+
+                # if order.company_id.anglo_saxon_accounting:
+                #     for i_line in order.lines:
+                #         anglo_saxon_lines = order._anglo_saxon_sale_move_lines(i_line)
+                #         all_lines.extend(anglo_saxon_lines)
 
         if move_id:
             move.with_context(dont_create_taxes=True).write({'line_ids': all_lines})
             move.post()
         return res
+
+    @api.model
+    def _anglo_saxon_sale_move_lines(self, i_line):
+        """Return the additional move lines for sales invoices and refunds.
+
+        i_line: An account.invoice.line object.
+        res: The move line entries produced so far by the parent move_line_get.
+        """
+        order = i_line.order_id
+        company_currency = order.company_id.currency_id.id
+
+        if i_line.product_id.type in ('product', 'consu') and i_line.product_id.valuation == 'real_time':
+            fpos = i_line.order_id.fiscal_position_id
+            accounts = i_line.product_id.product_tmpl_id.get_product_accounts(fiscal_pos=fpos)
+            # debit account dacc will be the output account
+            dacc = accounts['stock_output'].id
+            # credit account cacc will be the expense account
+            cacc = accounts['expense'].id
+            if dacc and cacc:
+                price_unit = i_line._get_anglo_saxon_price_unit()
+                return [
+                    {
+                        'type':'src',
+                        'name': i_line.name[:64],
+                        'price_unit': price_unit,
+                        'quantity': i_line.qty,
+                        'price': self.env['pos.order.line']._get_price(inv, company_currency, i_line, price_unit),
+                        'account_id':dacc,
+                        'product_id':i_line.product_id.id,
+                        'uom_id':i_line.product_id.uom_id.id,
+                    },
+                    {
+                        'type':'src',
+                        'name': i_line.name[:64],
+                        'price_unit': price_unit,
+                        'quantity': i_line.qty,
+                        'price': -1 * self.env['pos.order.line']._get_price(inv, company_currency, i_line, price_unit),
+                        'account_id':cacc,
+                        'product_id':i_line.product_id.id,
+                        'uom_id':i_line.product_id.uom_id.id,
+                    },
+                ]
+        return []
+
+    # def _prepare_refund(self, cr, uid, invoice, date_invoice=None, date=None, description=None, journal_id=None, context=None):
+    #     invoice_data = super(account_invoice, self)._prepare_refund(cr, uid, invoice, date_invoice, date,
+    #                                                                 description, journal_id, context=context)
+    #     #for anglo-saxon accounting
+    #     if invoice.company_id.anglo_saxon_accounting and invoice.type == 'in_invoice':
+    #         fiscal_position = self.pool.get('account.fiscal.position')
+    #         for dummy, dummy, line_dict in invoice_data['invoice_line_ids']:
+    #             if line_dict.get('product_id'):
+    #                 product = self.pool.get('product.product').browse(cr, uid, line_dict['product_id'], context=context)
+    #                 counterpart_acct_id = product.property_stock_account_output and \
+    #                         product.property_stock_account_output.id
+    #                 if not counterpart_acct_id:
+    #                     counterpart_acct_id = product.categ_id.property_stock_account_output_categ_id and \
+    #                             product.categ_id.property_stock_account_output_categ_id.id
+    #                 if counterpart_acct_id:
+    #                     fpos = invoice.fiscal_position_id or False
+    #                     line_dict['account_id'] = fiscal_position.map_account(cr, uid,
+    #                                                                           fpos,
+    #                                                                           counterpart_acct_id)
+    #     return invoice_data
+
+class PosOrderLine(models.Model):
+    _name = 'pos.order.line'
+    _inherit = 'pos.order.line'
+
+    def _get_anglo_saxon_price_unit(self):
+        self.ensure_one()
+        return self.product_id.standard_price
+
+    @api.model
+    def _get_price(self, inv, company_currency, i_line, price_unit):
+        cur_obj = self.env['res.currency']
+        if inv.currency_id.id != company_currency:
+            price = cur_obj.with_context(date=inv.date_invoice).compute(company_currency, inv.currency_id.id, price_unit * i_line.quantity)
+        else:
+            price = price_unit * i_line.quantity
+        return round(price, inv.currency_id.decimal_places)
 
 class PosOrderLineCompanyTaxes(models.Model):
     _name = 'pos.order.line.company_tax'
