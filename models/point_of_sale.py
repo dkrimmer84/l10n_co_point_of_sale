@@ -47,36 +47,36 @@ class PosOrder(models.Model):
             'tax_id': tax['id'],
             'amount': tax['amount'],
             'sequence': tax['sequence'],
-            'account_id': tax['account_id'] #or tax['']
+            'account_id': tax['account_id'],
+            'account_analytic_id': tax['analytic'] or False,
         }
 
     @api.multi
     def get_taxes_values(self):
+        tax_grouped = {}
+        _logger.info(self)
         for order in self:
-            tax_grouped = {}
-
             if order.company_id.partner_id.property_account_position_id:
                 fp = self.env['account.fiscal.position'].search(
                     [('id', '=', order.company_id.partner_id.property_account_position_id.id)])
                 fp.ensure_one()
 
-                tax_ids = [tax.tax_id.id for tax in fp.tax_ids_invoice]
-                tax_ids = self.env['account.tax'].browse(tax_ids)
+                fp_tax_ids = [tax.tax_id.id for tax in fp.tax_ids_invoice]
+                tax_ids = self.env['account.tax'].browse(fp_tax_ids)
+                taxes = tax_ids.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes']
 
-                for tax_id in tax_ids:
-                    tax = tax_id.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes'][0]
-
+                for tax in taxes:
                     val = self._prepare_tax_line_vals(tax)
+                    key = self.env['account.tax'].browse(tax['id']).get_grouping_key(val)
 
-                    key = str(tax['id']) + '-' + str(tax['account_id'])
                     if key not in tax_grouped:
                         tax_grouped[key] = val
                     else:
                         tax_grouped[key]['amount'] += val['amount']
-
-                return tax_grouped
             else:
                 raise UserError(_('Debe definir una posicion fiscal para el partner asociado a la compañía actual'))
+
+        return tax_grouped
 
     @api.multi
     def _compute_company_taxes(self):
@@ -85,7 +85,7 @@ class PosOrder(models.Model):
 
         for order in self:
             tax_grouped = order.get_taxes_values()
-
+            _logger.info(tax_grouped)
             for tax in tax_grouped.values():
                 company_tax.create(tax)
 
@@ -95,25 +95,11 @@ class PosOrder(models.Model):
     def _onchange_company_taxes(self):
         tax_grouped = self.get_taxes_values()
         company_taxes = self.company_taxes.browse([])
-
-        for company_tax in self.company_taxes:
-            key =  str(company_tax.tax_id.id) + '-' + str(company_tax.account_id.id)
-            company_tax.write({'amount': tax_grouped[key]['amount']})
-
+        _logger.info(tax_grouped)
         for value in tax_grouped.values():
             company_taxes += company_taxes.new(value)
         self.company_taxes = company_taxes
         return
-
-    @api.model
-    def _process_order(self, order):
-        order_id = super(PosOrder, self)._process_order(order)
-        return order_id
-
-    @api.model
-    def _order_fields(self, ui_order):
-        order = super(PosOrder, self)._order_fields(ui_order)
-        return order
 
     @api.model
     def create(self, values):
@@ -133,15 +119,14 @@ class PosOrder(models.Model):
             # fallback on any pos.order sequence
             values['name'] = self.env['ir.sequence'].next_by_code('pos.order')
 
-        orders = super(models.Model, self).create(values)
-        for order in orders:
+        order = super(models.Model, self).create(values)
+        if not order.company_taxes:
             order._compute_company_taxes()
-        return orders
+        return order
 
     @api.multi
     def refund(self):
         abs = super(PosOrder, self).refund()
-
 
         refund_ids = abs['res_id']
         orders = self.env['pos.order'].browse(refund_ids)
@@ -292,6 +277,7 @@ class PosOrderLine(models.Model):
 
 class PosOrderLineCompanyTaxes(models.Model):
     _name = 'pos.order.line.company_tax'
+    _order = 'sequence'
 
     description = fields.Char(related='tax_id.name', string="Tax description")
     account_id = fields.Many2one('account.account', string='Account',
