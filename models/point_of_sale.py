@@ -36,13 +36,12 @@ class PosOrder(models.Model):
     _inherit = "pos.order"
 
 
-    company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes',
-                                    readonly=True)
+    company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes')
 
 
     def _prepare_tax_line_vals(self, tax):
         return {
-            'order_id': self.id,
+            'order_id': self.id or self._origin.id,
             'description': tax['name'],
             'tax_id': tax['id'],
             'amount': tax['amount'],
@@ -54,7 +53,7 @@ class PosOrder(models.Model):
     @api.multi
     def get_taxes_values(self):
         tax_grouped = {}
-        _logger.info(self)
+
         for order in self:
             if order.company_id.partner_id.property_account_position_id:
                 fp = self.env['account.fiscal.position'].search(
@@ -85,7 +84,7 @@ class PosOrder(models.Model):
 
         for order in self:
             tax_grouped = order.get_taxes_values()
-            _logger.info(tax_grouped)
+
             for tax in tax_grouped.values():
                 company_tax.create(tax)
 
@@ -95,10 +94,11 @@ class PosOrder(models.Model):
     def _onchange_company_taxes(self):
         tax_grouped = self.get_taxes_values()
         company_taxes = self.company_taxes.browse([])
-        _logger.info(tax_grouped)
+
         for value in tax_grouped.values():
             company_taxes += company_taxes.new(value)
         self.company_taxes = company_taxes
+        self.update({'company_taxes': tax_grouped.values()})
         return
 
     @api.model
@@ -149,7 +149,7 @@ class PosOrder(models.Model):
         for order in self:
 
             for line in order.company_taxes:
-                tax = self.env['account.tax'].browse(line.tax_id.id)[0]
+                tax = self.env['account.tax'].browse(line.tax_id.id)
                 counter_account_id = tax.account_id_counterpart.id
 
                 key = (order.partner_id.id, line.tax_id.id)
@@ -182,13 +182,14 @@ class PosOrder(models.Model):
                     move_lines[1]['credit'] += values[1]['credit']
                     move_lines[1]['debit'] += values[1]['debit']
 
+            # if order.company_id.anglo_saxon_accounting:
+            #     for i_line in order.lines:
+            #         anglo_saxon_lines = order._anglo_saxon_sale_move_lines(i_line)
+            #         all_lines.extend(anglo_saxon_lines)
+
         map(lambda x: map (lambda y: all_lines.append((0, 0, y)), x), items.values())
 
-                # if order.company_id.anglo_saxon_accounting:
-                #     for i_line in order.lines:
-                #         anglo_saxon_lines = order._anglo_saxon_sale_move_lines(i_line)
-                #         all_lines.extend(anglo_saxon_lines)
-
+        _logger.info(all_lines)
         if move_id:
             move.with_context(dont_create_taxes=True).write({'line_ids': all_lines})
             move.post()
@@ -282,6 +283,7 @@ class PosOrderLineCompanyTaxes(models.Model):
     description = fields.Char(related='tax_id.name', string="Tax description")
     account_id = fields.Many2one('account.account', string='Account',
         required=True)
+    account_analytic_id = fields.Many2one('account.account', string='Analytic Account')
     amount = fields.Float("Amount")
     order_id = fields.Many2one('pos.order', string='Order', ondelete='cascade', index=True)
     tax_id = fields.Many2one('account.tax', string='Tax', ondelete='restrict')
