@@ -98,7 +98,7 @@ class PosOrder(models.Model):
         for value in tax_grouped.values():
             company_taxes += company_taxes.new(value)
         self.company_taxes = company_taxes
-        self.update({'company_taxes': tax_grouped.values()})
+#        self.update({'company_taxes': tax_grouped.values()})
         return
 
     @api.model
@@ -146,13 +146,23 @@ class PosOrder(models.Model):
 
         all_lines = []
         items = {}
+        taxes = {}
         for order in self:
+
 
             for line in order.company_taxes:
                 tax = self.env['account.tax'].browse(line.tax_id.id)
                 counter_account_id = tax.account_id_counterpart.id
 
-                key = (order.partner_id.id, line.tax_id.id)
+                key = (order.partner_id.id or "", line.tax_id.id)
+
+                if key not in items:
+                    taxes[key] = line
+                else:
+                    tax_line = taxes[key]
+                    tax_line.amount += line.amount
+
+            for key,line in taxes.iteritems(): 
                 values = [{
                     'name': line.description,
                     'quantity': 1,
@@ -173,19 +183,13 @@ class PosOrder(models.Model):
                     'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
                     'move_id': move_id
                 }]
-                if key not in items:
-                    items[key] = values
-                else:
-                    move_lines = items[key]
-                    move_lines[0]['credit'] += values[0]['credit']
-                    move_lines[0]['debit'] += values[0]['debit']
-                    move_lines[1]['credit'] += values[1]['credit']
-                    move_lines[1]['debit'] += values[1]['debit']
+                items[key] = values
 
-            # if order.company_id.anglo_saxon_accounting:
-            #     for i_line in order.lines:
-            #         anglo_saxon_lines = order._anglo_saxon_sale_move_lines(i_line)
-            #         all_lines.extend(anglo_saxon_lines)
+            if order.company_id.anglo_saxon_accounting:
+                for i_line in order.lines:
+                    anglo_saxon_lines = order._anglo_saxon_sale_move_lines(i_line)
+                    _logger.info(anglo_saxon_lines)
+                    all_lines.extend(anglo_saxon_lines)
 
         map(lambda x: map (lambda y: all_lines.append((0, 0, y)), x), items.values())
 
@@ -205,10 +209,11 @@ class PosOrder(models.Model):
         order = i_line.order_id
         company_currency = order.company_id.currency_id.id
 
-        if i_line.product_id.type in ('product', 'consu') and i_line.product_id.valuation == 'real_time':
+        if i_line.product_id.type in ('product', 'consu'): #and i_line.product_id.valuation == 'real_time':
             fpos = i_line.order_id.fiscal_position_id
             accounts = i_line.product_id.product_tmpl_id.get_product_accounts(fiscal_pos=fpos)
             # debit account dacc will be the output account
+
             dacc = accounts['stock_output'].id
             # credit account cacc will be the expense account
             cacc = accounts['expense'].id
