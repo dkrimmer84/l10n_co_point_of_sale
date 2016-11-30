@@ -13,6 +13,7 @@
                 <field name="name" />
                 <field name="account_id" />
                 <field name="amount" />
+                <field name="tax_id" invisible="1"/>
               </tree> 
             </field>
             <div class="oe_clear"/>

@@ -36,9 +36,7 @@ class PosOrder(models.Model):
     _inherit = "pos.order"
 
 
-    company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes',
-                                    readonly=True)
-
+    company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes')
 
     def _prepare_tax_line_vals(self, tax):
         return {
@@ -99,7 +97,6 @@ class PosOrder(models.Model):
         for value in tax_grouped.values():
             company_taxes += company_taxes.new(value)
         self.company_taxes = company_taxes
-#        self.update({'company_taxes': tax_grouped.values()})
         return
 
     @api.model
@@ -150,7 +147,6 @@ class PosOrder(models.Model):
         taxes = {}
         for order in self:
 
-
             for line in order.company_taxes:
                 tax = self.env['account.tax'].browse(line.tax_id.id)
                 counter_account_id = tax.account_id_counterpart.id
@@ -163,7 +159,6 @@ class PosOrder(models.Model):
                     tax_line = taxes[key]
                     tax_line.amount += line.amount
 
-            _logger.info(taxes.values())
             for key,line in taxes.iteritems(): 
                 values = [{
                     'name': line.name,
