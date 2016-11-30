@@ -10,7 +10,7 @@
           <page string="Company taxes">
             <field name="company_taxes" colspan="4" nolabel="1">
               <tree string="Company taxes">
-                <field name="description" />
+                <field name="name" />
                 <field name="account_id" />
                 <field name="amount" />
               </tree> 

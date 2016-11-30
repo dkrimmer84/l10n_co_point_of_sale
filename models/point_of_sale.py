@@ -36,13 +36,14 @@ class PosOrder(models.Model):
     _inherit = "pos.order"
 
 
-    company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes')
+    company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes',
+                                    readonly=True)
 
 
     def _prepare_tax_line_vals(self, tax):
         return {
             'order_id': self.id or self._origin.id,
-            'description': tax['name'],
+            'name': tax['name'],
             'tax_id': tax['id'],
             'amount': tax['amount'],
             'sequence': tax['sequence'],
@@ -162,9 +163,10 @@ class PosOrder(models.Model):
                     tax_line = taxes[key]
                     tax_line.amount += line.amount
 
+            _logger.info(taxes.values())
             for key,line in taxes.iteritems(): 
                 values = [{
-                    'name': line.description,
+                    'name': line.name,
                     'quantity': 1,
                     'account_id': line.account_id.id,
                     'credit': ((line.amount>0) and line.amount) or 0.0,
@@ -174,7 +176,7 @@ class PosOrder(models.Model):
                     'move_id': move_id
                 },
                 {
-                    'name': line.description,
+                    'name': line.name,
                     'quantity': 1,
                     'account_id': counter_account_id,
                     'credit': ((line.amount<0) and -line.amount) or 0.0,
@@ -188,12 +190,10 @@ class PosOrder(models.Model):
             if order.company_id.anglo_saxon_accounting:
                 for i_line in order.lines:
                     anglo_saxon_lines = order._anglo_saxon_sale_move_lines(i_line)
-                    _logger.info(anglo_saxon_lines)
                     all_lines.extend(anglo_saxon_lines)
 
         map(lambda x: map (lambda y: all_lines.append((0, 0, y)), x), items.values())
 
-        _logger.info(all_lines)
         if move_id:
             move.with_context(dont_create_taxes=True).write({'line_ids': all_lines})
             move.post()
@@ -285,13 +285,13 @@ class PosOrderLineCompanyTaxes(models.Model):
     _name = 'pos.order.line.company_tax'
     _order = 'sequence'
 
-    description = fields.Char(related='tax_id.name', string="Tax description")
+    name = fields.Char(string="Tax description", required=True)
     account_id = fields.Many2one('account.account', string='Account',
         required=True)
     account_analytic_id = fields.Many2one('account.account', string='Analytic Account')
     amount = fields.Float("Amount")
     order_id = fields.Many2one('pos.order', string='Order', ondelete='cascade', index=True)
-    tax_id = fields.Many2one('account.tax', string='Tax', ondelete='restrict')
+    tax_id = fields.Many2one('account.tax', string='Tax', ondelete='restrict', required=True)
     sequence = fields.Integer(help="Gives the sequence order when displaying a list of invoice tax.")
 
 class PosConfig(models.Model):
