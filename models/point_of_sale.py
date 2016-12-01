@@ -161,7 +161,7 @@ class PosOrder(models.Model):
 
             for key,line in taxes.iteritems(): 
                 values = [{
-                    'name': line.name,
+                    'name': line.name[:64],
                     'quantity': 1,
                     'account_id': line.account_id.id,
                     'credit': ((line.amount>0) and line.amount) or 0.0,
@@ -171,7 +171,7 @@ class PosOrder(models.Model):
                     'move_id': move_id
                 },
                 {
-                    'name': line.name,
+                    'name': line.name[:64],
                     'quantity': 1,
                     'account_id': counter_account_id,
                     'credit': ((line.amount<0) and -line.amount) or 0.0,
@@ -213,28 +213,33 @@ class PosOrder(models.Model):
             # credit account cacc will be the expense account
             cacc = accounts['expense'].id
             if dacc and cacc:
+
                 price_unit = i_line._get_anglo_saxon_price_unit()
+                price = self.env['pos.order.line']._get_price(order, company_currency, i_line, price_unit)
+                _logger.info(price)
                 return [
-                    {
-                        'type':'src',
+                    (0, 0, {
                         'name': i_line.name[:64],
-                        'price_unit': price_unit,
+                        'debit': ((price<0) and -price) or 0.0,
+                        'credit': ((price>0) and price) or 0.0,
+                        'account_id': dacc,
                         'quantity': i_line.qty,
-                        'price': self.env['pos.order.line']._get_price(inv, company_currency, i_line, price_unit),
-                        'account_id':dacc,
-                        'product_id':i_line.product_id.id,
-                        'uom_id':i_line.product_id.uom_id.id,
-                    },
-                    {
-                        'type':'src',
+                        'product_id': i_line.product_id.id,
+                        'product_uom_id': i_line.product_id.uom_id.id,
+                        'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
+                        'move_id': order.account_move.id
+                    }),
+                    (0, 0, {
                         'name': i_line.name[:64],
-                        'price_unit': price_unit,
+                        'debit': ((price>0) and price) or 0.0,
+                        'credit': ((price<0) and -price) or 0.0,
+                        'account_id': cacc,
                         'quantity': i_line.qty,
-                        'price': -1 * self.env['pos.order.line']._get_price(inv, company_currency, i_line, price_unit),
-                        'account_id':cacc,
-                        'product_id':i_line.product_id.id,
-                        'uom_id':i_line.product_id.uom_id.id,
-                    },
+                        'product_id': i_line.product_id.id,
+                        'product_uom_id': i_line.product_id.uom_id.id,
+                        'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
+                        'move_id': order.account_move.id
+                    }),
                 ]
         return []
 
@@ -268,13 +273,13 @@ class PosOrderLine(models.Model):
         return self.product_id.standard_price
 
     @api.model
-    def _get_price(self, inv, company_currency, i_line, price_unit):
+    def _get_price(self, order, company_currency, i_line, price_unit):
         cur_obj = self.env['res.currency']
-        if inv.currency_id.id != company_currency:
-            price = cur_obj.with_context(date=inv.date_invoice).compute(company_currency, inv.currency_id.id, price_unit * i_line.quantity)
+        if order.company_id.currency_id.id != company_currency:
+            price = cur_obj.with_context(date=order.create_date).compute(company_currency, order.company_id.currency_id.id, price_unit * i_line.qty)
         else:
-            price = price_unit * i_line.quantity
-        return round(price, inv.currency_id.decimal_places)
+            price = price_unit * i_line.qty
+        return round(price, order.company_id.currency_id.decimal_places)
 
 class PosOrderLineCompanyTaxes(models.Model):
     _name = 'pos.order.line.company_tax'
