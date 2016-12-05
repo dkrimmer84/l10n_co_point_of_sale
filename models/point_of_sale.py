@@ -35,8 +35,11 @@ class PosOrder(models.Model):
     _name = "pos.order"
     _inherit = "pos.order"
 
-
     company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes')
+    type = fields.Selection([
+        ('out_invoice','Customer Invoice'),
+        ('out_refund','Customer Refund')
+    ], readonly=True, default='out_invoice')
 
     def _prepare_tax_line_vals(self, tax):
         return {
@@ -130,6 +133,7 @@ class PosOrder(models.Model):
         orders = self.env['pos.order'].browse(refund_ids)
 
         for order in orders:
+            order.write({'type': 'out_refund'})
             for tax in order.company_taxes:
                 tax.write({'amount': -tax.amount})
 
@@ -151,7 +155,7 @@ class PosOrder(models.Model):
                 tax = self.env['account.tax'].browse(line.tax_id.id)
                 counter_account_id = tax.account_id_counterpart.id
 
-                key = (order.partner_id.id or "", line.tax_id.id)
+                key = (order.type, order.partner_id.id or "", line.tax_id.id)
 
                 if key not in items:
                     taxes[key] = line
@@ -159,9 +163,15 @@ class PosOrder(models.Model):
                     tax_line = taxes[key]
                     tax_line.amount += line.amount
 
-            for key,line in taxes.iteritems(): 
+            for key,line in taxes.iteritems():
+                type, dummy, dummy = key
+                if type in 'out_refund':
+                    name = 'Refund ' + line.name
+                else:
+                    name = line.name
+
                 values = [{
-                    'name': line.name[:64],
+                    'name': name[:64],
                     'quantity': 1,
                     'account_id': line.account_id.id,
                     'credit': ((line.amount>0) and line.amount) or 0.0,
@@ -171,7 +181,7 @@ class PosOrder(models.Model):
                     'move_id': move_id
                 },
                 {
-                    'name': line.name[:64],
+                    'name': name[:64],
                     'quantity': 1,
                     'account_id': counter_account_id,
                     'credit': ((line.amount<0) and -line.amount) or 0.0,
