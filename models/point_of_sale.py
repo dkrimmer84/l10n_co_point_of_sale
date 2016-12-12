@@ -152,8 +152,8 @@ class PosOrder(models.Model):
         for order in self:
 
             for line in order.company_taxes:
-                tax = self.env['account.tax'].browse(line.tax_id.id)
-                counter_account_id = tax.account_id_counterpart.id
+
+
 
                 key = (order.type, order.partner_id.id or "", line.tax_id.id)
 
@@ -170,6 +170,9 @@ class PosOrder(models.Model):
                 else:
                     name = line.name
 
+                tax = self.env['account.tax'].browse(line.tax_id.id)
+                counter_account_id = tax.account_id_counterpart.id
+                
                 values = [{
                     'name': name[:64],
                     'quantity': 1,
