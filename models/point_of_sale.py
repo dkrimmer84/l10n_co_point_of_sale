@@ -172,7 +172,7 @@ class PosOrder(models.Model):
 
                 tax = self.env['account.tax'].browse(line.tax_id.id)
                 counter_account_id = tax.account_id_counterpart.id
-                
+
                 values = [{
                     'name': name[:64],
                     'quantity': 1,
@@ -229,7 +229,6 @@ class PosOrder(models.Model):
 
                 price_unit = i_line._get_anglo_saxon_price_unit()
                 price = self.env['pos.order.line']._get_price(order, company_currency, i_line, price_unit)
-                _logger.info(price)
                 return [
                     (0, 0, {
                         'name': i_line.name[:64],
