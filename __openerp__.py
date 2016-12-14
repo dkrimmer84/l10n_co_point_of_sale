@@ -23,7 +23,8 @@ Colombia Punto de Venta:
     'data': [
         'security/ir.model.access.csv',
         'views/pos_view.xml',
-        'views/point_of_sale_view.xml'
+        'views/point_of_sale_view.xml',
+        'views/report_receipt.xml'
     ],
     'qweb': ['static/src/xml/*.xml'],
     'installable': True,
