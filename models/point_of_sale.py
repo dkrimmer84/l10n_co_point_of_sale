@@ -40,6 +40,11 @@ class PosOrder(models.Model):
         ('out_invoice','Customer Invoice'),
         ('out_refund','Customer Refund')
     ], readonly=True, default='out_invoice')
+    resolution_number = fields.Char('Resolution number in order')
+    resolution_date = fields.Date()
+    resolution_number_from = fields.Integer("")
+    resolution_number_to = fields.Integer("")
+
 
     def _prepare_tax_line_vals(self, tax):
         return {
@@ -107,11 +112,18 @@ class PosOrder(models.Model):
         if values.get('session_id'):
             # set name based on the sequence specified on the config
             session = self.env['pos.session'].browse(values['session_id'])
+            sequence = None
             try:
                 if 'REFUND' not in values['name']:
                     values['name'] = session.config_id.sequence_id._next()
+                    sequence = self.env['ir.sequence.dian_resolution'] \
+                                   .search([('sequence_id','=',session.config_id.sequence_id.id),
+                                            ('active_resolution','=',True)], limit=1)
                 else:
                     values['name'] = session.config_id.sequence_refund_id._next()
+                    sequence = self.env['ir.sequence.dian_resolution'] \
+                                   .search([('sequence_id','=',session.config_id.sequence_refund_id.id),
+                                            ('active_resolution','=',True)], limit=1)
             except KeyError:
                 values['name'] = session.config_id.sequence_id._next()
 
@@ -119,6 +131,11 @@ class PosOrder(models.Model):
         else:
             # fallback on any pos.order sequence
             values['name'] = self.env['ir.sequence'].next_by_code('pos.order')
+
+        values['resolution_number'] = sequence['resolution_number']
+        values['resolution_number_from'] = sequence['number_from']
+        values['resolution_number_to'] = sequence['number_to']
+        values['resolution_date'] = sequence['date_from']
 
         order = super(models.Model, self).create(values)
         if not order.company_taxes:
@@ -152,9 +169,6 @@ class PosOrder(models.Model):
         for order in self:
 
             for line in order.company_taxes:
-
-
-
                 key = (order.type, order.partner_id.id or "", line.tax_id.id)
 
                 if key not in items:

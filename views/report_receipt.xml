@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <template id="l10n_co_point_of_sale_report_receipt" inherit_id="point_of_sale.report_receipt">
+      <xpath expr="//div[@class='page']/div[1]" position="inside">
+        <div class="col-xs-12 text-center">
+          Numero de resolucion: <span t-field="o.resolution_number"/><br/>
+          Rango desde: <span t-field="o.resolution_number_from"/> hasta <span t-field="o.resolution_number_to"/><br/>
+          Fecha de resolucion: <span t-field="o.resolution_date"/><br/>
+        </div>
+      </xpath>
+    </template>
+  </data>
+</openerp>
