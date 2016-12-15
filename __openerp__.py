@@ -21,10 +21,11 @@ Colombia Punto de Venta:
         'l10n_co_res_partner'
     ],
     'data': [
+        'security/ir.model.access.csv',
         'views/pos_view.xml',
         'views/point_of_sale_view.xml',
-        'report/report_sessionsummary.xml'
-    ],
+        'report/report_sessionsummary.xml,'
+        'views/report_receipt.xml'],
     'qweb': ['static/src/xml/*.xml'],
     'installable': True,
 }

@@ -35,8 +35,16 @@ class PosOrder(models.Model):
     _name = "pos.order"
     _inherit = "pos.order"
 
-
     company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes')
+    type = fields.Selection([
+        ('out_invoice','Customer Invoice'),
+        ('out_refund','Customer Refund')
+    ], readonly=True, default='out_invoice')
+    resolution_number = fields.Char('Resolution number in order')
+    resolution_date = fields.Date()
+    resolution_number_from = fields.Integer("")
+    resolution_number_to = fields.Integer("")
+
 
     def _prepare_tax_line_vals(self, tax):
         return {
@@ -104,11 +112,18 @@ class PosOrder(models.Model):
         if values.get('session_id'):
             # set name based on the sequence specified on the config
             session = self.env['pos.session'].browse(values['session_id'])
+            sequence = None
             try:
                 if 'REFUND' not in values['name']:
                     values['name'] = session.config_id.sequence_id._next()
+                    sequence = self.env['ir.sequence.dian_resolution'] \
+                                   .search([('sequence_id','=',session.config_id.sequence_id.id),
+                                            ('active_resolution','=',True)], limit=1)
                 else:
                     values['name'] = session.config_id.sequence_refund_id._next()
+                    sequence = self.env['ir.sequence.dian_resolution'] \
+                                   .search([('sequence_id','=',session.config_id.sequence_refund_id.id),
+                                            ('active_resolution','=',True)], limit=1)
             except KeyError:
                 values['name'] = session.config_id.sequence_id._next()
 
@@ -116,6 +131,11 @@ class PosOrder(models.Model):
         else:
             # fallback on any pos.order sequence
             values['name'] = self.env['ir.sequence'].next_by_code('pos.order')
+
+        values['resolution_number'] = sequence['resolution_number']
+        values['resolution_number_from'] = sequence['number_from']
+        values['resolution_number_to'] = sequence['number_to']
+        values['resolution_date'] = sequence['date_from']
 
         order = super(models.Model, self).create(values)
         if not order.company_taxes:
@@ -130,6 +150,7 @@ class PosOrder(models.Model):
         orders = self.env['pos.order'].browse(refund_ids)
 
         for order in orders:
+            order.write({'type': 'out_refund'})
             for tax in order.company_taxes:
                 tax.write({'amount': -tax.amount})
 
@@ -148,10 +169,7 @@ class PosOrder(models.Model):
         for order in self:
 
             for line in order.company_taxes:
-                tax = self.env['account.tax'].browse(line.tax_id.id)
-                counter_account_id = tax.account_id_counterpart.id
-
-                key = (order.partner_id.id or "", line.tax_id.id)
+                key = (order.type, order.partner_id.id or "", line.tax_id.id)
 
                 if key not in items:
                     taxes[key] = line
@@ -159,9 +177,18 @@ class PosOrder(models.Model):
                     tax_line = taxes[key]
                     tax_line.amount += line.amount
 
-            for key,line in taxes.iteritems(): 
+            for key,line in taxes.iteritems():
+                type, dummy, dummy = key
+                if type in 'out_refund':
+                    name = 'Refund ' + line.name
+                else:
+                    name = line.name
+
+                tax = self.env['account.tax'].browse(line.tax_id.id)
+                counter_account_id = tax.account_id_counterpart.id
+
                 values = [{
-                    'name': line.name[:64],
+                    'name': name[:64],
                     'quantity': 1,
                     'account_id': line.account_id.id,
                     'credit': ((line.amount>0) and line.amount) or 0.0,
@@ -171,7 +198,7 @@ class PosOrder(models.Model):
                     'move_id': move_id
                 },
                 {
-                    'name': line.name[:64],
+                    'name': name[:64],
                     'quantity': 1,
                     'account_id': counter_account_id,
                     'credit': ((line.amount<0) and -line.amount) or 0.0,
@@ -216,7 +243,6 @@ class PosOrder(models.Model):
 
                 price_unit = i_line._get_anglo_saxon_price_unit()
                 price = self.env['pos.order.line']._get_price(order, company_currency, i_line, price_unit)
-                _logger.info(price)
                 return [
                     (0, 0, {
                         'name': i_line.name[:64],
