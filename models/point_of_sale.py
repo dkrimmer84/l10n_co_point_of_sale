@@ -136,7 +136,7 @@ class PosOrder(models.Model):
         values['resolution_number_from'] = sequence['number_from']
         values['resolution_number_to'] = sequence['number_to']
         values['resolution_date'] = sequence['date_from']
-
+        
         order = super(models.Model, self).create(values)
         if not order.company_taxes:
             order._compute_company_taxes()
@@ -296,7 +296,10 @@ class PosOrderLine(models.Model):
 
     def _get_anglo_saxon_price_unit(self):
         self.ensure_one()
-        return self.product_id.standard_price
+        if self.order_id.picking_id:
+            move = self.order_id.picking_id.move_lines.search([('picking_id','=',self.order_id.picking_id.id),
+                                                               ('product_id','=',self.product_id.id)]).ensure_one()
+        return move.price_unit
 
     @api.model
     def _get_price(self, order, company_currency, i_line, price_unit):
