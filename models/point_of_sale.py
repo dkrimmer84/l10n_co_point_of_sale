@@ -345,3 +345,26 @@ class PosConfig(models.Model):
         values['sequence_refund_id'] = IrSequence.create(val).id
 
         return super(PosConfig, self).create(values)
+
+class pos_session(models.Model):
+    _inherit = 'pos.session'
+
+    taxes_description = fields.Html('taxes Description', compute = 'compute_taxes_description')
+    
+    @api.one
+    def compute_taxes_description(self):
+
+        impuesto = 'Iva'
+
+        for order in self.order_ids:
+            _logger.info('orden')
+            _logger.info(order.id)
+
+            for line in order.lines:
+                subtotal = line.price_unit * line.qty
+                descuento = (subtotal * line.discount)/100
+                iva = (subtotal * line.tax_ids_after_fiscal_position.amount)/100
+                total = (subtotal + iva - descuento)   
+        
+
+
