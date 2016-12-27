@@ -26,7 +26,7 @@
                     </div>
                     <div class="col-xs-3">
                         <strong>Hardware ID</strong>:<br/>
-                        <span t-field="o.config_id.name"/>
+                        <span t-field="o.mac"/>
                     </div>
                 </div>
                 <div class="row mt32 mb32">
@@ -49,6 +49,48 @@
                         <span t-field="o.order_ids[0].name"/>
                     </div>
                 </div>
+                <div>
+                    <h4>Total Sales POS</h4>
+                    <span t-raw="o.taxes_description"/><br/><br/>
+                </div>
+                <div>
+                    <h4>Total:</h4>
+                        <t t-set="total" t-value="0"/>
+                        <t t-set="subtotal" t-value="0"/>
+                        <t t-set="subtotaldiscount" t-value="0"/>
+                        <t t-set="descuentos" t-value="0"/>
+                        <t t-set="iva" t-value="0"/>
+                        <t t-set="cnt" t-value="0"/>
+                        <t t-set="impuesto" t-value="Iva"/>
+                        
+                        <t t-foreach="o.order_ids" t-as="order">
+                            <t t-set="cnt" t-value="cnt + 1"/>
+                            <t t-foreach="order.lines" t-as="lineas">
+                                <t t-set="impuesto" t-value="lineas.tax_ids_after_fiscal_position.name"/>
+                                <t t-if="impuesto == lineas.tax_ids_after_fiscal_position.name">
+                                    <t t-set="subtotal" t-value="subtotal + (lineas.price_unit * lineas.qty)"/>
+                                    <t t-set="descuentos" t-value="descuentos + ((lineas.price_unit * lineas.qty)*(lineas.discount)/100)"/>
+                                </t>
+
+                            </t>
+                            <t t-set="total" t-value="total + order.amount_total"/>
+                            <t t-set="iva" t-value="iva + order.amount_tax"/>
+                        </t>
+                        <t t-set="subtotaldiscount" t-value="subtotal - descuentos"/>
+                        
+                        <strong>Cantidad de Ventas Realizadas:</strong>
+                        <span t-esc="cnt"/><br/>
+                        <strong>Sales:</strong>
+                        <span t-esc="subtotal"/><br/>
+                        <strong>Total Descuentos:</strong>
+                        <span t-esc="descuentos"/><br/>
+                        <strong>Subtotal:</strong>
+                        <span t-esc="subtotaldiscount"/><br/>
+                        <strong>Valor Iva: </strong>
+                        <span t-esc="iva"/><br/>
+                        <strong>Total: </strong>
+                        <span t-esc="total"/><br/>
+                </div> 
                 <h4>Total Payment Method</h4>
                 <table class="table table-condensed mb32">
                     <thead>
@@ -75,43 +117,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <div>
-                    <!--<h4>Ventas Detalladas:</h4>
-                        <t t-set="total" t-value="0"/>
-                        <t t-set="subtotal" t-value="0"/>
-                        <t t-set="descuentos" t-value="0"/>
-                        <t t-set="iva" t-value="0"/>
-                        <t t-set="cnt" t-value="0"/>
-                        <t t-set="impuesto" t-value="Iva"/>
-                        
-                        <t t-foreach="o.order_ids" t-as="order">
-                            <t t-set="cnt" t-value="cnt + 1"/>
-                            <t t-foreach="order.lines" t-as="lineas">
-                                <t t-set="impuesto" t-value="lineas.tax_ids_after_fiscal_position.name"/>
-                                <t t-if="impuesto == lineas.tax_ids_after_fiscal_position.name">
-                                    <t t-set="subtotal" t-value="subtotal + (lineas.price_unit * lineas.qty)"/>
-                                    <t t-set="descuentos" t-value="descuentos + ((lineas.price_unit * lineas.qty)*(lineas.discount)/100)"/>
-                                </t>
-
-                            </t>
-                            <t t-set="total" t-value="total + order.amount_total"/>
-                            <t t-set="iva" t-value="iva + order.amount_tax"/>
-                        </t>
-
-                        <t t-set="subtotal" t-value="total - iva"/>-->
-                        <strong>Impuesto:</strong>
-                        <div t-raw="o.taxes_description"/><br/><br/>
-                        <!--<strong>Cantidad de Ventas Realizadas:</strong>
-                        <span t-esc="cnt"/><br/>
-                        <strong>Valor sin iva:</strong>
-                        <span t-esc="subtotal"/><br/>
-                        <strong>Total Descuentos:</strong>
-                        <span t-esc="descuentos"/><br/>
-                        <strong>Valor Iva: </strong>
-                        <span t-esc="iva"/><br/>
-                        <strong>Total: </strong>
-                        <span t-esc="total"/><br/>-->
-                </div> 
+                
             </div>                              
         </xpath>
     </template>

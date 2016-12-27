@@ -26,7 +26,7 @@ from openerp import fields, api
 from openerp.tools import float_is_zero
 from openerp.tools.translate import _
 from openerp.exceptions import UserError
-
+from uuid import getnode as get_mac
 from openerp import api, fields as Fields
 
 _logger = logging.getLogger(__name__)
@@ -350,23 +350,38 @@ class pos_session(models.Model):
     _inherit = 'pos.session'
 
     taxes_description = fields.Html('taxes Description', compute = 'compute_taxes_description')
-    
+    mac = fields.Text('MAC')
+    macpc = get_mac()
+
+    @api.model
+    def create(self, values):   
+        macpc = get_mac()
+        values.update({'mac' : macpc})
+
+        res = super(pos_session, self).create(values)
+
+        if res:
+            pass
+            #self.val_metodos_pago_ids( res )
+
+        return res  
+
     @api.one
     def compute_taxes_description(self):
 
         res = {}
 
-
         for order in self.order_ids:
-            _logger.info('orden')
-            _logger.info(order)
+
             for line in order.lines:
+            
                 subtotal = line.price_unit * line.qty
                 discount_line = (subtotal * line.discount)/100
-                tax_line = (subtotal * line.tax_ids_after_fiscal_position.amount)/100
-                total = (subtotal + tax_line - discount_line)   
-                _id_tax = line.tax_ids_after_fiscal_position.id
+                tax_line = ((subtotal - discount_line) * line.tax_ids_after_fiscal_position.amount)/100
+                total = (subtotal + tax_line - discount_line)
 
+                _id_tax = line.tax_ids_after_fiscal_position.id
+               
                 if _id_tax in res:
                     data = res[_id_tax]
                     subtotal = data.get('subtotal') + subtotal
@@ -391,9 +406,19 @@ class pos_session(models.Model):
                         'discount_line' : discount_line,
                         'tax_line' : tax_line,
                         'total' : total
-                    }   
-
-        _logger.info('res')
-        _logger.info(res)
+                    }
+        html = ''  
+        
+        for result in res:
+            html += """<strong>Sales POS - Tax : </strong> <span>%s</span></br>
+                    <div><span>Sales : </span> %s</div></br>
+                    <div><span>Discount : </span> %s</div></br>
+                    <div><span>Subtotal : </span> %s </div></br>
+                    <div><span>Tax iva : </span> %s </div></br>
+                    <div><span>Total : </span> %s </div></br>""" % (res[result].get('name'),res[result].get('subtotal'), res[result].get('discount_line'),(res[result].get('subtotal') - res[result].get('discount_line')), res[result].get('tax_line'), res[result].get('total'))
+            
+           
+        self.taxes_description = html 
+        
 
 
