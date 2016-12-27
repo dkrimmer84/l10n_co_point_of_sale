@@ -345,3 +345,55 @@ class PosConfig(models.Model):
         values['sequence_refund_id'] = IrSequence.create(val).id
 
         return super(PosConfig, self).create(values)
+
+class pos_session(models.Model):
+    _inherit = 'pos.session'
+
+    taxes_description = fields.Html('taxes Description', compute = 'compute_taxes_description')
+    
+    @api.one
+    def compute_taxes_description(self):
+
+        res = {}
+
+
+        for order in self.order_ids:
+            _logger.info('orden')
+            _logger.info(order)
+            for line in order.lines:
+                subtotal = line.price_unit * line.qty
+                discount_line = (subtotal * line.discount)/100
+                tax_line = (subtotal * line.tax_ids_after_fiscal_position.amount)/100
+                total = (subtotal + tax_line - discount_line)   
+                _id_tax = line.tax_ids_after_fiscal_position.id
+
+                if _id_tax in res:
+                    data = res[_id_tax]
+                    subtotal = data.get('subtotal') + subtotal
+                    discount_line = data.get('discount_line') + discount_line
+                    tax_line = data.get('tax_line') + tax_line
+                    total = data.get('total') + total
+
+                    res[_id_tax] = {
+                        'id' : _id_tax,
+                        'name' : line.tax_ids_after_fiscal_position.name,
+                        'subtotal' : subtotal,
+                        'discount_line' : discount_line,
+                        'tax_line' : tax_line,
+                        'total' : total
+                    }   
+
+                else:
+                    res[_id_tax] = {
+                        'id' : _id_tax,
+                        'name' : line.tax_ids_after_fiscal_position.name,
+                        'subtotal' : subtotal,
+                        'discount_line' : discount_line,
+                        'tax_line' : tax_line,
+                        'total' : total
+                    }   
+
+        _logger.info('res')
+        _logger.info(res)
+
+
