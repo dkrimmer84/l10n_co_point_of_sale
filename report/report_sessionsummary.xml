@@ -51,7 +51,7 @@
                 </div>
                 <div>
                     <h4>Total Sales POS</h4>
-                    <span t-raw="o.taxes_description"/><br/><br/>
+                    <div t-raw="o.taxes_description"/><br/><br/>
                 </div>
                 <div>
                     <h4>Total:</h4>
@@ -91,33 +91,15 @@
                         <strong>Total: </strong>
                         <span t-esc="total"/><br/>
                 </div> 
-                <h4>Total Payment Method</h4>
-                <table class="table table-condensed mb32">
-                    <thead>
-                        <tr>
-                            <th>
-                                <strong>Reference</strong>
-                            </th>
-                            <th>
-                                <strong>Journal</strong>
-                            </th>
-                            <th class="text-right">
-                                <strong>Total Transactions</strong>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr t-foreach="o.statement_ids" t-as="statement">
-                            <td><span t-field="statement.name"/></td>
-                            <td><span t-field="statement.journal_id"/></td>
-                            <td class="text-right">
-                                <span t-field="statement.total_entry_encoding"
-                                    t-field-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                
+                <div>
+                    <h4>Total Payment Method</h4>               
+                    <t t-foreach="o.statement_ids" t-as="statement">
+                        <strong>Reference</strong> : <span t-field="statement.name"/><br/>
+                        <strong>Journal</strong> : <span t-field="statement.journal_id"/><br/>
+                        <strong>Total Transactions</strong> : <span t-field="statement.total_entry_encoding"
+                              t-field-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
+                    </t>
+                </div>
             </div>                              
         </xpath>
     </template>
