@@ -3,7 +3,7 @@
 <data>
     <template id="report_sessionsummary_inherit" inherit_id="point_of_sale.report_sessionsummary" name="Informe Diario Sesion">
         <xpath expr="//div[@class='page']" position="replace">
-            <div class="page">
+            <div class="page" style="font-zize:18px;">
                 <h2 style="text-align:center"><span t-field="o.user_id.company_id.name"/></h2>
                 <h4 style="text-align:center;width: 100%;"><span t-field="o.user_id.company_id.partner_id.formatedNit"/></h4>
                 <h2>Daily POS Sales Report</h2>
@@ -49,9 +49,9 @@
                         <span t-field="o.order_ids[0].name"/>
                     </div>
                 </div>
-                <div>
-                    <h4>Total Sales POS</h4>
-                    <div t-raw="o.taxes_description"/><br/><br/>
+                <div style="width: 70%;">
+                    <h4 style="text-align:center;font-weight: bold;">Total Sales POS</h4>
+                    <div style="width: 100%;border: 1px solid;line-height: 25px;" t-raw="o.taxes_description"/><br/><br/>
                 </div>
                 <div>
                     <h4>Total:</h4>
@@ -78,11 +78,11 @@
                         </t>
                         <t t-set="subtotaldiscount" t-value="subtotal - descuentos"/>
                         
-                        <strong>Cantidad de Ventas Realizadas:</strong>
+                        <strong>Number of Sales Done:</strong>
                         <span t-esc="cnt"/><br/>
                         <strong>Sales:</strong>
                         <span t-esc="subtotal"/><br/>
-                        <strong>Total Descuentos:</strong>
+                        <strong>Total Discount:</strong>
                         <span t-esc="descuentos"/><br/>
                         <strong>Subtotal:</strong>
                         <span t-esc="subtotaldiscount"/><br/>
@@ -92,7 +92,7 @@
                         <span t-esc="total"/><br/>
                 </div> 
                 <div>
-                    <h4>Total Payment Method</h4>               
+                    <br/><br/><h4>Total Payment Method</h4>               
                     <t t-foreach="o.statement_ids" t-as="statement">
                         <strong>Reference</strong> : <span t-field="statement.name"/><br/>
                         <strong>Journal</strong> : <span t-field="statement.journal_id"/><br/>

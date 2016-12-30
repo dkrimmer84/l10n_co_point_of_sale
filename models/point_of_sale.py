@@ -370,52 +370,52 @@ class pos_session(models.Model):
     def compute_taxes_description(self):
 
         res = {}
+        if self.order_ids:
+            for order in self.order_ids:
+                if order.lines:
+                    for line in order.lines:
+                    
+                        subtotal = line.price_unit * line.qty
+                        discount_line = (subtotal * line.discount)/100
+                        tax_line = ((subtotal - discount_line) * line.tax_ids_after_fiscal_position.amount)/100
+                        total = (subtotal + tax_line - discount_line)
 
-        for order in self.order_ids:
+                        _id_tax = line.tax_ids_after_fiscal_position.id
+                       
+                        if _id_tax in res:
+                            data = res[_id_tax]
+                            subtotal = data.get('subtotal') + subtotal
+                            discount_line = data.get('discount_line') + discount_line
+                            tax_line = data.get('tax_line') + tax_line
+                            total = data.get('total') + total
 
-            for line in order.lines:
-            
-                subtotal = line.price_unit * line.qty
-                discount_line = (subtotal * line.discount)/100
-                tax_line = ((subtotal - discount_line) * line.tax_ids_after_fiscal_position.amount)/100
-                total = (subtotal + tax_line - discount_line)
+                            res[_id_tax] = {
+                                'id' : _id_tax,
+                                'name' : line.tax_ids_after_fiscal_position.name,
+                                'subtotal' : subtotal,
+                                'discount_line' : discount_line,
+                                'tax_line' : tax_line,
+                                'total' : total
+                            }   
 
-                _id_tax = line.tax_ids_after_fiscal_position.id
-               
-                if _id_tax in res:
-                    data = res[_id_tax]
-                    subtotal = data.get('subtotal') + subtotal
-                    discount_line = data.get('discount_line') + discount_line
-                    tax_line = data.get('tax_line') + tax_line
-                    total = data.get('total') + total
-
-                    res[_id_tax] = {
-                        'id' : _id_tax,
-                        'name' : line.tax_ids_after_fiscal_position.name,
-                        'subtotal' : subtotal,
-                        'discount_line' : discount_line,
-                        'tax_line' : tax_line,
-                        'total' : total
-                    }   
-
-                else:
-                    res[_id_tax] = {
-                        'id' : _id_tax,
-                        'name' : line.tax_ids_after_fiscal_position.name,
-                        'subtotal' : subtotal,
-                        'discount_line' : discount_line,
-                        'tax_line' : tax_line,
-                        'total' : total
-                    }
+                        else:
+                            res[_id_tax] = {
+                                'id' : _id_tax,
+                                'name' : line.tax_ids_after_fiscal_position.name,
+                                'subtotal' : subtotal,
+                                'discount_line' : discount_line,
+                                'tax_line' : tax_line,
+                                'total' : total
+                            }
         html = ''  
         
         for result in res:
-            html += """<div><strong>Sales POS - Tax : </strong><span>%s</span></div></br>
-                    <div><strong>Sales :</strong><span>%s</span></div></br>
-                    <div><strong>Discount : </strong><span>%s</span></div></br>
-                    <div><strong>Subtotal : </strong><span>%s</span></div></br>
-                    <div><strong>Tax iva : </strong><span>%s</span></div></br>
-                    <div style="margin-bottom: 20px;"><strong>Total : </strong><span>%s</span></div></br></br></br>""" % (res[result].get('name'),res[result].get('subtotal'), res[result].get('discount_line'),(res[result].get('subtotal') - res[result].get('discount_line')), res[result].get('tax_line'), res[result].get('total'))
+            html += """<div style="text-align:center;"><strong>Sales POS - Tax : </strong><span>%s</span></div>
+                    <div style="float: left;margin-right: 20px;"><strong>Sales :</strong></div><div><span>%s</span></div>
+                    <div style="float: left;margin-right: 20px;"><strong>Discount : </strong></div><div><span>%s</span></div>
+                    <div style="float: left;margin-right: 20px;"><strong>Subtotal : </strong></div><div><span>%s</span></div>
+                    <div style="float: left;margin-right: 20px;"><strong>Tax iva : </strong></div><div><span>%s</span></div>
+                    <div style="margin-bottom: 20px;float: left;margin-right: 20px;"><strong>Total : </strong></div><div><span>%s</span></div>""" % (res[result].get('name'),res[result].get('subtotal'), res[result].get('discount_line'),(res[result].get('subtotal') - res[result].get('discount_line')), res[result].get('tax_line'), res[result].get('total'))
             
            
         self.taxes_description = html 
