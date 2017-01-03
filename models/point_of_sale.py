@@ -410,12 +410,12 @@ class pos_session(models.Model):
         html = ''  
         
         for result in res:
-            html += """<div style="text-align:center;"><strong>Sales POS - Tax : </strong><span>%s</span></div>
+            html += """<div><h4><strong>Sales POS - Tax : </strong><span>%s</span></h4></div>
                     <div style="float: left;margin-right: 20px;"><strong>Sales :</strong></div><div><span>%s</span></div>
                     <div style="float: left;margin-right: 20px;"><strong>Discount : </strong></div><div><span>%s</span></div>
                     <div style="float: left;margin-right: 20px;"><strong>Subtotal : </strong></div><div><span>%s</span></div>
                     <div style="float: left;margin-right: 20px;"><strong>Tax iva : </strong></div><div><span>%s</span></div>
-                    <div style="margin-bottom: 20px;float: left;margin-right: 20px;"><strong>Total : </strong></div><div><span>%s</span></div>""" % (res[result].get('name'),res[result].get('subtotal'), res[result].get('discount_line'),(res[result].get('subtotal') - res[result].get('discount_line')), res[result].get('tax_line'), res[result].get('total'))
+                    <div style="margin-bottom: 10px;float: left;margin-right: 20px;"><strong>Total : </strong></div><div><span>%s</span></div>""" % (res[result].get('name'),res[result].get('subtotal'), res[result].get('discount_line'),(res[result].get('subtotal') - res[result].get('discount_line')), res[result].get('tax_line'), res[result].get('total'))
             
            
         self.taxes_description = html 
