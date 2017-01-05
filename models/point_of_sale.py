@@ -26,8 +26,10 @@ from openerp import fields, api
 from openerp.tools import float_is_zero
 from openerp.tools.translate import _
 from openerp.exceptions import UserError
-
+from uuid import getnode as get_mac
 from openerp import api, fields as Fields
+import locale
+from openerp.tools.misc import formatLang
 
 _logger = logging.getLogger(__name__)
 
@@ -350,50 +352,92 @@ class pos_session(models.Model):
     _inherit = 'pos.session'
 
     taxes_description = fields.Html('taxes Description', compute = 'compute_taxes_description')
-    
+    mac = fields.Char('MAC')
+    macpc = get_mac()
+
+    @api.model
+    def create(self, values):   
+        macpc = get_mac()
+        values.update({'mac' : macpc})
+
+        res = super(pos_session, self).create(values)
+
+        if res:
+            pass
+            #self.val_metodos_pago_ids( res )
+
+        return res 
+
+    def number_format( self, currency_id, amount ):
+        return formatLang(self.env, amount, currency_obj = currency_id ).replace(",", ".")
+             
+
     @api.one
     def compute_taxes_description(self):
 
         res = {}
+        currency_id = False
+        if self.order_ids:
+            for order in self.order_ids:
+                currency_id = order.company_id.currency_id
+
+                if order.lines:
+                    for line in order.lines:
+                    
+                        subtotal = line.price_unit * line.qty
+                        discount_line = (subtotal * line.discount)/100
+                        tax_line = ((subtotal - discount_line) * line.tax_ids_after_fiscal_position.amount)/100
+                        total = (subtotal + tax_line - discount_line)
+
+                        _id_tax = line.tax_ids_after_fiscal_position.id
+
+                        
+                        
+                        if _id_tax in res:
+                            data = res[_id_tax]
+                            subtotal = data.get('subtotal') + subtotal
+                            discount_line = data.get('discount_line') + discount_line
+                            tax_line = data.get('tax_line') + tax_line
+                            total = data.get('total') + total
+
+                            res[_id_tax] = {
+                                'id' : _id_tax,
+                                'name' : line.tax_ids_after_fiscal_position.name,
+                                'subtotal' : subtotal,
+                                'discount_line' : discount_line,
+                                'tax_line' : tax_line,
+                                'total' : total
+                            }   
+
+                        else:
+                            res[_id_tax] = {
+                                'id' : _id_tax,
+                                'name' : line.tax_ids_after_fiscal_position.name,
+                                'subtotal' : subtotal,
+                                'discount_line' : discount_line,
+                                'tax_line' : tax_line,
+                                'total' : total
+                            }
+        html = ''  
+
+        _logger.info( self.number_format( currency_id, 10000 ) )
+ 
 
 
-        for order in self.order_ids:
-            _logger.info('orden')
-            _logger.info(order)
-            for line in order.lines:
-                subtotal = line.price_unit * line.qty
-                discount_line = (subtotal * line.discount)/100
-                tax_line = (subtotal * line.tax_ids_after_fiscal_position.amount)/100
-                total = (subtotal + tax_line - discount_line)   
-                _id_tax = line.tax_ids_after_fiscal_position.id
 
-                if _id_tax in res:
-                    data = res[_id_tax]
-                    subtotal = data.get('subtotal') + subtotal
-                    discount_line = data.get('discount_line') + discount_line
-                    tax_line = data.get('tax_line') + tax_line
-                    total = data.get('total') + total
 
-                    res[_id_tax] = {
-                        'id' : _id_tax,
-                        'name' : line.tax_ids_after_fiscal_position.name,
-                        'subtotal' : subtotal,
-                        'discount_line' : discount_line,
-                        'tax_line' : tax_line,
-                        'total' : total
-                    }   
-
-                else:
-                    res[_id_tax] = {
-                        'id' : _id_tax,
-                        'name' : line.tax_ids_after_fiscal_position.name,
-                        'subtotal' : subtotal,
-                        'discount_line' : discount_line,
-                        'tax_line' : tax_line,
-                        'total' : total
-                    }   
-
-        _logger.info('res')
-        _logger.info(res)
+        #_logger.info(self.env.user.company_id.currency_id.compute(1000))
+        #_logger.info(res_currency_model.compute(1000.05, self.env.user.company_id.currency_id.id))
+        for result in res:
+            html += """<div><h4><strong>Sales POS - Tax : </strong><span>%s</span></h4></div>
+                    <div style="float: left;margin-right: 20px;"><strong>Sales :</strong></div><div><span>%s</span></div>
+                    <div style="float: left;margin-right: 20px;"><strong>Discount : </strong></div><div><span>%s</span></div>
+                    <div style="float: left;margin-right: 20px;"><strong>Subtotal : </strong></div><div><span>%s</span></div>
+                    <div style="float: left;margin-right: 20px;"><strong>Tax iva : </strong></div><div><span>%s</span></div>
+                    <div style="margin-bottom: 10px;float: left;margin-right: 20px;"><strong>Total : </strong></div><div><span>%s</span></div>""" % (res[result].get('name'),self.number_format( currency_id, res[result].get('subtotal') ), self.number_format( currency_id, res[result].get('discount_line')), self.number_format( currency_id, (res[result].get('subtotal') - res[result].get('discount_line'))), self.number_format( currency_id, res[result].get('tax_line')), self.number_format( currency_id, res[result].get('total')))
+            
+           
+        self.taxes_description = html 
+        
 
 
