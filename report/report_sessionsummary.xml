@@ -54,7 +54,7 @@
                     <div t-raw="o.taxes_description"/>
                 </div>
                 <div class="row mt32 mb32" style="line-height: 24px;">
-                    <h4>Total:</h4>
+                    <h3 style="font-weight: bold;">Total:</h3>
                         <t t-set="total" t-value="0"/>
                         <t t-set="subtotal" t-value="0"/>
                         <t t-set="subtotaldiscount" t-value="0"/>
@@ -68,31 +68,31 @@
                             <t t-foreach="order.lines" t-as="lineas">
                                 <t t-set="impuesto" t-value="lineas.tax_ids_after_fiscal_position.name"/>
                                 <t t-if="impuesto == lineas.tax_ids_after_fiscal_position.name">
-                                    <t t-set="subtotal" t-value="subtotal + (lineas.price_unit * lineas.qty)"/>
+                                    <t t-set="subtotal" t-value="subtotal + (lineas.price_unit * lineas.qty)" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
                                     <t t-set="descuentos" t-value="descuentos + ((lineas.price_unit * lineas.qty)*(lineas.discount)/100)"/>
                                 </t>
 
                             </t>
-                            <t t-set="total" t-value="total + order.amount_total"/>
-                            <t t-set="iva" t-value="iva + order.amount_tax"/>
+                            <t t-set="total" t-value="total + order.amount_total" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
+                            <t t-set="iva" t-value="iva + order.amount_tax" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
                         </t>
                         <t t-set="subtotaldiscount" t-value="subtotal - descuentos"/>
                         
                         <strong>Number of Sales Done:</strong>
                         <span t-esc="cnt"/><br/>
                         <strong>Sales:</strong>
-                        <span t-esc="subtotal"/><br/>
+                        <span t-esc="subtotal" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                         <strong>Total Discount:</strong>
-                        <span t-esc="descuentos"/><br/>
+                        <span t-esc="descuentos" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                         <strong>Subtotal:</strong>
-                        <span t-esc="subtotaldiscount"/><br/>
+                        <span t-esc="subtotaldiscount" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                         <strong>Valor Iva: </strong>
-                        <span t-esc="iva"/><br/>
+                        <span t-esc="iva" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                         <strong>Total: </strong>
-                        <span t-esc="total"/><br/>
+                        <span t-esc="total" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                 </div> 
-                <div>
-                    <br/><br/><h4>Total Payment Method</h4>               
+                <div class="row mt32 mb32" style="line-height: 24px;">
+                    <h3 style="font-weight: bold;">Total Payment Method</h3>               
                     <t t-foreach="o.statement_ids" t-as="statement">
                         <strong>Reference</strong> : <span t-field="statement.name"/><br/>
                         <strong>Journal</strong> : <span t-field="statement.journal_id"/><br/>
