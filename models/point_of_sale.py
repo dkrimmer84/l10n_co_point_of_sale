@@ -383,16 +383,18 @@ class pos_session(models.Model):
 
                 if order.lines:
                     for line in order.lines:
-                    
-                        subtotal = line.price_unit * line.qty
+                        _id_tax = line.tax_ids_after_fiscal_position.id
+
+                        if line.tax_ids_after_fiscal_position.price_include:
+                            subtotal = (line.price_unit / (1 + (line.tax_ids_after_fiscal_position.amount/100))) * line.qty
+                        else:
+                            subtotal = line.price_unit * line.qty
+                        _logger.info('subtotal')
+                        _logger.info(subtotal)
                         discount_line = (subtotal * line.discount)/100
                         tax_line = ((subtotal - discount_line) * line.tax_ids_after_fiscal_position.amount)/100
                         total = (subtotal + tax_line - discount_line)
 
-                        _id_tax = line.tax_ids_after_fiscal_position.id
-
-                        
-                        
                         if _id_tax in res:
                             data = res[_id_tax]
                             subtotal = data.get('subtotal') + subtotal

@@ -68,8 +68,15 @@
                             <t t-foreach="order.lines" t-as="lineas">
                                 <t t-set="impuesto" t-value="lineas.tax_ids_after_fiscal_position.name"/>
                                 <t t-if="impuesto == lineas.tax_ids_after_fiscal_position.name">
-                                    <t t-set="subtotal" t-value="subtotal + (lineas.price_unit * lineas.qty)" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
-                                    <t t-set="descuentos" t-value="descuentos + ((lineas.price_unit * lineas.qty)*(lineas.discount)/100)"/>
+                                    <t t-if="lineas.tax_ids_after_fiscal_position.price_include">
+                                        <t t-set="subtotal" t-value="subtotal + ((lineas.price_unit / (1 + (lineas.tax_ids_after_fiscal_position.amount/100))) * lineas.qty)"/>
+                                    </t>
+                                    <t t-if="not lineas.tax_ids_after_fiscal_position.price_include">
+                                        <t t-set="subtotal" t-value="subtotal + (lineas.price_unit * lineas.qty)"/>
+                                    </t>
+                               
+                                    <!--<t t-set="subtotal" t-value="subtotal + (lineas.price_unit * lineas.qty)"/>-->
+                                    <t t-set="descuentos" t-value="descuentos + (subtotal*(lineas.discount)/100)"/>
                                 </t>
 
                             </t>
