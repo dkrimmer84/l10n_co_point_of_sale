@@ -49,6 +49,7 @@
                         <span t-field="o.order_ids[0].name"/>
                     </div>
                 </div>
+                <div style="width:50%; float:left;">
                 <div class="row mt32 mb32" style="line-height: 24px;">
                     <h3 style="font-weight: bold;">Total Sales POS</h3>
                     <div t-raw="o.taxes_description"/>
@@ -98,7 +99,8 @@
                         <strong>Total: </strong>
                         <span t-esc="total" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                 </div> 
-                <div class="row mt32 mb32" style="line-height: 24px;">
+                </div>
+                <div class="row mt32 mb32" style="line-height: 24px; width:50%; float:left;">
                     <h3 style="font-weight: bold;">Total Payment Method</h3>               
                     <t t-foreach="o.statement_ids" t-as="statement">
                         <strong>Reference</strong> : <span t-field="statement.name"/><br/>
@@ -106,7 +108,7 @@
                         <strong>Total Transactions</strong> : <span t-field="statement.total_entry_encoding"
                               t-field-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
                     </t>
-                </div>
+                </div>            
             </div>                              
         </xpath>
     </template>
