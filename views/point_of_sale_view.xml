@@ -33,5 +33,24 @@
       </field>
     </record>
 
+
+    <record model="ir.ui.view" id="view_pos_config_kanban_inherited">
+      <field name="name">pos.config.kanban.view.inherited</field>
+      <field name="inherit_id" ref="point_of_sale.view_pos_config_kanban" />
+      <field name="model">pos.config</field>
+      <field name="arch" type="xml">
+        <xpath expr="//kanban" position="inside">
+          <field name="not_has_valid_dian" />
+
+        </xpath>
+        <xpath expr="//kanban/templates/t/div/div[2]" position="inside">
+          <div class="row o_visible" t-if="record.not_has_valid_dian">
+            <div class="col-xs-12">
+                <span>Estan apunto de terminarse las secuencias</span>
+            </div>
+          </div>
+        </xpath>
+      </field>
+    </record>
   </data>
 </openerp>
