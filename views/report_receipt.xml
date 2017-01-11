@@ -4,7 +4,7 @@
     <template id="l10n_co_point_of_sale_report_receipt" inherit_id="point_of_sale.report_receipt">
       <xpath expr="//div[@class='page']/div[1]" position="inside">
         <div class="col-xs-12 text-center">
-          Factura de venta: <span t-field="o.name"/>
+          Factura de venta: <span t-field="o.name"/><br />
           Numero de resolucion: <span t-field="o.resolution_number"/><br/>
           Rango desde: <span t-field="o.resolution_number_from"/> hasta <span t-field="o.resolution_number_to"/><br/>
           Fecha de resolucion: <span t-field="o.resolution_date"/><br/>
