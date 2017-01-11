@@ -106,7 +106,7 @@
                         <strong>Reference</strong> : <span t-field="statement.name"/><br/>
                         <strong>Journal</strong> : <span t-field="statement.journal_id"/><br/>
                         <strong>Total Transactions</strong> : <span t-field="statement.total_entry_encoding"
-                              t-field-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
+                              t-field-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/><br />
                     </t>
                 </div>            
             </div>                              
