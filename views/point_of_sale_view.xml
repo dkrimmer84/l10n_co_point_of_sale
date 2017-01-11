@@ -19,6 +19,9 @@
             <div class="oe_clear"/>
           </page>
         </xpath>
+        <xpath expr="//field[@name='lines']//tree//field[@name='price_subtotal']" position="after">
+           <field name="price_subtotal_line" invisible="1"/>
+        </xpath>
       </field>
     </record>
 
