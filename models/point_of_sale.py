@@ -295,6 +295,41 @@ class PosOrder(models.Model):
 class PosOrderLine(models.Model):
     _name = 'pos.order.line'
     _inherit = 'pos.order.line'
+    price_subtotal_line = fields.Float('Subtotal', compute='_compute_amount_line_all', digits=0, store=True)
+
+    @api.depends('price_unit', 'tax_ids', 'qty', 'discount', 'product_id')
+    def _compute_amount_line_all(self):
+        for line in self:
+            currency = line.order_id.pricelist_id.currency_id
+            taxes = line.tax_ids.filtered(lambda tax: tax.company_id.id == line.order_id.company_id.id)
+            fiscal_position_id = line.order_id.fiscal_position_id
+            if fiscal_position_id:
+                taxes = fiscal_position_id.map_tax(taxes)
+            price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)
+            line.price_subtotal = line.price_subtotal_incl = price * line.qty
+            if taxes:
+                taxes = taxes.compute_all(price, currency, line.qty, product=line.product_id, partner=line.order_id.partner_id or False)
+                line.price_subtotal = taxes['total_excluded']
+                line.price_subtotal_incl = taxes['total_included']
+
+            line.price_subtotal = currency.round(line.price_subtotal)
+            line.price_subtotal_incl = currency.round(line.price_subtotal_incl)
+            line.price_subtotal_line =  line.price_subtotal
+
+    """@api.model
+    def create(self, values): 
+        _logger.info('subtotallllllll')
+        _logger.info(values.get('tax_ids'))
+        
+        values.update({'price_subtotal_line' : 20})
+
+        res = super(PosOrderLine, self).create(values)
+
+        if res:
+            pass
+            #self.val_metodos_pago_ids( res )
+
+        return res """
 
     def _get_anglo_saxon_price_unit(self):
         self.ensure_one()
