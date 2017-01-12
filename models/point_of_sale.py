@@ -26,6 +26,8 @@ from openerp import fields, api
 from openerp.tools import float_is_zero
 from openerp.tools.translate import _
 from openerp.exceptions import UserError
+from datetime import datetime
+
 from uuid import getnode as get_mac
 from openerp import api, fields as Fields
 import locale
@@ -364,6 +366,33 @@ class PosConfig(models.Model):
     _name = 'pos.config'
     _inherit = 'pos.config'
 
+
+    def _get_has_valid_dian_info(self):
+        if self.sequence_id.use_dian_control:
+            remaining_numbers = self.sequence_id.remaining_numbers
+            remaining_days = self.sequence_id.remaining_days
+            dian_resolution = self.env['ir.sequence.dian_resolution'].search([('sequence_id','=',self.journal_id.sequence_id.id),('active_resolution','=',True)])
+            today = datetime.strptime(fields.Date.context_today(self), '%Y-%m-%d')
+
+            not_valid = False
+            spent = False
+            if len(dian_resolution) == 1 and self.state == 'draft':
+                dian_resolution.ensure_one()
+                date_to = datetime.strptime(dian_resolution['date_to'], '%Y-%m-%d')
+                days = (date_to - today).days
+
+                if dian_resolution['number_to'] - dian_resolution['number_next'] < remaining_numbers or days < remaining_days:
+                    not_valid = True
+
+                if dian_resolution['number_next'] > dian_resolution['number_to']:
+                    spent = True
+
+            if spent:
+                pass # This is when the resolution it's spent and we keep generating numbers
+
+        self.not_has_valid_dian = not_valid
+
+    not_has_valid_dian = fields.Boolean(compute='_get_has_valid_dian_info')
     sequence_refund_id = fields.Many2one('ir.sequence', 'Refund Order IDs Sequence', readonly=True,
                                   help="This sequence is automatically created by Odoo but you can change it "\
                                   "to customize the reference numbers of your orders.", copy=False)
