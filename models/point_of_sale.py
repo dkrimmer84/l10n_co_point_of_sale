@@ -341,13 +341,11 @@ class PosConfig(models.Model):
                 remaining_days = pos.sequence_id.remaining_days
                 dian_resolution = pos.env['ir.sequence.dian_resolution'].search([('sequence_id','=',pos.sequence_id.id),('active_resolution','=',True)])
                 today = datetime.strptime(fields.Date.context_today(pos), '%Y-%m-%d')
-                _logger.info("today: %s" % today)
 
                 if len(dian_resolution) > 0:
                     dian_resolution.ensure_one()
                     date_to = datetime.strptime(dian_resolution['date_to'], '%Y-%m-%d')
                     days = (date_to - today).days
-                    _logger.info("%s" % days)
 
                     pos.not_has_valid_dian = False
                     spent = False
@@ -420,8 +418,6 @@ class pos_session(models.Model):
                             subtotal = (line.price_unit / (1 + (line.tax_ids_after_fiscal_position.amount/100))) * line.qty
                         else:
                             subtotal = line.price_unit * line.qty
-                        _logger.info('subtotal')
-                        _logger.info(subtotal)
                         discount_line = (subtotal * line.discount)/100
                         tax_line = ((subtotal - discount_line) * line.tax_ids_after_fiscal_position.amount)/100
                         total = (subtotal + tax_line - discount_line)
