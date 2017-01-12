@@ -5,6 +5,7 @@
       <template id="l10n_co_point_of_sale_js" name="l10n colombia point_of_sale assets" inherit_id="point_of_sale.assets">
           <xpath expr="." position="inside">
               <script type="text/javascript" src="/l10n_co_point_of_sale/static/src/js/main.js"></script>
+              <script type="text/javascript" src="/l10n_co_point_of_sale/static/src/js/sequence.js"></script>
               <link rel="stylesheet" href="/l10n_co_point_of_sale/static/src/css/pnpos.css" type="text/css"/>
           </xpath>
       </template>
