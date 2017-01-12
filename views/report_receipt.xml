@@ -2,13 +2,43 @@
 <openerp>
   <data>
     <template id="l10n_co_point_of_sale_report_receipt" inherit_id="point_of_sale.report_receipt">
-      <xpath expr="//div[@class='page']/div[1]" position="inside">
-        <div class="col-xs-12 text-center">
-          Factura de venta: <span t-field="o.name"/><br />
-          Numero de resolucion: <span t-field="o.resolution_number"/><br/>
-          Rango desde: <span t-field="o.resolution_number_from"/> hasta <span t-field="o.resolution_number_to"/><br/>
-          Fecha de resolucion: <span t-field="o.resolution_date"/><br/>
-        </div>
+
+      <xpath expr="//div[@class='page']/div[1]" position="replace">
+
+          <div class="col-xs-12 text-center">
+                <h2>Factura de Venta No.: <span t-field="o.name"/> </h2>
+          </div><br />
+
+          <div class="col-xs-12 text-center">
+            <span style="color: grey;">
+            <b>Factura de Venta No.: <span t-field="o.name"/></b> |
+              Numero de resolución: <span t-field="o.resolution_number"/> del <span t-field="o.resolution_date"/> |
+              Rango desde <span t-field="o.resolution_number_from"/> hasta <span t-field="o.resolution_number_to"/>
+            </span><hr></hr>
+          </div>
+
+          <t t-if="o.partner_id.name">
+            <div class="col-xs-6">
+              <span><b>FACTURADO A:</b></span><br />
+                  <div t-field="o.partner_id"
+                      t-field-options='{"widget": "contact", "fields": ["address", "name", "phone", "fax"], "no_marker": true, "phone_icons": true}'/>
+                  <t t-if="o.partner_id.formatedNit">NIT: <span t-field="o.partner_id.formatedNit" /><br /> </t>
+                  <br />
+
+            </div>
+          </t>
+
+          <div class="col-xs-6">
+            <span><b>FACTURADO POR:</b></span><br />
+                <span t-esc="o.user_id.company_id.name" /><br />
+                <em>(Usuario: <span t-field="o.user_id"/>, <span t-field="o.date_order"/>)</em><br/>
+                Dirección: <span t-field="o.company_id.partner_id.street" />, <span t-field="o.company_id.partner_id.state_id" /><br />
+          <t t-if="o.company_id.partner_id.formatedNit">NIT: <span t-field="o.company_id.partner_id.formatedNit" /><br /><br /></t>
+          <t t-if="o.company_id.partner_id.phone">Teléfono: <span t-field="o.company_id.partner_id.phone" /> | </t>
+            <t t-if="o.company_id.partner_id.email">Correo: <span t-field="o.company_id.partner_id.email" /></t><br /><br />
+          </div>
+
+
       </xpath>
     </template>
   </data>
