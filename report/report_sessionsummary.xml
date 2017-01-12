@@ -118,10 +118,11 @@
                         <span t-esc="total_pyment" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                     </div>            
                 </div>
+
             </t>
             <t t-if="not o.order_ids">
                 <h2><span>No se encontró ventas para esta sesión</span></h2>
-            </t>                              
+            </t>
         </xpath>
     </template>
 <template id="report_sessionsummary">
