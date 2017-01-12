@@ -140,7 +140,7 @@ class PosOrder(models.Model):
         values['resolution_number_from'] = sequence['number_from']
         values['resolution_number_to'] = sequence['number_to']
         values['resolution_date'] = sequence['date_from']
-        
+
         order = super(models.Model, self).create(values)
         if not order.company_taxes:
             order._compute_company_taxes()
@@ -273,26 +273,6 @@ class PosOrder(models.Model):
                 ]
         return []
 
-    # def _prepare_refund(self, cr, uid, invoice, date_invoice=None, date=None, description=None, journal_id=None, context=None):
-    #     invoice_data = super(account_invoice, self)._prepare_refund(cr, uid, invoice, date_invoice, date,
-    #                                                                 description, journal_id, context=context)
-    #     #for anglo-saxon accounting
-    #     if invoice.company_id.anglo_saxon_accounting and invoice.type == 'in_invoice':
-    #         fiscal_position = self.pool.get('account.fiscal.position')
-    #         for dummy, dummy, line_dict in invoice_data['invoice_line_ids']:
-    #             if line_dict.get('product_id'):
-    #                 product = self.pool.get('product.product').browse(cr, uid, line_dict['product_id'], context=context)
-    #                 counterpart_acct_id = product.property_stock_account_output and \
-    #                         product.property_stock_account_output.id
-    #                 if not counterpart_acct_id:
-    #                     counterpart_acct_id = product.categ_id.property_stock_account_output_categ_id and \
-    #                             product.categ_id.property_stock_account_output_categ_id.id
-    #                 if counterpart_acct_id:
-    #                     fpos = invoice.fiscal_position_id or False
-    #                     line_dict['account_id'] = fiscal_position.map_account(cr, uid,
-    #                                                                           fpos,
-    #                                                                           counterpart_acct_id)
-    #     return invoice_data
 
 class PosOrderLine(models.Model):
     _name = 'pos.order.line'
@@ -318,21 +298,6 @@ class PosOrderLine(models.Model):
             line.price_subtotal_incl = currency.round(line.price_subtotal_incl)
             line.price_subtotal_line =  line.price_subtotal
 
-    """@api.model
-    def create(self, values): 
-        _logger.info('subtotallllllll')
-        _logger.info(values.get('tax_ids'))
-        
-        values.update({'price_subtotal_line' : 20})
-
-        res = super(PosOrderLine, self).create(values)
-
-        if res:
-            pass
-            #self.val_metodos_pago_ids( res )
-
-        return res """
-
     def _get_anglo_saxon_price_unit(self):
         self.ensure_one()
         if self.order_id.picking_id:
@@ -349,6 +314,7 @@ class PosOrderLine(models.Model):
             price = price_unit * i_line.qty
         return round(price, order.company_id.currency_id.decimal_places)
 
+
 class PosOrderLineCompanyTaxes(models.Model):
     _name = 'pos.order.line.company_tax'
     _order = 'sequence'
@@ -362,37 +328,38 @@ class PosOrderLineCompanyTaxes(models.Model):
     tax_id = fields.Many2one('account.tax', string='Tax', ondelete='restrict', required=True)
     sequence = fields.Integer(help="Gives the sequence order when displaying a list of invoice tax.")
 
+
 class PosConfig(models.Model):
     _name = 'pos.config'
     _inherit = 'pos.config'
 
-
+    @api.multi
     def _get_has_valid_dian_info(self):
-        if self.sequence_id.use_dian_control:
-            remaining_numbers = self.sequence_id.remaining_numbers
-            remaining_days = self.sequence_id.remaining_days
-            dian_resolution = self.env['ir.sequence.dian_resolution'].search([('sequence_id','=',self.journal_id.sequence_id.id),('active_resolution','=',True)])
-            today = datetime.strptime(fields.Date.context_today(self), '%Y-%m-%d')
+        for pos in self:
+            if pos.sequence_id.use_dian_control:
+                remaining_numbers = pos.sequence_id.remaining_numbers
+                remaining_days = pos.sequence_id.remaining_days
+                dian_resolution = pos.env['ir.sequence.dian_resolution'].search([('sequence_id','=',pos.sequence_id.id),('active_resolution','=',True)])
+                today = datetime.strptime(fields.Date.context_today(pos), '%Y-%m-%d')
+                _logger.info("today: %s" % today)
 
-            not_valid = False
-            spent = False
-            if len(dian_resolution) == 1 and self.state == 'draft':
-                dian_resolution.ensure_one()
-                date_to = datetime.strptime(dian_resolution['date_to'], '%Y-%m-%d')
-                days = (date_to - today).days
+                if len(dian_resolution) > 0:
+                    dian_resolution.ensure_one()
+                    date_to = datetime.strptime(dian_resolution['date_to'], '%Y-%m-%d')
+                    days = (date_to - today).days
+                    _logger.info("%s" % days)
 
-                if dian_resolution['number_to'] - dian_resolution['number_next'] < remaining_numbers or days < remaining_days:
-                    not_valid = True
+                    pos.not_has_valid_dian = False
+                    spent = False
 
-                if dian_resolution['number_next'] > dian_resolution['number_to']:
-                    spent = True
+                    if dian_resolution['number_to'] - dian_resolution['number_next'] < remaining_numbers or days < remaining_days:
+                        pos.not_has_valid_dian = True
+                    if dian_resolution['number_next'] > dian_resolution['number_to']:
+                        spent = True
+                    if spent:
+                        pass # This is when the resolution it's spent and we keep generating numbers
 
-            if spent:
-                pass # This is when the resolution it's spent and we keep generating numbers
-
-        self.not_has_valid_dian = not_valid
-
-    not_has_valid_dian = fields.Boolean(compute='_get_has_valid_dian_info')
+    not_has_valid_dian = fields.Boolean(compute='_get_has_valid_dian_info', default=False)
     sequence_refund_id = fields.Many2one('ir.sequence', 'Refund Order IDs Sequence', readonly=True,
                                   help="This sequence is automatically created by Odoo but you can change it "\
                                   "to customize the reference numbers of your orders.", copy=False)
@@ -420,7 +387,7 @@ class pos_session(models.Model):
     macpc = get_mac()
 
     @api.model
-    def create(self, values):   
+    def create(self, values):
         macpc = get_mac()
         values.update({'mac' : macpc})
 
@@ -434,7 +401,7 @@ class pos_session(models.Model):
 
     def number_format( self, currency_id, amount ):
         return formatLang(self.env, amount, currency_obj = currency_id ).replace(",", ".")
-             
+
 
     @api.one
     def compute_taxes_description(self):
@@ -473,7 +440,7 @@ class pos_session(models.Model):
                                 'discount_line' : discount_line,
                                 'tax_line' : tax_line,
                                 'total' : total
-                            }   
+                            }
 
                         else:
                             res[_id_tax] = {
@@ -484,26 +451,29 @@ class pos_session(models.Model):
                                 'tax_line' : tax_line,
                                 'total' : total
                             }
-        html = ''  
 
-        _logger.info( self.number_format( currency_id, 10000 ) )
- 
-
-
-
-
-        #_logger.info(self.env.user.company_id.currency_id.compute(1000))
-        #_logger.info(res_currency_model.compute(1000.05, self.env.user.company_id.currency_id.id))
+        html = ''
         for result in res:
-            html += """<div><h4><strong>Sales POS - Tax : </strong><span>%s</span></h4></div>
-                    <div style="float: left;margin-right: 20px;"><strong>Sales :</strong></div><div><span>%s</span></div>
-                    <div style="float: left;margin-right: 20px;"><strong>Discount : </strong></div><div><span>%s</span></div>
-                    <div style="float: left;margin-right: 20px;"><strong>Subtotal : </strong></div><div><span>%s</span></div>
-                    <div style="float: left;margin-right: 20px;"><strong>Tax iva : </strong></div><div><span>%s</span></div>
-                    <div style="margin-bottom: 10px;float: left;margin-right: 20px;"><strong>Total : </strong></div><div><span>%s</span></div>""" % (res[result].get('name'),self.number_format( currency_id, res[result].get('subtotal') ), self.number_format( currency_id, res[result].get('discount_line')), self.number_format( currency_id, (res[result].get('subtotal') - res[result].get('discount_line'))), self.number_format( currency_id, res[result].get('tax_line')), self.number_format( currency_id, res[result].get('total')))
-            
-           
+            html += """
+            <div><h4><strong>Sales POS - Tax : </strong><span>%s</span></h4></div>
+            <div style="float: left;margin-right: 20px;">
+              <strong>Sales :</strong>
+            </div>
+            <div><span>%s</span></div>
+            <div style="float: left;margin-right: 20px;"><strong>Discount : </strong></div><div><span>%s</span></div>
+            <div style="float: left;margin-right: 20px;"><strong>Subtotal : </strong></div><div><span>%s</span></div>
+            <div style="float: left;margin-right: 20px;"><strong>Tax iva : </strong></div><div><span>%s</span></div>
+            <div style="margin-bottom: 10px;float: left;margin-right: 20px;">
+              <strong>Total : </strong>
+            </div>
+            <div><span>%s</span></div>""" % (res[result].get('name'),
+                                             self.number_format(currency_id, res[result].get('subtotal') ),
+                                             self.number_format(currency_id, res[result].get('discount_line')),
+                                             self.number_format(currency_id, (res[result].get('subtotal') -
+                                                                              res[result].get('discount_line'))),
+                                             self.number_format(currency_id, res[result].get('tax_line')),
+                                             self.number_format(currency_id, res[result].get('total')))
         self.taxes_description = html 
-        
+
 
 
