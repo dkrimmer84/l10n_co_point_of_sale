@@ -467,17 +467,17 @@ class pos_session(models.Model):
         html = ''
         for result in res:
             html += """
-            <div><h4><strong>Sales POS - Tax : </strong><span>%s</span></h4></div>
-            <div style="float: left;margin-right: 20px;"><strong>Sales :</strong></div><div><span>$ %s</span></div>
-            <div style="float: left;margin-right: 20px;"><strong>Discount : </strong></div><div><span>$ %s</span></div>
-            <div style="float: left;margin-right: 20px;"><strong>Subtotal : </strong></div><div><span>$ %s</span></div>
-            <div style="float: left;margin-right: 20px;"><strong>Tax iva : </strong></div><div><span>$ %s</span></div>
+            <div><h4><strong>%s : </strong><span>%s</span></h4></div>
+            <div style="float: left;margin-right: 20px;"><strong>%s :</strong></div><div><span>$ %s</span></div>
+            <div style="float: left;margin-right: 20px;"><strong>%s : </strong></div><div><span>$ %s</span></div>
+            <div style="float: left;margin-right: 20px;"><strong>%s : </strong></div><div><span>$ %s</span></div>
+            <div style="float: left;margin-right: 20px;"><strong>%s : </strong></div><div><span>$ %s</span></div>
             <div style="margin-bottom: 10px;float: left;margin-right: 20px;"><strong>Total : </strong>
-            </div><div><span>$ %s</span></div>""" % (res[result].get('name'),
-                                             self.number_format(currency_id, res[result].get('subtotal')),
-                                             self.number_format(currency_id, res[result].get('discount_line')),
+            </div><div><span>$ %s</span></div>""" % (_('Sales POS - Tax'), res[result].get('name'), _('Sales'),
+                                             self.number_format(currency_id, res[result].get('subtotal')), _('Discount'),
+                                             self.number_format(currency_id, res[result].get('discount_line')), _('Subtotal'),
                                              self.number_format(currency_id, res[result].get('subtotal') -
-                                                                              res[result].get('discount_line')),
+                                                                              res[result].get('discount_line')), _('Tax iva'),
                                              self.number_format(currency_id, res[result].get('tax_line')),
                                              self.number_format(currency_id, res[result].get('total')))
         self.taxes_description = html 
