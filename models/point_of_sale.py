@@ -302,8 +302,8 @@ class PosOrderLine(models.Model):
         self.ensure_one()
         if self.order_id.picking_id:
             move = self.order_id.picking_id.move_lines.search([('picking_id','=',self.order_id.picking_id.id),
-                                                               ('product_id','=',self.product_id.id)]).ensure_one()
-        return move.price_unit
+                                                               ('product_id','=',self.product_id.id)])
+        return move[0].price_unit
 
     @api.model
     def _get_price(self, order, company_currency, i_line, price_unit):
