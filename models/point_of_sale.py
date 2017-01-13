@@ -399,7 +399,7 @@ class pos_session(models.Model):
         return res 
 
     def number_format( self, currency_id, amount ):
-        return formatLang(self.env, amount, currency_obj = currency_id ).replace(",", ".")
+        return formatLang(self.env, amount, currency_obj = currency_id, digits=0 ).replace(",", ".")
 
     @api.one
     def compute_amount_change(self):
@@ -479,12 +479,12 @@ class pos_session(models.Model):
               <strong>Total : </strong>
             </div>
             <div><span>%s</span></div>""" % (res[result].get('name'),
-                                             self.number_format(currency_id, res[result].get('subtotal') ),
-                                             self.number_format(currency_id, res[result].get('discount_line')),
-                                             self.number_format(currency_id, (res[result].get('subtotal') -
-                                                                              res[result].get('discount_line'))),
-                                             self.number_format(currency_id, res[result].get('tax_line')),
-                                             self.number_format(currency_id, res[result].get('total')))
+                                             self.number_format(currency_id, round(res[result].get('subtotal'),0) ),
+                                             self.number_format(currency_id, round(res[result].get('discount_line'),0)),
+                                             self.number_format(currency_id, round(res[result].get('subtotal'),0) -
+                                                                              round(res[result].get('discount_line'),0)),
+                                             self.number_format(currency_id, round(res[result].get('tax_line'),0)),
+                                             self.number_format(currency_id, round(res[result].get('total'),0)))
         self.taxes_description = html 
 
 
