@@ -399,7 +399,7 @@ class pos_session(models.Model):
         return res 
 
     def number_format( self, currency_id, amount ):
-        return formatLang(self.env, amount, currency_obj = currency_id ).replace(",", ".")
+        return formatLang(self.env, amount, currency_obj = currency_id, digits=0 ).replace(",", ".")
 
     @api.one
     def compute_amount_change(self):
@@ -432,12 +432,12 @@ class pos_session(models.Model):
                         _id_tax = line.tax_ids_after_fiscal_position.id
 
                         if line.tax_ids_after_fiscal_position.price_include:
-                            subtotal = (line.price_unit / (1 + (line.tax_ids_after_fiscal_position.amount/100))) * line.qty
+                            subtotal = round((line.price_unit / (1 + (line.tax_ids_after_fiscal_position.amount/100))) * line.qty, 0)
                         else:
-                            subtotal = line.price_unit * line.qty
-                        discount_line = (subtotal * line.discount)/100
-                        tax_line = ((subtotal - discount_line) * line.tax_ids_after_fiscal_position.amount)/100
-                        total = (subtotal + tax_line - discount_line)
+                            subtotal = round(line.price_unit * line.qty, 0)
+                        discount_line = round((subtotal * line.discount)/100 , 0)
+                        tax_line = round(((subtotal - discount_line) * line.tax_ids_after_fiscal_position.amount)/100 , 0)
+                        total = round((subtotal + tax_line - discount_line) , 0)
 
                         if _id_tax in res:
                             data = res[_id_tax]
@@ -467,22 +467,17 @@ class pos_session(models.Model):
         html = ''
         for result in res:
             html += """
-            <div><h4><strong>Sales POS - Tax : </strong><span>%s</span></h4></div>
-            <div style="float: left;margin-right: 20px;">
-              <strong>Sales :</strong>
-            </div>
-            <div><span>%s</span></div>
-            <div style="float: left;margin-right: 20px;"><strong>Discount : </strong></div><div><span>%s</span></div>
-            <div style="float: left;margin-right: 20px;"><strong>Subtotal : </strong></div><div><span>%s</span></div>
-            <div style="float: left;margin-right: 20px;"><strong>Tax iva : </strong></div><div><span>%s</span></div>
-            <div style="margin-bottom: 10px;float: left;margin-right: 20px;">
-              <strong>Total : </strong>
-            </div>
-            <div><span>%s</span></div>""" % (res[result].get('name'),
-                                             self.number_format(currency_id, res[result].get('subtotal') ),
-                                             self.number_format(currency_id, res[result].get('discount_line')),
-                                             self.number_format(currency_id, (res[result].get('subtotal') -
-                                                                              res[result].get('discount_line'))),
+            <div><h4><strong>%s : </strong><span>%s</span></h4></div>
+            <div style="float: left;margin-right: 20px;"><strong>%s :</strong></div><div><span>$ %s</span></div>
+            <div style="float: left;margin-right: 20px;"><strong>%s : </strong></div><div><span>$ %s</span></div>
+            <div style="float: left;margin-right: 20px;"><strong>%s : </strong></div><div><span>$ %s</span></div>
+            <div style="float: left;margin-right: 20px;"><strong>%s : </strong></div><div><span>$ %s</span></div>
+            <div style="margin-bottom: 10px;float: left;margin-right: 20px;"><strong>Total : </strong>
+            </div><div><span>$ %s</span></div>""" % (_('Sales POS - Tax'), res[result].get('name'), _('Sales'),
+                                             self.number_format(currency_id, res[result].get('subtotal')), _('Discount'),
+                                             self.number_format(currency_id, res[result].get('discount_line')), _('Subtotal'),
+                                             self.number_format(currency_id, res[result].get('subtotal') -
+                                                                              res[result].get('discount_line')), _('Tax iva'),
                                              self.number_format(currency_id, res[result].get('tax_line')),
                                              self.number_format(currency_id, res[result].get('total')))
         self.taxes_description = html 

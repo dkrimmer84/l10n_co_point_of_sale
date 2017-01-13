@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 9.0c-20160428\n"
+"Project-Id-Version: Odoo Server 9.0c-20161205\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-11 20:47+0000\n"
-"PO-Revision-Date: 2016-07-11 20:47+0000\n"
+"POT-Creation-Date: 2017-01-13 22:27+0000\n"
+"PO-Revision-Date: 2017-01-13 22:27+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -17,18 +17,221 @@ msgstr ""
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:478
+#, python-format
+msgid "% discount"
+msgstr "% discount"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
+msgid "(Usuario:"
+msgstr "(Usuario:"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<br/>\n"
+"                            <strong>Journal</strong> :"
+msgstr "<br/>\n"
+"                            <strong>Diario</strong> :"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<br/>\n"
+"                            <strong>Sales:</strong>"
+msgstr "<br/>\n"
+"                            <strong>Ventas:</strong>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<br/>\n"
+"                            <strong>Subtotal:</strong>"
+msgstr "<br/>\n"
+"                            <strong>Subtotal:</strong>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<br/>\n"
+"                            <strong>Total Discount:</strong>"
+msgstr "<br/>\n"
+"                            <strong>Total Descuento:</strong>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<br/>\n"
+"                            <strong>Total: </strong>"
+msgstr "<br/>\n"
+"                            <strong>Total: </strong>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<br/>\n"
+"                            <strong>Valor Iva: </strong>"
+msgstr "<br/>\n"
+"                            <strong>Valor Iva: </strong>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
+msgid "<br/>\n"
+"                Dirección:"
+msgstr "<br/>\n"
+"                Dirección:"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
+msgid "<span><b>FACTURADO A:</b></span><br/>"
+msgstr "<span><b>FACTURADO A:</b></span><br/>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
+msgid "<span><b>FACTURADO POR:</b></span><br/>"
+msgstr "<span><b>FACTURADO POR:</b></span><br/>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.view_pos_config_kanban_inherited
+msgid "<span><b>The secuences are near to finish</b><br/> Please update soon!</span>"
+msgstr "<span><b>The secuences are near to finish</b><br/> Please update soon!</span>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<span>No se encontró ventas para esta sesión</span>"
+msgstr "<span>No se encontró ventas para esta sesión</span>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<strong>Closing Date</strong>:<br/>"
+msgstr "<strong>Fecha de Cierre</strong>:<br/>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<strong>Hardware ID</strong>:"
+msgstr "<strong>Hardware ID</strong>:"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<strong>Initial date</strong>:<br/>"
+msgstr "<strong>Fecha de Inicio</strong>:<br/>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<strong>No. Final Registration</strong>:<br/>"
+msgstr "<strong>No. Registro Final</strong>:<br/>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<strong>No. Initial Registration</strong>:<br/>"
+msgstr "<strong>No. Registro Inicial</strong>:<br/>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<strong>Number of Sales Done:</strong>"
+msgstr "<strong>Número de Ventas Realizadas:</strong>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<strong>Point of sale</strong>:"
+msgstr "<strong>Punto de Venta</strong>:"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<strong>Reference</strong> :"
+msgstr "<strong>Referencia</strong> :"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<strong>Responsable</strong>:"
+msgstr "<strong>Responsable</strong>:"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<strong>Session No</strong>:"
+msgstr "<strong>Session No</strong>:"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<strong>Total Change : </strong>"
+msgstr "<strong>Total Cambio : </strong>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<strong>Total Pyments Method : </strong>"
+msgstr "<strong>Total Métodos de Pago : </strong>"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<strong>Total Transactions</strong> :"
+msgstr "<strong>Total Transacciones</strong> :"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "<strong>Voucher Date</strong>:"
+msgstr "<strong>Fecha de Cierre</strong>:"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax_account_id
+msgid "Account"
+msgstr "Cuenta"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax_amount
+msgid "Amount"
+msgstr "Cantidad"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax_account_analytic_id
+msgid "Analytic Account"
+msgstr "Cuenta Analítica"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:375
+#, python-format
+msgid "CHANGE"
+msgstr "CHANGE"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_session_amount_change
+msgid "Change"
+msgstr "Change"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:534
+#, python-format
+msgid "Change:"
+msgstr "Change:"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:103
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:217
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:221
 #, python-format
 msgid "City"
 msgstr "Ciudad"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:70
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:295
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:459
+#, python-format
+msgid "Cliente:"
+msgstr "Cliente:"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:102
 #, python-format
 msgid "Company name"
 msgstr "Nombre de la compañía"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.view_pos_pos_form
+msgid "Company taxes"
+msgstr "Company taxes"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
+msgid "Correo:"
+msgstr "Correo:"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
@@ -38,42 +241,130 @@ msgid "Country"
 msgstr "País"
 
 #. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax_create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax_create_date
+msgid "Created on"
+msgstr "Creado"
+
+#. module: l10n_co_point_of_sale
+#: selection:pos.order,type:0
+msgid "Customer Invoice"
+msgstr "Customer Invoice"
+
+#. module: l10n_co_point_of_sale
+#: selection:pos.order,type:0
+msgid "Customer Refund"
+msgstr "Customer Refund"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "Daily POS Sales Report"
+msgstr "Informe Diario de Ventas POS"
+
+#. module: l10n_co_point_of_sale
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:87
+#, python-format
+msgid "Debe definir una posicion fiscal para el partner asociado a la compañía actual"
+msgstr "Debe definir una posicion fiscal para el partner asociado a la compañía actual"
+
+#. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:95
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:206
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:210
 #, python-format
 msgid "Department"
 msgstr "Departamento"
 
 #. module: l10n_co_point_of_sale
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:477
+#, python-format
+msgid "Discount"
+msgstr "Descuento"
+
+#. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:248
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:318
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:507
+#, python-format
+msgid "Discount:"
+msgstr "Discount:"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:384
+#, python-format
+msgid "Discounts"
+msgstr "Discounts"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax_display_name
+msgid "Display Name"
+msgstr "Nombre Público"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:280
 #, python-format
 msgid "Error! Number of digits in Identification number must be between 2 and 12"
 msgstr "Error! Los dígitos en el número de identificación deben ser entre 2 y 12"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:348
+#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:380
 #, python-format
 msgid "Error! You have pending errors, please fix them before you save the client"
 msgstr "Error! Tienes errores pendientes, por favor corrígelos antes de terminar con el cliente"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:337
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:446
 #, python-format
-msgid "First Name and Lastname are required"
-msgstr "Primer nombre y primer apellido son requeridos"
+msgid "Factura de Venta N:"
+msgstr "Factura de Venta N:"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:282
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
+#, python-format
+msgid "Factura de Venta No.:"
+msgstr "Factura de Venta No.:"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:291
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:456
+#, python-format
+msgid "Fecha de Resolución:"
+msgstr "Fecha de Resolución:"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:287
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:439
+#, python-format
+msgid "Fecha:"
+msgstr "Fecha:"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:64
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:180
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:181
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:184
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:185
 #, python-format
 msgid "First name"
 msgstr "Primer nombre"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:369
+#, python-format
+msgid "First name and Lastname are required"
+msgstr "First name and Lastname are required"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
@@ -84,8 +375,18 @@ msgid "Formated nit"
 msgstr "NIT"
 
 #. module: l10n_co_point_of_sale
+#: model:ir.model.fields,help:l10n_co_point_of_sale.field_pos_order_line_company_tax_sequence
+msgid "Gives the sequence order when displaying a list of invoice tax."
+msgstr "Indica el orden de secuencia cuando se muestra una lista de impuestos de factura."
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax_id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:121
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:125
 #, python-format
 msgid "Identification"
 msgstr "Identificación"
@@ -93,8 +394,8 @@ msgstr "Identificación"
 #. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:28
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:156
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:157
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:160
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:161
 #, python-format
 msgid "Identification number"
 msgstr "Número de identificación"
@@ -102,7 +403,7 @@ msgstr "Número de identificación"
 #. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:36
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:162
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:166
 #, python-format
 msgid "Identification type"
 msgstr "Tipo de identificación"
@@ -110,19 +411,44 @@ msgstr "Tipo de identificación"
 #. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:8
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:129
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:133
 #, python-format
 msgid "Is a company?"
 msgstr "¿Es una empresa?"
 
 #. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax___last_update
+msgid "Last Modified on"
+msgstr "Última Modificación el"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax_write_uid
+msgid "Last Updated by"
+msgstr "Actualizado por"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax_write_date
+msgid "Last Updated on"
+msgstr "Actualizado"
+
+#. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:68
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:192
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:193
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:196
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:197
 #, python-format
 msgid "Lastname"
 msgstr "Primer apellido"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model,name:l10n_co_point_of_sale.model_pos_order_line
+msgid "Lines of Point of Sale"
+msgstr "Líneas del Punto de Venta"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_session_mac
+msgid "MAC"
+msgstr "MAC"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
@@ -133,32 +459,71 @@ msgstr "N/A"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:174
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:461
+#, python-format
+msgid "NIC:"
+msgstr "NIC:"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:178
 #, python-format
 msgid "NIT"
 msgstr "NIT"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:72
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:257
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:297
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
+#, python-format
+msgid "NIT:"
+msgstr "NIT:"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:104
 #, python-format
 msgid "Name"
 msgstr "Nombre"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:208
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:219
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:212
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:223
 #, python-format
 msgid "None"
 msgstr "Ninguno"
 
 #. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_config_not_has_valid_dian
+msgid "Not has valid dian"
+msgstr "Not has valid dian"
+
+#. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:157
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:455
 #, python-format
-msgid "Número de identificación"
-msgstr "Número de identificación"
+msgid "Numeración autorizada desde"
+msgstr "Numeración autorizada desde"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:290
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:454
+#, python-format
+msgid "Número Resolución DIAN:"
+msgstr "Número Resolución DIAN:"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax_order_id
+msgid "Order"
+msgstr "Order"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_company_taxes
+msgid "Order Company Taxes"
+msgstr "Order Company Taxes"
 
 #. module: l10n_co_point_of_sale
 #: model:ir.model,name:l10n_co_point_of_sale.model_res_partner
@@ -168,16 +533,65 @@ msgstr "Asociado"
 #. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:18
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:139
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:143
 #, python-format
 msgid "Person type"
 msgstr "Person type"
 
 #. module: l10n_co_point_of_sale
+#: model:ir.model,name:l10n_co_point_of_sale.model_pos_order
+msgid "Point of Sale"
+msgstr "Punto de Venta"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:289
+#, python-format
+msgid "Rango Facturación:"
+msgstr "Rango Facturación:"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_config_sequence_refund_id
+msgid "Refund Order IDs Sequence"
+msgstr "Refund Order IDs Sequence"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_resolution_date
+msgid "Resolution date"
+msgstr "Resolution date"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_resolution_number_from
+msgid "Resolution number from"
+msgstr "Resolution number from"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_resolution_number
+msgid "Resolution number in order"
+msgstr "Resolution number in order"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_resolution_number_to
+msgid "Resolution number to"
+msgstr "Resolution number to"
+
+#. module: l10n_co_point_of_sale
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:476
+#, python-format
+msgid "Sales"
+msgstr "Ventas"
+
+#. module: l10n_co_point_of_sale
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:476
+#, python-format
+msgid "Sales POS - Tax"
+msgstr "Ventas POS - Impuesto : "
+
+#. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:78
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:198
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:199
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:202
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:203
 #, python-format
 msgid "Second lastname"
 msgstr "Segundo apellido"
@@ -185,15 +599,167 @@ msgstr "Segundo apellido"
 #. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:74
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:186
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:187
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:190
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:191
 #, python-format
 msgid "Second name"
 msgstr "Segundo nombre"
 
 #. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax_sequence
+msgid "Sequence"
+msgstr "Secuencia"
+
+#. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:263
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:274
+#, python-format
+msgid "Served by"
+msgstr "Served by"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:478
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:346
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_price_subtotal_line
+#, python-format
+msgid "Subtotal"
+msgstr "Subtotal"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:493
+#, python-format
+msgid "Subtotal:"
+msgstr "Subtotal:"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:359
+#, python-format
+msgid "TOTAL"
+msgstr "TOTAL"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax_tax_id
+msgid "Tax"
+msgstr "Impuesto"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax_name
+msgid "Tax description"
+msgstr "Tax description"
+
+#. module: l10n_co_point_of_sale
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:480
+#, python-format
+msgid "Tax iva"
+msgstr "Impuesto Iva"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:260
+#, python-format
+msgid "Tel:"
+msgstr "Tel:"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
+msgid "Teléfono:"
+msgstr "Teléfono:"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,help:l10n_co_point_of_sale.field_pos_config_sequence_refund_id
+msgid "This sequence is automatically created by Odoo but you can change it to customize the reference numbers of your orders."
+msgstr "La secuencia es creada automáticamente por Odoo, pero puede cambiarla para personalizar los números de referencia de sus pedidos."
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "Total Payment Method"
+msgstr "Total Métodos de Pago"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "Total Sales POS"
+msgstr "Total Ventas POS"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:396
+#, python-format
+msgid "Total Taxes"
+msgstr "Total Impuestos"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:513
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+#, python-format
+msgid "Total:"
+msgstr "Total:"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_type
+msgid "Type"
+msgstr "Tipo"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:477
+#, python-format
+msgid "With a"
+msgstr "With a"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
+msgid "del"
+msgstr "del"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:456
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
+#, python-format
+msgid "hasta"
+msgstr "hasta"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model,name:l10n_co_point_of_sale.model_pos_config
+msgid "pos.config"
+msgstr "pos.config"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model,name:l10n_co_point_of_sale.model_pos_order_line_company_tax
+msgid "pos.order.line.company_tax"
+msgstr "pos.order.line.company_tax"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model,name:l10n_co_point_of_sale.model_pos_session
+msgid "pos.session"
+msgstr "pos.session"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_session_taxes_description
+msgid "taxes Description"
+msgstr "taxes Description"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
+msgid "|\n"
+"              Numero de resolución:"
+msgstr "|\n"
+"              Numero de resolución:"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
+msgid "|\n"
+"              Rango desde"
+msgstr "|\n"
+"              Rango desde"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/js/main.js:295
 #, python-format
 msgid "¡Error! Identification number can only have numbers"
 msgstr "¡Error! El número de identificación debe contener solo números"
