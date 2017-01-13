@@ -302,8 +302,8 @@ class PosOrderLine(models.Model):
         self.ensure_one()
         if self.order_id.picking_id:
             move = self.order_id.picking_id.move_lines.search([('picking_id','=',self.order_id.picking_id.id),
-                                                               ('product_id','=',self.product_id.id)]).ensure_one()
-        return move.price_unit
+                                                               ('product_id','=',self.product_id.id)])
+        return move[0].price_unit
 
     @api.model
     def _get_price(self, order, company_currency, i_line, price_unit):
@@ -381,6 +381,7 @@ class pos_session(models.Model):
     _inherit = 'pos.session'
 
     taxes_description = fields.Html('taxes Description', compute = 'compute_taxes_description')
+    amount_change = fields.Float('Change', compute = 'compute_amount_change')
     mac = fields.Char('MAC')
     macpc = get_mac()
 
@@ -400,16 +401,32 @@ class pos_session(models.Model):
     def number_format( self, currency_id, amount ):
         return formatLang(self.env, amount, currency_obj = currency_id ).replace(",", ".")
 
+    @api.one
+    def compute_amount_change(self):
+
+        res = {}
+        currency_id = False
+        _change = 0
+        if self.order_ids:
+            for order in self.order_ids:
+                for change  in order.statement_ids:
+                    if change.amount < 0:  
+                        _change = _change + change.amount           
+
+        #html = """
+        #<div style="float: left;margin-right: 20px;"><strong>Amount Change : </strong></div><div><span>%s</span></div>
+        #""" % (self.number_format(currency_id, _change))
+        self.amount_change = _change    
+
 
     @api.one
     def compute_taxes_description(self):
 
         res = {}
         currency_id = False
+        _cambio = 0
         if self.order_ids:
             for order in self.order_ids:
-                currency_id = order.company_id.currency_id
-
                 if order.lines:
                     for line in order.lines:
                         _id_tax = line.tax_ids_after_fiscal_position.id
@@ -446,8 +463,7 @@ class pos_session(models.Model):
                                 'discount_line' : discount_line,
                                 'tax_line' : tax_line,
                                 'total' : total
-                            }
-
+                            }               
         html = ''
         for result in res:
             html += """
