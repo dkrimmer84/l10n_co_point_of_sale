@@ -181,12 +181,11 @@ class PosOrder(models.Model):
         items = {}
         taxes = {}
         for order in self:
-
             for line in order.company_taxes:
                 key = (order.type, order.partner_id.id or "", line.tax_id.id)
                 val = self._prepare_tax_vals(line, order.partner_id)
 
-                if key not in items:
+                if key not in taxes:
                     taxes[key] = val
                 else:
                     taxes[key]['amount'] += val['amount']
