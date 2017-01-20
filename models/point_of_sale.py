@@ -160,6 +160,16 @@ class PosOrder(models.Model):
 
         return abs
 
+    def _prepare_tax_vals(self, line, partner_id):
+        vals = {
+            'name': line.name,
+            'account_id': line.account_id.id,
+            'amount': line.amount,
+            'tax_id': line.tax_id.id,
+            'partner_id': partner_id
+        }
+        return vals
+
     @api.multi
     def _create_account_move_line(self, session=None, move_id=None):
         res = super(PosOrder, self)._create_account_move_line(session, move_id)
@@ -174,49 +184,49 @@ class PosOrder(models.Model):
 
             for line in order.company_taxes:
                 key = (order.type, order.partner_id.id or "", line.tax_id.id)
+                val = self._prepare_tax_vals(line, order.partner_id)
 
                 if key not in items:
-                    taxes[key] = line
+                    taxes[key] = val
                 else:
-                    tax_line = taxes[key]
-                    tax_line.amount += line.amount
-
-            for key,line in taxes.iteritems():
-                type, dummy, dummy = key
-                if type in 'out_refund':
-                    name = 'Refund ' + line.name
-                else:
-                    name = line.name
-
-                tax = self.env['account.tax'].browse(line.tax_id.id)
-                counter_account_id = tax.account_id_counterpart.id
-
-                values = [{
-                    'name': name[:64],
-                    'quantity': 1,
-                    'account_id': line.account_id.id,
-                    'credit': ((line.amount>0) and line.amount) or 0.0,
-                    'debit': ((line.amount<0) and -line.amount) or 0.0,
-                    'tax_line_id': line.tax_id.id,
-                    'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
-                    'move_id': move_id
-                },
-                {
-                    'name': name[:64],
-                    'quantity': 1,
-                    'account_id': counter_account_id,
-                    'credit': ((line.amount<0) and -line.amount) or 0.0,
-                    'debit': ((line.amount>0) and line.amount) or 0.0,
-                    'tax_line_id': line.tax_id.id,
-                    'partner_id': order.partner_id and self.env["res.partner"]._find_accounting_partner(order.partner_id).id or False,
-                    'move_id': move_id
-                }]
-                items[key] = values
+                    taxes[key]['amount'] += val['amount']
 
             if order.company_id.anglo_saxon_accounting:
                 for i_line in order.lines:
                     anglo_saxon_lines = order._anglo_saxon_sale_move_lines(i_line)
                     all_lines.extend(anglo_saxon_lines)
+
+        for key,val in taxes.iteritems():
+            type, dummy, dummy = key
+            if type in 'out_refund':
+                name = 'Refund ' + val['name']
+            else:
+                name = val['name']
+
+            tax = self.env['account.tax'].browse(val['tax_id'])
+            counter_account_id = tax.account_id_counterpart.id
+
+            values = [{
+                'name': name[:64],
+                'quantity': 1,
+                'account_id': val['account_id'],
+                'credit': ((val['amount']>0) and val['amount']) or 0.0,
+                'debit': ((val['amount']<0) and -val['amount']) or 0.0,
+                'tax_line_id': val['tax_id'],
+                'partner_id': val['partner_id'] and self.env["res.partner"]._find_accounting_partner(val['partner_id']).id or False,
+                'move_id': move_id
+            },
+            {
+                'name': name[:64],
+                'quantity': 1,
+                'account_id': counter_account_id,
+                'credit': ((val['amount']<0) and -val['amount']) or 0.0,
+                'debit': ((val['amount']>0) and val['amount']) or 0.0,
+                'tax_line_id': val['tax_id'],
+                'partner_id': val['partner_id'] and self.env["res.partner"]._find_accounting_partner(val['partner_id']).id or False,
+                'move_id': move_id
+            }]
+            items[key] = values
 
         map(lambda x: map (lambda y: all_lines.append((0, 0, y)), x), items.values())
 
