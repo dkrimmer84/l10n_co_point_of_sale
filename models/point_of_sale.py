@@ -36,6 +36,12 @@ from openerp.osv import osv
 
 _logger = logging.getLogger(__name__)
 
+class PosAccountMoveLine(models.Model):
+    _name = "account.move.line"
+    _inherit = "account.move.line"
+
+    base_tax = fields.Float('Base Tax')
+
 class PosOrder(models.Model):
     _name = "pos.order"
     _inherit = "pos.order"
@@ -206,9 +212,6 @@ class PosOrder(models.Model):
                     anglo_saxon_lines = order._anglo_saxon_sale_move_lines(i_line)
                     all_lines.extend(anglo_saxon_lines)
 
-        raise osv.except_osv('Error', 'error')
-
-
         for key,val in taxes.iteritems():
             type, dummy, dummy = key
             if type in 'out_refund':
@@ -227,7 +230,8 @@ class PosOrder(models.Model):
                 'debit': ((val['amount']<0) and -val['amount']) or 0.0,
                 'tax_line_id': val['tax_id'],
                 'partner_id': val['partner_id'] and self.env["res.partner"]._find_accounting_partner(val['partner_id']).id or False,
-                'move_id': move_id
+                'move_id': move_id,
+                'base_tax' : val['subtotal']
             },
             {
                 'name': name[:64],
@@ -237,7 +241,8 @@ class PosOrder(models.Model):
                 'debit': ((val['amount']>0) and val['amount']) or 0.0,
                 'tax_line_id': val['tax_id'],
                 'partner_id': val['partner_id'] and self.env["res.partner"]._find_accounting_partner(val['partner_id']).id or False,
-                'move_id': move_id
+                'move_id': move_id,
+                'base_tax' : val['subtotal']
             }]
             items[key] = values
 
