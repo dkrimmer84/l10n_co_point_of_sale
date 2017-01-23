@@ -32,6 +32,7 @@ from uuid import getnode as get_mac
 from openerp import api, fields as Fields
 import locale
 from openerp.tools.misc import formatLang
+from openerp.osv import osv
 
 _logger = logging.getLogger(__name__)
 
@@ -160,13 +161,14 @@ class PosOrder(models.Model):
 
         return abs
 
-    def _prepare_tax_vals(self, line, partner_id):
+    def _prepare_tax_vals(self, line, partner_id, subtotal = 0):
         vals = {
             'name': line.name,
             'account_id': line.account_id.id,
             'amount': line.amount,
             'tax_id': line.tax_id.id,
-            'partner_id': partner_id
+            'partner_id': partner_id,
+            'subtotal' : subtotal
         }
         return vals
 
@@ -181,19 +183,31 @@ class PosOrder(models.Model):
         items = {}
         taxes = {}
         for order in self:
+
+
             for line in order.company_taxes:
+                subtotal = 0
+                for pos_order in line.order_id:
+                    subtotal = 0
+                    for lines in pos_order.lines:
+                        subtotal = subtotal  + lines.price_subtotal
+                
                 key = (order.type, order.partner_id.id or "", line.tax_id.id)
-                val = self._prepare_tax_vals(line, order.partner_id)
+                val = self._prepare_tax_vals(line, order.partner_id, subtotal)
 
                 if key not in taxes:
                     taxes[key] = val
                 else:
                     taxes[key]['amount'] += val['amount']
-
+                    taxes[key]['subtotal'] += val['subtotal']
+                   
             if order.company_id.anglo_saxon_accounting:
                 for i_line in order.lines:
                     anglo_saxon_lines = order._anglo_saxon_sale_move_lines(i_line)
                     all_lines.extend(anglo_saxon_lines)
+
+        raise osv.except_osv('Error', 'error')
+
 
         for key,val in taxes.iteritems():
             type, dummy, dummy = key
