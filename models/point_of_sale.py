@@ -36,11 +36,13 @@ from openerp.osv import osv
 
 _logger = logging.getLogger(__name__)
 
-class PosAccountMoveLine(models.Model):
+
+
+"""class PosAccountMoveLine(models.Model):
     _name = "account.move.line"
     _inherit = "account.move.line"
 
-    base_tax = fields.Float('Base Tax')
+    base_tax = fields.Float('Base Tax')"""
 
 class PosOrder(models.Model):
     _name = "pos.order"
@@ -167,14 +169,13 @@ class PosOrder(models.Model):
 
         return abs
 
-    def _prepare_tax_vals(self, line, partner_id, subtotal = 0):
+    def _prepare_tax_vals(self, line, partner_id):
         vals = {
             'name': line.name,
             'account_id': line.account_id.id,
             'amount': line.amount,
             'tax_id': line.tax_id.id,
-            'partner_id': partner_id,
-            'subtotal' : subtotal
+            'partner_id': partner_id
         }
         return vals
 
@@ -189,14 +190,8 @@ class PosOrder(models.Model):
         items = {}
         taxes = {}
         for order in self:
-
-
+            
             for line in order.company_taxes:
-                subtotal = 0
-                for pos_order in line.order_id:
-                    subtotal = 0
-                    for lines in pos_order.lines:
-                        subtotal = subtotal  + lines.price_subtotal
                 
                 key = (order.type, order.partner_id.id or "", line.tax_id.id)
                 val = self._prepare_tax_vals(line, order.partner_id, subtotal)
@@ -205,13 +200,13 @@ class PosOrder(models.Model):
                     taxes[key] = val
                 else:
                     taxes[key]['amount'] += val['amount']
-                    taxes[key]['subtotal'] += val['subtotal']
+                    #taxes[key]['subtotal'] += val['subtotal']
                    
             if order.company_id.anglo_saxon_accounting:
                 for i_line in order.lines:
                     anglo_saxon_lines = order._anglo_saxon_sale_move_lines(i_line)
                     all_lines.extend(anglo_saxon_lines)
-
+                
         for key,val in taxes.iteritems():
             type, dummy, dummy = key
             if type in 'out_refund':
@@ -230,8 +225,7 @@ class PosOrder(models.Model):
                 'debit': ((val['amount']<0) and -val['amount']) or 0.0,
                 'tax_line_id': val['tax_id'],
                 'partner_id': val['partner_id'] and self.env["res.partner"]._find_accounting_partner(val['partner_id']).id or False,
-                'move_id': move_id,
-                'base_tax' : val['subtotal']
+                'move_id': move_id
             },
             {
                 'name': name[:64],
@@ -241,8 +235,7 @@ class PosOrder(models.Model):
                 'debit': ((val['amount']>0) and val['amount']) or 0.0,
                 'tax_line_id': val['tax_id'],
                 'partner_id': val['partner_id'] and self.env["res.partner"]._find_accounting_partner(val['partner_id']).id or False,
-                'move_id': move_id,
-                'base_tax' : val['subtotal']
+                'move_id': move_id
             }]
             items[key] = values
 
@@ -459,14 +452,12 @@ class pos_session(models.Model):
                     for line in order.lines:
                         _id_tax = line.tax_ids_after_fiscal_position.id
 
-                        if line.tax_ids_after_fiscal_position.price_include:
-                            subtotal = round((line.price_unit / (1 + (line.tax_ids_after_fiscal_position.amount/100))) * line.qty, 0)
-                        else:
-                            subtotal = round(line.price_unit * line.qty, 0)
+                       
+                        subtotal = line.price_subtotal
                         discount_line = round((subtotal * line.discount)/100 , 0)
                         tax_line = round(((subtotal - discount_line) * line.tax_ids_after_fiscal_position.amount)/100 , 0)
                         total = round((subtotal + tax_line - discount_line) , 0)
-
+                        
                         if _id_tax in res:
                             data = res[_id_tax]
                             subtotal = data.get('subtotal') + subtotal
