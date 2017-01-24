@@ -338,27 +338,30 @@
                 </t>
             </div>
 
+            <!-- Total -->
+
+            <line><right>--------------------------------</right></line>
+            <line class='total' size='double-height'>
+                <left><pre>        TOTAL</pre></left>
+                <right><value><t t-esc='receipt.total_with_tax' /></value></right>
+            </line><br />
+
+
             <!-- Subtotal -->
 
             <t t-set='taxincluded' t-value='Math.abs(receipt.subtotal - receipt.total_with_tax) &lt;= 0.000001' />
-            <t t-if='!taxincluded'>
-                <line><right>--------</right></line>
-                <line><left>Subtotal</left><right> <value><t t-esc="receipt.subtotal" /></value></right></line>
+                <line><right>--------------------------------</right></line>
+                <line><left>Subtotal</left><right>
+                    <value>
+                        <t t-if='taxincluded'><t t-esc="receipt.total_without_tax" /></t>
+                        <t t-if='!taxincluded'><t t-esc="receipt.total_with_tax" /></t>
+                    </value></right></line>
                 <t t-foreach='receipt.tax_details' t-as='tax'>
                     <line>
                         <left><t t-esc='tax.name' /></left>
                         <right><value><t t-esc='tax.amount' /></value></right>
                     </line>
                 </t>
-            </t>
-
-            <!-- Total -->
-
-            <line><right>--------</right></line>
-            <line class='total' size='double-height'>
-                <left><pre>        TOTAL</pre></left>
-                <right><value><t t-esc='receipt.total_with_tax' /></value></right>
-            </line>
             <br/><br/>
 
             <!-- Payment Lines -->

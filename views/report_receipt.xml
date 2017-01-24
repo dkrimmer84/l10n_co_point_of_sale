@@ -4,7 +4,10 @@
     <template id="l10n_co_point_of_sale_report_receipt" inherit_id="point_of_sale.report_receipt">
 
       <xpath expr="//div[@class='page']/div[1]" position="replace">
-
+            <style type="text/css">
+                h2{font-size:16px;}
+                body{font-size: 12px;}
+            </style>
           <div class="col-xs-12 text-center">
                 <h2>Factura de Venta No.: <span t-field="o.name"/> </h2>
           </div><br />
@@ -40,6 +43,38 @@
 
 
       </xpath>
+
+        <xpath expr="//div[@class='page']/table[1]" position="replace">
+            <table class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th class="text-right">Quantity</th>
+                            <th class="text-right">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="o.lines" t-as="line">
+                            <td><span t-field="line.product_id"/><br />
+                                <t t-if="line.discount != 0.0">
+                                    (Descuento: <span t-esc="line.discount"/>%)
+                                </t>
+                            </td>
+                            <td class="text-right">
+                                <t t-if="o.state != 'cancel' and o.statement_ids">
+                                    <span t-field="line.qty"/>
+                                </t>
+                            </td>
+                            <td class="text-right">
+                                <t t-if="o.state != 'cancel' and o.statement_ids">
+                                    <span t-esc="formatLang(net(line.id), currency_obj=res_company.currency_id)"/>
+                                </t>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+        </xpath>
+
     </template>
   </data>
 </openerp>
