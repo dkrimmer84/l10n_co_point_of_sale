@@ -104,24 +104,24 @@
                         <t t-foreach="o.statement_ids" t-as="statement">
                             <strong>Reference</strong> : <span t-field="statement.name"/><br/>
                             <strong>Journal</strong> : <span t-field="statement.journal_id"/><br/>
-                            <t t-if="statement.journal_id.type == 'cash'">
-                                <t t-set="total_transactions" t-value="statement.total_entry_encoding - o.amount_change"/>
-                            </t>
-                            <t t-if="statement.journal_id.type != 'cash'">
+                            <!--<t t-if="statement.journal_id.type == 'cash'">
                                 <t t-set="total_transactions" t-value="statement.total_entry_encoding"/>
-                            </t>
+                            </t>-->
+                            <!--<t t-if="statement.journal_id.type != 'cash'">-->
+                            <t t-set="total_transactions" t-value="statement.total_entry_encoding"/>
+                            <!--</t>-->
                             <strong>Total Transactions</strong> : <span t-esc="total_transactions" t-esc-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
                         
                             <t t-set="total_pyment" t-value="total_pyment + statement.total_entry_encoding"/>      
                         </t>
-                        <strong>Total Change : </strong>
+                        <!--<strong>Total Change : </strong>
                         <t t-if="o.amount_change == 0">
                             <span t-esc="o.amount_change" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br />
                         </t>
                         <t t-if="o.amount_change &#60; 0">
                             <span t-esc="o.amount_change * -1" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br />
                         </t>
-                       
+                       -->
                         <strong>Total Pyments Method : </strong>
                         <span t-esc="total_pyment" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                     </div>            

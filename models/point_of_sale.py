@@ -422,7 +422,7 @@ class pos_session(models.Model):
     def number_format( self, currency_id, amount ):
         return formatLang(self.env, amount, currency_obj = currency_id, digits=0 ).replace(",", ".")
 
-    @api.one
+    """@api.one
     def compute_amount_change(self):
 
         res = {}
@@ -434,10 +434,10 @@ class pos_session(models.Model):
                     if change.amount < 0:  
                         _change = _change + change.amount           
 
-        #html = """
+        #html = 
         #<div style="float: left;margin-right: 20px;"><strong>Amount Change : </strong></div><div><span>%s</span></div>
-        #""" % (self.number_format(currency_id, _change))
-        self.amount_change = _change    
+        # % (self.number_format(currency_id, _change))
+        self.amount_change = _change """ 
 
 
     @api.one
