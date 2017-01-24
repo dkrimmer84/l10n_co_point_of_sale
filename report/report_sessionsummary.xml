@@ -72,25 +72,24 @@
                                     <t t-set="impuesto" t-value="lineas.tax_ids_after_fiscal_position.name"/>
                                     <t t-if="impuesto == lineas.tax_ids_after_fiscal_position.name">
 
-                                        <t t-set="subtotal" t-value="lineas.price_subtotal"/>
-                                        <t t-set="sumsubtotal" t-value="sumsubtotal + subtotal"/>
-                                        <t t-set="descuentos" t-value="descuentos + (subtotal*(lineas.discount)/100)"/>
+                                        <t t-set="descuentos" t-value="descuentos + ((lineas.price_unit * lineas.qty)*(lineas.discount)/100)"/>
+                                        <t t-set="subtotal" t-value="subtotal + lineas.price_subtotal"/>            
                                     </t>
 
                                 </t>
                                 <t t-set="total" t-value="total + order.amount_total" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
                                 <t t-set="iva" t-value="iva + order.amount_tax" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
+                                <span t-esc="order.amount_tax"/>
                             </t>
-                            <t t-set="subtotaldiscount" t-value="sumsubtotal - descuentos"/>
                             
                             <strong>Number of Sales Done:</strong>
                             <span t-esc="cnt"/><br/>
                             <strong>Sales:</strong>
-                            <span t-esc="sumsubtotal" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
+                            <span t-esc="subtotal + descuentos" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                             <strong>Total Discount:</strong>
                             <span t-esc="descuentos" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                             <strong>Subtotal:</strong>
-                            <span t-esc="subtotaldiscount" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
+                            <span t-esc="subtotal" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                             <strong>Valor Iva: </strong>
                             <span t-esc="iva" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                             <strong>Total: </strong>

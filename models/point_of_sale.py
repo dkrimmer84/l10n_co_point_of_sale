@@ -449,19 +449,19 @@ class pos_session(models.Model):
         if self.order_ids:
             for order in self.order_ids:
                 if order.lines:
+
                     for line in order.lines:
                         _id_tax = line.tax_ids_after_fiscal_position.id
 
-                       
+                        discount_line = round(((line.price_unit * line.qty) * line.discount)/100 , 0)
                         subtotal = line.price_subtotal
-                        discount_line = round((subtotal * line.discount)/100 , 0)
-                        tax_line = round(((subtotal - discount_line) * line.tax_ids_after_fiscal_position.amount)/100 , 0)
-                        total = round((subtotal + tax_line - discount_line) , 0)
+                        tax_line = line.price_subtotal_incl - line.price_subtotal
+                        total = round((subtotal + tax_line) , 0)
                         
                         if _id_tax in res:
                             data = res[_id_tax]
-                            subtotal = data.get('subtotal') + subtotal
                             discount_line = data.get('discount_line') + discount_line
+                            subtotal = data.get('subtotal') + subtotal
                             tax_line = data.get('tax_line') + tax_line
                             total = data.get('total') + total
 
@@ -478,7 +478,7 @@ class pos_session(models.Model):
                             res[_id_tax] = {
                                 'id' : _id_tax,
                                 'name' : line.tax_ids_after_fiscal_position.name,
-                                'subtotal' : subtotal,
+                                'subtotal' : subtotal,                                
                                 'discount_line' : discount_line,
                                 'tax_line' : tax_line,
                                 'total' : total
@@ -493,10 +493,9 @@ class pos_session(models.Model):
             <div style="float: left;margin-right: 20px;"><strong>%s : </strong></div><div><span>$ %s</span></div>
             <div style="margin-bottom: 10px;float: left;margin-right: 20px;"><strong>Total : </strong>
             </div><div><span>$ %s</span></div>""" % (_('Sales POS - Tax'), res[result].get('name'), _('Sales'),
-                                             self.number_format(currency_id, res[result].get('subtotal')), _('Discount'),
+                                             self.number_format(currency_id, res[result].get('subtotal') + res[result].get('discount_line')), _('Discount'),
                                              self.number_format(currency_id, res[result].get('discount_line')), _('Subtotal'),
-                                             self.number_format(currency_id, res[result].get('subtotal') -
-                                                                              res[result].get('discount_line')), _('Tax iva'),
+                                             self.number_format(currency_id, res[result].get('subtotal')), _('Tax iva'),
                                              self.number_format(currency_id, res[result].get('tax_line')),
                                              self.number_format(currency_id, res[result].get('total')))
         self.taxes_description = html 
