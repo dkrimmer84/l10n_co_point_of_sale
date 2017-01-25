@@ -72,7 +72,7 @@
                                     <t t-set="impuesto" t-value="lineas.tax_ids_after_fiscal_position.name"/>
                                     <t t-if="impuesto == lineas.tax_ids_after_fiscal_position.name">
 
-                                        <t t-set="descuentos" t-value="descuentos + ((lineas.price_unit * lineas.qty)*(lineas.discount)/100)" t-value-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                                        <t t-set="descuentos" t-value="descuentos + round((lineas.price_unit * lineas.qty)*(lineas.discount)/100)"/>
                                         <t t-set="subtotal" t-value="subtotal + lineas.price_subtotal"/>            
                                     </t>
 
