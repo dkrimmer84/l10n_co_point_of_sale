@@ -32,8 +32,17 @@ from uuid import getnode as get_mac
 from openerp import api, fields as Fields
 import locale
 from openerp.tools.misc import formatLang
+from openerp.osv import osv
 
 _logger = logging.getLogger(__name__)
+
+
+
+"""class PosAccountMoveLine(models.Model):
+    _name = "account.move.line"
+    _inherit = "account.move.line"
+
+    base_tax = fields.Float('Base Tax')"""
 
 class PosOrder(models.Model):
     _name = "pos.order"
@@ -181,20 +190,23 @@ class PosOrder(models.Model):
         items = {}
         taxes = {}
         for order in self:
+            
             for line in order.company_taxes:
+                
                 key = (order.type, order.partner_id.id or "", line.tax_id.id)
-                val = self._prepare_tax_vals(line, order.partner_id)
+                val = self._prepare_tax_vals(line, order.partner_id, subtotal)
 
                 if key not in taxes:
                     taxes[key] = val
                 else:
                     taxes[key]['amount'] += val['amount']
-
+                    #taxes[key]['subtotal'] += val['subtotal']
+                   
             if order.company_id.anglo_saxon_accounting:
                 for i_line in order.lines:
                     anglo_saxon_lines = order._anglo_saxon_sale_move_lines(i_line)
                     all_lines.extend(anglo_saxon_lines)
-
+                
         for key,val in taxes.iteritems():
             type, dummy, dummy = key
             if type in 'out_refund':
@@ -410,7 +422,7 @@ class pos_session(models.Model):
     def number_format( self, currency_id, amount ):
         return formatLang(self.env, amount, currency_obj = currency_id, digits=0 ).replace(",", ".")
 
-    @api.one
+    """@api.one
     def compute_amount_change(self):
 
         res = {}
@@ -422,10 +434,10 @@ class pos_session(models.Model):
                     if change.amount < 0:  
                         _change = _change + change.amount           
 
-        #html = """
+        #html = 
         #<div style="float: left;margin-right: 20px;"><strong>Amount Change : </strong></div><div><span>%s</span></div>
-        #""" % (self.number_format(currency_id, _change))
-        self.amount_change = _change    
+        # % (self.number_format(currency_id, _change))
+        self.amount_change = _change """ 
 
 
     @api.one
@@ -437,21 +449,19 @@ class pos_session(models.Model):
         if self.order_ids:
             for order in self.order_ids:
                 if order.lines:
+
                     for line in order.lines:
                         _id_tax = line.tax_ids_after_fiscal_position.id
 
-                        if line.tax_ids_after_fiscal_position.price_include:
-                            subtotal = round((line.price_unit / (1 + (line.tax_ids_after_fiscal_position.amount/100))) * line.qty, 0)
-                        else:
-                            subtotal = round(line.price_unit * line.qty, 0)
-                        discount_line = round((subtotal * line.discount)/100 , 0)
-                        tax_line = round(((subtotal - discount_line) * line.tax_ids_after_fiscal_position.amount)/100 , 0)
-                        total = round((subtotal + tax_line - discount_line) , 0)
-
+                        discount_line = round(((line.price_unit * line.qty) * line.discount)/100 , 0)
+                        subtotal = line.price_subtotal
+                        tax_line = line.price_subtotal_incl - line.price_subtotal
+                        total = round((subtotal + tax_line) , 0)
+                        
                         if _id_tax in res:
                             data = res[_id_tax]
-                            subtotal = data.get('subtotal') + subtotal
                             discount_line = data.get('discount_line') + discount_line
+                            subtotal = data.get('subtotal') + subtotal
                             tax_line = data.get('tax_line') + tax_line
                             total = data.get('total') + total
 
@@ -468,7 +478,7 @@ class pos_session(models.Model):
                             res[_id_tax] = {
                                 'id' : _id_tax,
                                 'name' : line.tax_ids_after_fiscal_position.name,
-                                'subtotal' : subtotal,
+                                'subtotal' : subtotal,                                
                                 'discount_line' : discount_line,
                                 'tax_line' : tax_line,
                                 'total' : total
@@ -483,10 +493,9 @@ class pos_session(models.Model):
             <div style="float: left;margin-right: 20px;"><strong>%s : </strong></div><div><span>$ %s</span></div>
             <div style="margin-bottom: 10px;float: left;margin-right: 20px;"><strong>Total : </strong>
             </div><div><span>$ %s</span></div>""" % (_('Sales POS - Tax'), res[result].get('name'), _('Sales'),
-                                             self.number_format(currency_id, res[result].get('subtotal')), _('Discount'),
+                                             self.number_format(currency_id, res[result].get('subtotal') + res[result].get('discount_line')), _('Discount'),
                                              self.number_format(currency_id, res[result].get('discount_line')), _('Subtotal'),
-                                             self.number_format(currency_id, res[result].get('subtotal') -
-                                                                              res[result].get('discount_line')), _('Tax iva'),
+                                             self.number_format(currency_id, res[result].get('subtotal')), _('Tax iva'),
                                              self.number_format(currency_id, res[result].get('tax_line')),
                                              self.number_format(currency_id, res[result].get('total')))
         self.taxes_description = html 

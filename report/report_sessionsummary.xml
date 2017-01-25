@@ -71,32 +71,25 @@
                                 <t t-foreach="order.lines" t-as="lineas">
                                     <t t-set="impuesto" t-value="lineas.tax_ids_after_fiscal_position.name"/>
                                     <t t-if="impuesto == lineas.tax_ids_after_fiscal_position.name">
-                                        <t t-if="lineas.tax_ids_after_fiscal_position.price_include">
-                                            <t t-set="subtotal" t-value="(lineas.price_unit / (1 + (lineas.tax_ids_after_fiscal_position.amount/100))) * lineas.qty"/>
-                                            <t t-set="sumsubtotal" t-value="sumsubtotal + subtotal"/>
-                                        </t>
-                                        <t t-if="not lineas.tax_ids_after_fiscal_position.price_include">
-                                            <t t-set="subtotal" t-value="lineas.price_unit * lineas.qty"/>
-                                            <t t-set="sumsubtotal" t-value="sumsubtotal + subtotal"/>
-                                        </t>  
-                                        <!--<t t-set="subtotal" t-value="subtotal + (lineas.price_unit * lineas.qty)"/>-->
-                                        <t t-set="descuentos" t-value="descuentos + (subtotal*(lineas.discount)/100)"/>
+
+                                        <t t-set="descuentos" t-value="descuentos + ((lineas.price_unit * lineas.qty)*(lineas.discount)/100)"/>
+                                        <t t-set="subtotal" t-value="subtotal + lineas.price_subtotal"/>            
                                     </t>
 
                                 </t>
                                 <t t-set="total" t-value="total + order.amount_total" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
                                 <t t-set="iva" t-value="iva + order.amount_tax" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
+                                <span t-esc="order.amount_tax"/>
                             </t>
-                            <t t-set="subtotaldiscount" t-value="sumsubtotal - descuentos"/>
                             
                             <strong>Number of Sales Done:</strong>
                             <span t-esc="cnt"/><br/>
                             <strong>Sales:</strong>
-                            <span t-esc="sumsubtotal" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
+                            <span t-esc="subtotal + descuentos" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                             <strong>Total Discount:</strong>
                             <span t-esc="descuentos" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                             <strong>Subtotal:</strong>
-                            <span t-esc="subtotaldiscount" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
+                            <span t-esc="subtotal" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                             <strong>Valor Iva: </strong>
                             <span t-esc="iva" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                             <strong>Total: </strong>
@@ -110,24 +103,24 @@
                         <t t-foreach="o.statement_ids" t-as="statement">
                             <strong>Reference</strong> : <span t-field="statement.name"/><br/>
                             <strong>Journal</strong> : <span t-field="statement.journal_id"/><br/>
-                            <t t-if="statement.journal_id.type == 'cash'">
-                                <t t-set="total_transactions" t-value="statement.total_entry_encoding - o.amount_change"/>
-                            </t>
-                            <t t-if="statement.journal_id.type != 'cash'">
+                            <!--<t t-if="statement.journal_id.type == 'cash'">
                                 <t t-set="total_transactions" t-value="statement.total_entry_encoding"/>
-                            </t>
+                            </t>-->
+                            <!--<t t-if="statement.journal_id.type != 'cash'">-->
+                            <t t-set="total_transactions" t-value="statement.total_entry_encoding"/>
+                            <!--</t>-->
                             <strong>Total Transactions</strong> : <span t-esc="total_transactions" t-esc-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
                         
                             <t t-set="total_pyment" t-value="total_pyment + statement.total_entry_encoding"/>      
                         </t>
-                        <strong>Total Change : </strong>
+                        <!--<strong>Total Change : </strong>
                         <t t-if="o.amount_change == 0">
                             <span t-esc="o.amount_change" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br />
                         </t>
                         <t t-if="o.amount_change &#60; 0">
                             <span t-esc="o.amount_change * -1" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br />
                         </t>
-                       
+                       -->
                         <strong>Total Pyments Method : </strong>
                         <span t-esc="total_pyment" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                     </div>            
