@@ -72,14 +72,13 @@
                                     <t t-set="impuesto" t-value="lineas.tax_ids_after_fiscal_position.name"/>
                                     <t t-if="impuesto == lineas.tax_ids_after_fiscal_position.name">
 
-                                        <t t-set="descuentos" t-value="descuentos + ((lineas.price_unit * lineas.qty)*(lineas.discount)/100)"/>
+                                        <t t-set="descuentos" t-value="descuentos + ((lineas.price_unit * lineas.qty)*(lineas.discount)/100)" t-value-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
                                         <t t-set="subtotal" t-value="subtotal + lineas.price_subtotal"/>            
                                     </t>
 
                                 </t>
                                 <t t-set="total" t-value="total + order.amount_total" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
                                 <t t-set="iva" t-value="iva + order.amount_tax" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
-                                <span t-esc="order.amount_tax"/>
                             </t>
                             
                             <strong>Number of Sales Done:</strong>
