@@ -164,7 +164,7 @@ msgstr "<strong>Total Transacciones</strong> :"
 #. module: l10n_co_point_of_sale
 #: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
 msgid "<strong>Voucher Date</strong>:"
-msgstr "<strong>Fecha de Cierre</strong>:"
+msgstr "<strong>Fecha del Comprobante</strong>:"
 
 #. module: l10n_co_point_of_sale
 #: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax_account_id

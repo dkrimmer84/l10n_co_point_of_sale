@@ -194,7 +194,7 @@ class PosOrder(models.Model):
             for line in order.company_taxes:
                 
                 key = (order.type, order.partner_id.id or "", line.tax_id.id)
-                val = self._prepare_tax_vals(line, order.partner_id, subtotal)
+                val = self._prepare_tax_vals(line, order.partner_id)
 
                 if key not in taxes:
                     taxes[key] = val
@@ -456,7 +456,7 @@ class pos_session(models.Model):
                         discount_line = round(((line.price_unit * line.qty) * line.discount)/100 , 0)
                         subtotal = line.price_subtotal
                         tax_line = line.price_subtotal_incl - line.price_subtotal
-                        total = round((subtotal + tax_line) , 0)
+                        total = subtotal + tax_line
                         
                         if _id_tax in res:
                             data = res[_id_tax]
@@ -486,7 +486,7 @@ class pos_session(models.Model):
         html = ''
         for result in res:
             html += """
-            <div><h4><strong>%s : </strong><span>%s</span></h4></div>
+            <div><h4><strong>%s </strong><span>%s</span></h4></div>
             <div style="float: left;margin-right: 20px;"><strong>%s :</strong></div><div><span>$ %s</span></div>
             <div style="float: left;margin-right: 20px;"><strong>%s : </strong></div><div><span>$ %s</span></div>
             <div style="float: left;margin-right: 20px;"><strong>%s : </strong></div><div><span>$ %s</span></div>
