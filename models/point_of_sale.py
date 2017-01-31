@@ -122,12 +122,14 @@ class PosOrder(models.Model):
 
     @api.model
     def create(self, values):
+        order = super(models.Model, self).create(values)
+
         if values.get('session_id'):
             # set name based on the sequence specified on the config
             session = self.env['pos.session'].browse(values['session_id'])
             sequence = None
             try:
-                if 'REFUND' not in values['name']:
+                if 'REFUND' not in values['name'] and order.amount_total > 0:
                     values['name'] = session.config_id.sequence_id._next()
                     sequence = self.env['ir.sequence.dian_resolution'] \
                                    .search([('sequence_id','=',session.config_id.sequence_id.id),
@@ -137,7 +139,15 @@ class PosOrder(models.Model):
                     sequence = self.env['ir.sequence.dian_resolution'] \
                                    .search([('sequence_id','=',session.config_id.sequence_refund_id.id),
                                             ('active_resolution','=',True)], limit=1)
+
+                order.write({
+                    'resolution_number': sequence['resolution_number'],
+                    'resolution_number_from': sequence['resolution_number_from'],
+                    'resolution_number_to': sequence['resolution_number_to'],
+                    'resolution_date': sequence['resolution_date']
+                })
             except KeyError:
+                _logger.warn("You do not have a resolution sequence configured")
                 values['name'] = session.config_id.sequence_id._next()
 
             values.setdefault('session_id', session.config_id.pricelist_id.id)
@@ -145,12 +155,9 @@ class PosOrder(models.Model):
             # fallback on any pos.order sequence
             values['name'] = self.env['ir.sequence'].next_by_code('pos.order')
 
-        values['resolution_number'] = sequence['resolution_number']
-        values['resolution_number_from'] = sequence['number_from']
-        values['resolution_number_to'] = sequence['number_to']
-        values['resolution_date'] = sequence['date_from']
-
-        order = super(models.Model, self).create(values)
+        order.write({
+            'name': values['name'],
+        })
         if not order.company_taxes:
             order._compute_company_taxes()
         return order
@@ -242,7 +249,7 @@ class PosOrder(models.Model):
         map(lambda x: map (lambda y: all_lines.append((0, 0, y)), x), items.values())
 
         if move_id:
-            move.with_context(dont_create_taxes=True).write({'line_ids': all_lines})
+            move.with_context(dont_create_taxes).write({'line_ids': all_lines})
             move.post()
         return res
 
@@ -266,7 +273,7 @@ class PosOrder(models.Model):
             cacc = accounts['expense'].id
             if dacc and cacc:
 
-                price_unit = i_line._get_anglo_saxon_price_unit()
+                price_unit = i_line._get_anglo_saxon_price_unit() or 0.0
                 price = self.env['pos.order.line']._get_price(order, company_currency, i_line, price_unit)
                 return [
                     (0, 0, {
