@@ -128,28 +128,24 @@ class PosOrder(models.Model):
             # set name based on the sequence specified on the config
             session = self.env['pos.session'].browse(values['session_id'])
             sequence = None
-            try:
-                if 'REFUND' not in values['name'] and order.amount_total > 0:
-                    values['name'] = session.config_id.sequence_id._next()
-                    sequence = self.env['ir.sequence.dian_resolution'] \
-                                   .search([('sequence_id','=',session.config_id.sequence_id.id),
-                                            ('active_resolution','=',True)], limit=1)
-                else:
-                    values['name'] = session.config_id.sequence_refund_id._next()
-                    sequence = self.env['ir.sequence.dian_resolution'] \
-                                   .search([('sequence_id','=',session.config_id.sequence_refund_id.id),
-                                            ('active_resolution','=',True)], limit=1)
 
+            if 'REFUND' not in values['name'] and order.amount_total > 0:
+                values['name'] = session.config_id.sequence_id._next()
+                sequence = self.env['ir.sequence.dian_resolution'] \
+                               .search([('sequence_id','=',session.config_id.sequence_id.id),
+                                        ('active_resolution','=',True)], limit=1)
+            else:
+                values['name'] = session.config_id.sequence_refund_id._next()
+                sequence = self.env['ir.sequence.dian_resolution'] \
+                               .search([('sequence_id','=',session.config_id.sequence_refund_id.id),
+                                        ('active_resolution','=',True)], limit=1)
+            if sequence.exists():
                 order.write({
                     'resolution_number': sequence['resolution_number'],
-                    'resolution_number_from': sequence['resolution_number_from'],
-                    'resolution_number_to': sequence['resolution_number_to'],
-                    'resolution_date': sequence['resolution_date']
+                    'resolution_number_from': sequence['number_from'],
+                    'resolution_number_to': sequence['number_to'],
+                    'resolution_date': sequence['date_from']
                 })
-            except KeyError:
-                _logger.warn("You do not have a resolution sequence configured")
-                values['name'] = session.config_id.sequence_id._next()
-
             values.setdefault('session_id', session.config_id.pricelist_id.id)
         else:
             # fallback on any pos.order sequence
