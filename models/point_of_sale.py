@@ -249,7 +249,7 @@ class PosOrder(models.Model):
         map(lambda x: map (lambda y: all_lines.append((0, 0, y)), x), items.values())
 
         if move_id:
-            move.with_context(dont_create_taxes).write({'line_ids': all_lines})
+            move.with_context(dont_create_taxes=True).write({'line_ids': all_lines})
             move.post()
         return res
 
