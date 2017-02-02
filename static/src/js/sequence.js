@@ -17,22 +17,31 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
         {
             model: 'ir.sequence',
             fields: ['prefix','remaining_numbers', 'remaining_days', 'dian_resolution_ids'],
-            domain: function(self){ return [['name', 'in', self.config.sequence_id]]; },
+            domain: function(self){ return ['|', ['name', 'in', self.config.sequence_id],
+                                            ['name', 'in', self.config.sequence_refund_id]]; },
             loaded : function(self, sequences) {
-                self.dian_resolutions = sequences[0];
+                self.dian_resolution = sequences[0];
+                self.dian_resolution_refund = sequences[1];
             }
         },
         {
             model: 'ir.sequence.dian_resolution',
             fields: ['resolution_number', 'date_from', 'number_from', 'number_to', 'number_next', 'active_resolution'],
             domain: function(self){
-                return [['id','in', self.dian_resolutions.dian_resolution_ids],['active_resolution', '=', true]];
+                var ids = [self.dian_resolution.dian_resolution_ids[0],
+                           self.dian_resolution_refund.dian_resolution_ids[0]];
+
+                return [['id','in', ids],['active_resolution', '=', true]];
             },
             loaded: function(self, resolutions) {
-                if(resolutions[0]) {
+                if(resolutions.length >= 2) {
                     self.dian_resolution_sequence = resolutions[0];
+                    self.dian_resolution_sequence_refund = resolutions[1];
                 } else {
                     self.dian_resolution_sequence = {
+                        active_resolution: false
+                    }
+                    self.dian_resolution_sequence_refund = {
                         active_resolution: false
                     }
                 }
@@ -54,7 +63,13 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
         export_for_printing: function() {
             var receipt = __super__.export_for_printing.apply(this);
             var company_partner = this.pos.company_partner[0];
-            var dian_resolution_sequence = this.pos.dian_resolution_sequence
+            var dian_resolution_sequence;
+
+            if(this.get_total_with_tax() < 0) {
+                dian_resolution_sequence = this.pos.dian_resolution_sequence_refund;
+            } else {
+                dian_resolution_sequence = this.pos.dian_resolution_sequence;
+            }
 
             if(company_partner.street) {
                 var street = company_partner.street.split(",").map(function(text) { return text.trim() + '<br />'; });
@@ -102,7 +117,14 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
 
             if(is_valid) {
                 var order = this.pos.get_order();
-                order.number_next_dian = this.pos.dian_resolutions.prefix + this.pos.dian_resolution_sequence.number_next++;
+                if(order.get_total_with_tax() >= 0) {
+                    order.number_next_dian = this.pos.dian_resolution.prefix +
+                        this.pos.dian_resolution_sequence.number_next++;
+                } else {
+                    order.number_next_dian = this.pos.dian_resolution_refund.prefix +
+                        this.pos.dian_resolution_sequence_refund.number_next++;
+                }
+
             }
             this._super(force_validation);
         },
