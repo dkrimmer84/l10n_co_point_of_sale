@@ -103,8 +103,11 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
         get_client_xidentification: function() {
             var client = this.get('client');
             return client ? client.xidentification : "";
+        },
+        get_client_formatedNit: function() {
+            var client = this.get('client');
+            return client ? client.formatedNit : "";
         }
-
     });
     models.Order = Order;
 

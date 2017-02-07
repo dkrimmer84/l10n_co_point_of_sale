@@ -294,8 +294,13 @@
                 <t t-if="order.get_client_name()" >
                     <div>--------------------------------</div>
                     Cliente: <t t-esc="order.get_client_name()"/><br />
-                    <t t-if="order.get_client_xidentification()">
+                    <t t-if="order.get_client_formatedNit()">
+                        NIT: <t t-esc="order.get_client_formatedNit()" />
+                    </t>
+                    <t t-if="!order.get_client_formatedNit()">
+                      <t t-if="order.get_client_xidentification()">
                         NIT: <t t-esc="order.get_client_xidentification()" />
+                      </t>
                     </t>
                 </t>
               </left><br /><br />
