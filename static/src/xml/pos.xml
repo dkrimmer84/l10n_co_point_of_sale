@@ -278,19 +278,29 @@
             <br />
 
               <left>
+                  <b>
+                  <t t-if='receipt.total_with_tax &lt; 0'>
+                      Devolución No.:
+                  </t>
+                  <t t-if='receipt.total_with_tax &gt; 0'>
+                      Factura de Venta No.:
+                  </t>
 
-                <b>Factura de Venta No.: <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
+                  <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
                                       <t t-esc="order.number_next_dian" />
                                     </t>
                                     <t t-if="! widget.pos.dian_resolution_sequence.active_resolution">
                                       <t t-esc="order.get_name()" />
                                     </t></b><br />
                   Fecha: <t t-esc="moment().format('L LT')"/><br />
+                  <t t-if='receipt.total_with_tax &gt; 0'>
                 <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
+
                   Rango Facturación: <t t-esc="receipt.dian_resolution_sequence.number_from" /> - <t t-esc="receipt.dian_resolution_sequence.number_to" /><br />
                     Número Resolución DIAN: <t t-esc="receipt.dian_resolution_sequence.resolution_number" /><br />
                   Fecha de Resolución: <t t-esc="moment(receipt.dian_resolution_sequence.date_from).format('DD/MM/YYYY')" />
                 </t>
+                  </t>
                 <t t-if="order.get_client_name()" >
                     <div>--------------------------------</div>
                     Cliente: <t t-esc="order.get_client_name()"/><br />
@@ -452,26 +462,35 @@
                 </t>
 
                 Fecha: <t t-esc="moment().format('L LT')"/><br />
-                Factura de Venta N: <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
+                <t t-if='receipt.total_with_tax &gt; 0'>
+                  <b>Factura de Venta No.:</b>
+                </t>
+                <t t-if='receipt.total_with_tax &lt; 0'>
+                  <b>Devolución No.:</b>
+                </t>
+                <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
                                       <t t-esc="order.number_next_dian" />
                                     </t>
                                     <t t-if="! widget.pos.dian_resolution_sequence.active_resolution">
                                       <t t-esc="order.get_name()" />
                                     </t><br />
-                <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
-                  <br />
-                  Número Resolución DIAN: <t t-esc="receipt.dian_resolution_sequence.resolution_number" /><br />
-                  Numeración autorizada desde <t t-esc="receipt.dian_resolution_sequence.number_from" /> hasta <t t-esc="receipt.dian_resolution_sequence.number_to" /><br />
-                  Fecha de Resolución: <t t-esc="moment(receipt.dian_resolution_sequence.date_from).format('DD/MM/YYYY')" /> <br />
+                <t t-if='receipt.total_with_tax &gt; 0'>
+                    <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
+                      <br />
+                      Rango Facturación <t t-esc="receipt.dian_resolution_sequence.number_from" /> hasta <t t-esc="receipt.dian_resolution_sequence.number_to" /><br />
+                        Número Resolución DIAN: <t t-esc="receipt.dian_resolution_sequence.resolution_number" /><br />
+                      Fecha de Resolución: <t t-esc="moment(receipt.dian_resolution_sequence.date_from).format('DD/MM/YYYY')" /> <br />
+                    </t>
                 </t>
                 <t t-if="order.get_client_name()" >
-                    Cliente: <t t-esc="order.get_client_name()"/><br />
+                    <br />
+                    <b>Cliente:</b> <t t-esc="order.get_client_name()"/><br />
                     <t t-if="order.get_client_xidentification()">
-                        NIC: <t t-esc="order.get_client_xidentification()" />
+                        NIT: <t t-esc="order.get_client_xidentification()" />
                     </t>
                 </t>
 
-                <br />
+                <br /><br />
                 <table class='receipt-orderlines'>
                     <colgroup>
                         <col width='50%' />
