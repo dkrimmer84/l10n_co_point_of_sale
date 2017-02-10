@@ -93,19 +93,31 @@
                     <div class="row mt32 mb32" style="line-height: 24px; width:50%; float:left; margin-top:0 !important;">
                         <h3 style="font-weight: bold;">Total Payment Method</h3>
                         <t t-set="total_pyment" t-value="0"/>
+                        <t t-set="total_transactions_line" t-value="0"/>
                         <t t-set="total_transactions" t-value="0"/>
+                        <t t-set="box_cash" t-value="0"/>
+                        
+                        
                         <t t-foreach="o.statement_ids" t-as="statement">
+                            <t t-set="total_transactions" t-value="0"/>
                             <strong>Journal</strong> : <span t-field="statement.journal_id"/><br/>
                             <strong>Reference</strong> : <span t-field="statement.name"/><br/>
-                            <!--<t t-if="statement.journal_id.type == 'cash'">
-                                <t t-set="total_transactions" t-value="statement.total_entry_encoding"/>
-                            </t>-->
-                            <!--<t t-if="statement.journal_id.type != 'cash'">-->
-                            <t t-set="total_transactions" t-value="statement.total_entry_encoding"/>
-                            <!--</t>-->
-                            <strong>Total Transactions</strong> : <span t-esc="total_transactions" t-esc-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
+                            <t t-foreach="statement.line_ids" t-as="statement_line">
+                                <t t-if="statement_line.amount >= 0">
+                                    <t t-set="total_transactions_line" t-value="statement_line.amount"/>
+                                    <t t-set="total_transactions" t-value="total_transactions + total_transactions_line "/>
+                                </t>
+                                <t t-if="statement_line.amount &lt;= 0">
+                                    <t t-set="box_cash" t-value="box_cash + statement_line.amount "/>
+                                </t>
+                            </t>
+                            <strong>Total Transactions Sales </strong> : <span t-esc="total_transactions" t-esc-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
+                    
+                            <t t-if="statement.journal_id.type == 'cash'">
+                                <strong>Total Cash Box Out </strong> : <span t-esc="box_cash" t-esc-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
+                            </t>
 
-                            <t t-set="total_pyment" t-value="total_pyment + statement.total_entry_encoding"/>
+                            <t t-set="total_pyment" t-value="total_pyment + total_transactions"/>
                             <br />
                         </t>
                         <!--<strong>Total Change : </strong>
