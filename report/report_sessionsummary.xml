@@ -104,14 +104,14 @@
                             <strong>Journal</strong> : <span t-field="statement.journal_id"/><br/>
                             <strong>Reference</strong> : <span t-field="statement.name"/><br/>
                             <t t-foreach="statement.line_ids" t-as="statement_line">
-                                <t t-if="statement_line.pos_statement_id">
+                                <t t-if="statement_line.pos_statement_id and statement_line.ref">
                                     <t t-set="total_transactions_line" t-value="statement_line.amount"/>
                                     <t t-set="total_transactions" t-value="total_transactions + total_transactions_line "/>
                                 </t>
-                                <t t-if="not statement_line.pos_statement_id and statement_line.amount &lt; 0">
+                                <t t-if="not statement_line.pos_statement_id and statement_line.amount &lt; 0 and statement_line.ref">
                                     <t t-set="box_cash_out" t-value="box_cash_out + statement_line.amount "/>
                                 </t>
-                                <t t-if="not statement_line.pos_statement_id and statement_line.amount &gt; 0">
+                                <t t-if="not statement_line.pos_statement_id and statement_line.amount &gt; 0 and statement_line.ref">
                                     <t t-set="box_cash_in" t-value="box_cash_in + statement_line.amount "/>
                                 </t>
                             </t>
