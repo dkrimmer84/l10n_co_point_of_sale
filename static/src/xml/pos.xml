@@ -285,13 +285,22 @@
                   <t t-if='receipt.total_with_tax &gt; 0'>
                       Factura de Venta No.:
                   </t>
+		<t t-if="widget.pos.dian_resolution_sequence.active_resolution">
+                    <t t-if='receipt.total_with_tax &gt; 0'>
+                        <t t-esc="order.number_next_dian" />
+                    </t>
 
-                  <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
-                                      <t t-esc="order.number_next_dian" />
-                                    </t>
-                                    <t t-if="! widget.pos.dian_resolution_sequence.active_resolution">
-                                      <t t-esc="order.get_name()" />
-                                    </t></b><br />
+                    <t t-if='receipt.total_with_tax &lt; 0'>
+                        <t t-esc="order.get_name()" />
+                    </t>
+
+
+                </t>
+                <t t-if="! widget.pos.dian_resolution_sequence.active_resolution">
+                  <t t-esc="order.get_name()" />
+                </t>
+
+                  </b><br />
                   Fecha: <t t-esc="moment().format('L LT')"/><br />
                   <t t-if='receipt.total_with_tax &gt; 0'>
                 <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
