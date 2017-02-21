@@ -23,8 +23,6 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                 self.dian_resolution = sequences[0];
                 self.dian_resolution_refund = sequences[1];
 
-                console.log('test');
-
             }
         },
         {
@@ -37,6 +35,8 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                 return [['id','in', ids],['active_resolution', '=', true]];
             },
             loaded: function(self, resolutions) {
+                console.log('resolutions', resolutions);
+
                 if(resolutions.length >= 2) {
                     self.dian_resolution_sequence = resolutions[0];
                     self.dian_resolution_sequence_refund = resolutions[1];
