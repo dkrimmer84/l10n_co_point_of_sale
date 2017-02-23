@@ -40,7 +40,13 @@
                         </div>
                         <div class="col-xs-3">
                             <strong>No. Final Registration</strong>:
-                            <span t-field="o.order_ids[0].name"/>
+                            <t t-set="i" t-value="0"/>
+                            <t t-foreach="o.order_ids" t-as="order">
+                                <t t-if="o.order_ids[i].type != 'out_refund'">
+                                    <span t-field="o.order_ids[0].name"/>
+                                </t>
+                                <t t-set="i" t-value="i + 1"/>
+                            </t>
                         </div>
                     </div>
                     <hr />
