@@ -117,6 +117,7 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
     var __payment_super__ = screens.PaymentScreenWidget;
     screens.PaymentScreenWidget.include({
         validate_order: function(force_validation) {
+
             var self = this;
             var order = this.pos.get_order();
 
@@ -182,9 +183,26 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                 return false;
             }
 
-            
+            var value = false;
 
 
+            for( var pos in order.get_orderlines() ){
+                var line = order.get_orderlines(  )[ pos ];
+
+                if( value && value > 0 ){
+                    if( line.get_price_with_tax() < 0 ){
+                        self.show_popup_validation_value();
+                        return false
+                    }
+                } else if( value && value < 0 ){
+                    if( line.get_price_with_tax() > 0 ){
+                        self.show_popup_validation_value();
+                        return false;
+                    }
+                }
+                value = line.get_price_with_tax();
+
+            }
 
             //var is_valid = self.order_is_valid(force_validation);
             if(order.get_total_with_tax() >= 0) {
@@ -195,6 +213,8 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                 this.pos.dian_resolution_sequence_refund.number_next++;
             }
             
+
+
 
             /*if(is_valid) {
                 var order = this.pos.get_order();
@@ -209,6 +229,12 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
             }*/
             this._super(force_validation);
         },
+        show_popup_validation_value : function(){
+            this.gui.show_popup('error',{
+                title: _t('Cannot create sales and refund in the same transaction'),
+                body:  _t("Please seperate normal sales from refund transactions"),
+            });
+        }
     });
 
 });
