@@ -117,11 +117,106 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
     var __payment_super__ = screens.PaymentScreenWidget;
     screens.PaymentScreenWidget.include({
         validate_order: function(force_validation) {
+
             var self = this;
+            var order = this.pos.get_order();
 
-            var is_valid = self.order_is_valid(force_validation);
+            // FIXME: this check is there because the backend is unable to
+            // process empty orders. This is not the right place to fix it.
+            if (order.get_orderlines().length === 0) {
+                this.gui.show_popup('error',{
+                    'title': _t('Empty Order'),
+                    'body':  _t('There must be at least one product in your order before it can be validated'),
+                });
+                return false;
+            }
 
-            if(is_valid) {
+            var plines = order.get_paymentlines();
+            
+            for (var i = 0; i < plines.length; i++) {
+                if (plines[i].get_type() === 'bank' && plines[i].get_amount() < 0) {
+
+                    this.gui.show_popup('error',{
+                        'title': _t('Negative Bank Payment'),
+                        'body': _t('You cannot have a negative amount in a Bank payment. Use a cash payment method to return money to the customer.'),
+                    });
+                    return false;
+                }
+            }
+
+            if (!order.is_paid() || this.invoicing) {
+                return false;
+            }
+
+            // The exact amount must be paid if there is no cash payment method defined.
+            if (Math.abs(order.get_total_with_tax() - order.get_total_paid()) > 0.00001) {
+                var cash = false;
+                for (var i = 0; i < this.pos.cashregisters.length; i++) {
+                    cash = cash || (this.pos.cashregisters[i].journal.type === 'cash');
+                }
+                if (!cash) {
+                    this.gui.show_popup('error',{
+                        title: _t('Cannot return change without a cash payment method'),
+                        body:  _t('There is no cash payment method available in this point of sale to handle the change.\n\n Please pay the exact amount or add a cash payment method in the point of sale configuration'),
+                    });
+                    return false;
+                }
+            }
+
+            // if the change is too large, it's probably an input error, make the user confirm.
+            if (!force_validation && order.get_total_with_tax() > 0 && (order.get_total_with_tax() * 1000 < order.get_total_paid())) {
+                this.gui.show_popup('confirm',{
+                    title: _t('Please Confirm Large Amount'),
+                    body:  _t('Are you sure that the customer wants to  pay') + 
+                           ' ' + 
+                           this.format_currency(order.get_total_paid()) +
+                           ' ' +
+                           _t('for an order of') +
+                           ' ' +
+                           this.format_currency(order.get_total_with_tax()) +
+                           ' ' +
+                           _t('? Clicking "Confirm" will validate the payment.'),
+                    confirm: function() {
+                        self.validate_order('confirm');
+                    },
+                });
+                return false;
+            }
+
+            var value = false;
+
+
+            for( var pos in order.get_orderlines() ){
+                var line = order.get_orderlines(  )[ pos ];
+
+                if( value && value > 0 ){
+                    if( line.get_price_with_tax() < 0 ){
+                        self.show_popup_validation_value();
+                        return false
+                    }
+                } else if( value && value < 0 ){
+                    if( line.get_price_with_tax() > 0 ){
+                        self.show_popup_validation_value();
+                        return false;
+                    }
+                }
+                value = line.get_price_with_tax();
+
+            }
+
+            //var is_valid = self.order_is_valid(force_validation);
+            if(order.get_total_with_tax() >= 0) {
+                order.number_next_dian = this.pos.dian_resolution.prefix +
+                this.pos.dian_resolution_sequence.number_next++;
+            } else {
+                order.number_next_dian = this.pos.dian_resolution_refund.prefix +
+                this.pos.dian_resolution_sequence_refund.number_next++;
+            }
+            
+
+
+
+            /*if(is_valid) {
                 var order = this.pos.get_order();
                 if(order.get_total_with_tax() >= 0) {
                     order.number_next_dian = this.pos.dian_resolution.prefix +
@@ -131,9 +226,15 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                         this.pos.dian_resolution_sequence_refund.number_next++;
                 }
 
-            }
+            }*/
             this._super(force_validation);
         },
+        show_popup_validation_value : function(){
+            this.gui.show_popup('error',{
+                title: _t('Cannot create sales and refund in the same transaction'),
+                body:  _t("Please seperate normal sales from refund transactions"),
+            });
+        }
     });
 
 });
