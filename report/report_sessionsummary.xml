@@ -36,11 +36,11 @@
                         </div>
                         <div class="col-xs-3">
                             <strong>No. Initial Registration</strong>:
-                            <span t-field="o.order_ids[-1].name"/>
+                            <t t-esc="o.first_orden()[0]" />
                         </div>
                         <div class="col-xs-3">
                             <strong>No. Final Registration</strong>:
-                            <span t-field="o.order_ids[0].name"/>
+                            <t t-esc="o.ultima_orden()[0]" />
                         </div>
                     </div>
                     <hr />
@@ -62,18 +62,20 @@
                             <t t-set="impuesto" t-value="Iva"/>
                             
                             <t t-foreach="o.order_ids" t-as="order">
-                                <t t-set="cnt" t-value="cnt + 1"/>
-                                <t t-foreach="order.lines" t-as="lineas">
-                                    <t t-set="impuesto" t-value="lineas.tax_ids_after_fiscal_position.name"/>
-                                    <t t-if="impuesto == lineas.tax_ids_after_fiscal_position.name">
+                                <t t-if="order.type != 'out_refund'">
+                                    <t t-set="cnt" t-value="cnt + 1"/>
+                                    <t t-foreach="order.lines" t-as="lineas">
+                                        <t t-set="impuesto" t-value="lineas.tax_ids_after_fiscal_position.name"/>
+                                        <t t-if="impuesto == lineas.tax_ids_after_fiscal_position.name">
 
-                                        <t t-set="descuentos" t-value="descuentos + round((lineas.price_unit * lineas.qty)*(lineas.discount)/100)"/>
-                                        <t t-set="subtotal" t-value="subtotal + lineas.price_subtotal"/>            
+                                            <t t-set="descuentos" t-value="descuentos + round((lineas.price_unit * lineas.qty)*(lineas.discount)/100)"/>
+                                            <t t-set="subtotal" t-value="subtotal + lineas.price_subtotal"/>            
+                                        </t>
+
                                     </t>
-
+                                    <t t-set="total" t-value="total + order.amount_total" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
+                                    <t t-set="iva" t-value="iva + order.amount_tax" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
                                 </t>
-                                <t t-set="total" t-value="total + order.amount_total" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
-                                <t t-set="iva" t-value="iva + order.amount_tax" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
                             </t>
                             
                             <strong>Number of Sales Done:</strong>
@@ -100,12 +102,12 @@
                         
                         
                         <t t-foreach="o.statement_ids" t-as="statement">
-                            <t t-if="statement.total_entry_encoding != 0">
+                            <t t-if="statement.total_entry_encoding &gt; 0">
                                 <t t-set="total_transactions" t-value="0"/>
                                     <strong>Journal</strong> : <span t-field="statement.journal_id"/><br/>
                                     <strong>Reference</strong> : <span t-field="statement.name"/><br/>
                                     <t t-foreach="statement.line_ids" t-as="statement_line">
-                                        <t t-if="statement_line.pos_statement_id and statement_line.ref">
+                                        <t t-if="statement_line.pos_statement_id and statement_line.ref and statement_line.amount &gt; 0 ">
                                             <t t-set="total_transactions_line" t-value="statement_line.amount"/>
                                             <t t-set="total_transactions" t-value="total_transactions + total_transactions_line "/>
                                         </t>

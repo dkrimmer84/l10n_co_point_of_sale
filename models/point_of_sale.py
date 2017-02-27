@@ -123,8 +123,10 @@ class PosOrder(models.Model):
 	@api.model
 	def create(self, values):
 		order = super(models.Model, self).create(values)
-
+		_logger.info('valuesss')
+		_logger.info(values)
 		if values.get('session_id'):
+
 			# set name based on the sequence specified on the config
 			session = self.env['pos.session'].browse(values['session_id'])
 			sequence = None
@@ -150,9 +152,13 @@ class PosOrder(models.Model):
 		else:
 			# fallback on any pos.order sequence
 			values['name'] = self.env['ir.sequence'].next_by_code('pos.order')
-
+		if order.amount_total < 0:
+			_type = 'out_refund'
+		else:
+			_type = 'out_invoice'
 		order.write({
 			'name': values['name'],
+			'type' : _type
 		})
 		if not order.company_taxes:
 			order._compute_company_taxes()
@@ -443,22 +449,36 @@ class pos_session(models.Model):
 	def number_format( self, currency_id, amount ):
 		return formatLang(self.env, amount, currency_obj = currency_id, digits=0 ).replace(",", ".")
 
-	"""@api.one
-	def compute_amount_change(self):
-
+	@api.one
+	def first_orden(self):
 		res = {}
-		currency_id = False
-		_change = 0
+		_order_first = False
+		i = -1
 		if self.order_ids:
 			for order in self.order_ids:
-				for change  in order.statement_ids:
-					if change.amount < 0:  
-						_change = _change + change.amount           
-
-		#html = 
-		#<div style="float: left;margin-right: 20px;"><strong>Amount Change : </strong></div><div><span>%s</span></div>
-		# % (self.number_format(currency_id, _change))
-		self.amount_change = _change """ 
+				if self.order_ids[i].type != 'out_refund':
+					_order_first = self.order_ids[i].name
+					break
+				else:
+					i = i - 1
+		
+		return _order_first			
+	@api.one
+	def ultima_orden(self):
+		res = {}
+		_order_end = False
+		i = 0
+		if self.order_ids:
+			for order in self.order_ids:
+				_logger.info(self.order_ids[i])
+				if self.order_ids[i].type != 'out_refund':
+					_order_end = self.order_ids[i].name
+					break
+				else:
+					i = i + 1
+		_logger.info('pruebaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+		_logger.info(_order_end)
+		return _order_end			         
 
 
 	@api.one
@@ -469,41 +489,42 @@ class pos_session(models.Model):
 		_cambio = 0
 		if self.order_ids:
 			for order in self.order_ids:
-				if order.lines:
+				if order.type != 'out_refund':
+					if order.lines:
 
-					for line in order.lines:
-						_id_tax = line.tax_ids_after_fiscal_position.id
+						for line in order.lines:
+							_id_tax = line.tax_ids_after_fiscal_position.id
 
-						discount_line = round(((line.price_unit * line.qty) * line.discount)/100 , 0)
-						subtotal = line.price_subtotal
-						tax_line = line.price_subtotal_incl - line.price_subtotal
-						total = subtotal + tax_line
-						
-						if _id_tax in res:
-							data = res[_id_tax]
-							discount_line = data.get('discount_line') + discount_line
-							subtotal = data.get('subtotal') + subtotal
-							tax_line = data.get('tax_line') + tax_line
-							total = data.get('total') + total
+							discount_line = round(((line.price_unit * line.qty) * line.discount)/100 , 0)
+							subtotal = line.price_subtotal
+							tax_line = line.price_subtotal_incl - line.price_subtotal
+							total = subtotal + tax_line
+							
+							if _id_tax in res:
+								data = res[_id_tax]
+								discount_line = data.get('discount_line') + discount_line
+								subtotal = data.get('subtotal') + subtotal
+								tax_line = data.get('tax_line') + tax_line
+								total = data.get('total') + total
 
-							res[_id_tax] = {
-								'id' : _id_tax,
-								'name' : line.tax_ids_after_fiscal_position.name,
-								'subtotal' : subtotal,
-								'discount_line' : discount_line,
-								'tax_line' : tax_line,
-								'total' : total
-							}
+								res[_id_tax] = {
+									'id' : _id_tax,
+									'name' : line.tax_ids_after_fiscal_position.name,
+									'subtotal' : subtotal,
+									'discount_line' : discount_line,
+									'tax_line' : tax_line,
+									'total' : total
+								}
 
-						else:
-							res[_id_tax] = {
-								'id' : _id_tax,
-								'name' : line.tax_ids_after_fiscal_position.name,
-								'subtotal' : subtotal,                                
-								'discount_line' : discount_line,
-								'tax_line' : tax_line,
-								'total' : total
-							}               
+							else:
+								res[_id_tax] = {
+									'id' : _id_tax,
+									'name' : line.tax_ids_after_fiscal_position.name,
+									'subtotal' : subtotal,                                
+									'discount_line' : discount_line,
+									'tax_line' : tax_line,
+									'total' : total
+								}               
 		html = ''
 		for result in res:
 			html += """
