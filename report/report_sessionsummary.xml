@@ -36,11 +36,11 @@
                         </div>
                         <div class="col-xs-3">
                             <strong>No. Initial Registration</strong>:
-                            <t t-esc="o.first_orden()" />
+                            <t t-esc="o.first_orden()[0]" />
                         </div>
                         <div class="col-xs-3">
                             <strong>No. Final Registration</strong>:
-                            <t t-esc="o.ultima_orden()" />
+                            <t t-esc="o.ultima_orden()[0]" />
                         </div>
                     </div>
                     <hr />

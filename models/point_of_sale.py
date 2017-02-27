@@ -476,7 +476,8 @@ class pos_session(models.Model):
 					break
 				else:
 					i = i + 1
-		
+		_logger.info('pruebaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+		_logger.info(_order_end)
 		return _order_end			         
 
 
