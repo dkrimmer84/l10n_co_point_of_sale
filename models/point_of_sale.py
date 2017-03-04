@@ -426,6 +426,7 @@ class PosConfig(models.Model):
         return super(PosConfig, self).create(values)
 
 class pos_session(models.Model):
+
     _inherit = 'pos.session'
 
     taxes_description = fields.Html('taxes Description', compute = 'compute_taxes_description')
@@ -559,6 +560,7 @@ class pos_session(models.Model):
                                              self.number_format(currency_id, res[result].get('tax_line')),
                                              self.number_format(currency_id, res[result].get('total')))
         self.taxes_description = html 
+
 
 
 
