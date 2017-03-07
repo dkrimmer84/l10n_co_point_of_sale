@@ -116,10 +116,17 @@
                                             <t t-set="total_transactions" t-value="total_transactions + total_transactions_line "/>
                                         </t>
                                     </t>
-                                    <strong>Total Transactions Sales </strong> : <span t-esc="total_transactions" t-esc-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
+                                    <strong>Total Transactions Sales </strong> : 
+                                    <t t-if="statement.journal_id.type == 'cash' and 'Efectivo' in statement.journal_id.name">
+                                        <span t-esc="total_transactions + o.amount_change" t-esc-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
                             
-
-                                    <t t-set="total_pyment" t-value="total_pyment + total_transactions"/>
+                                        <t t-set="total_pyment" t-value="total_pyment + total_transactions + o.amount_change"/>
+                                    </t>
+                                    <t t-if="statement.journal_id.type != 'cash'">
+                                        <span t-esc="total_transactions" t-esc-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
+                            
+                                        <t t-set="total_pyment" t-value="total_pyment + total_transactions"/>
+                                    </t>
                                     <br />
                                 </t>
                             </t>    
