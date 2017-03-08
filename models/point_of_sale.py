@@ -488,9 +488,10 @@ class pos_session(models.Model):
         _change = 0
         if self.order_ids:
             for order in self.order_ids:
-                for change  in order.statement_ids:
-                    if change.amount < 0:  
-                        _change = _change + change.amount           
+                if order.type != 'out_refund':
+                    for change  in order.statement_ids:
+                        if change.amount < 0:  
+                            _change = _change + change.amount           
 
         #html = """
         #<div style="float: left;margin-right: 20px;"><strong>Amount Change : </strong></div><div><span>%s</span></div>
