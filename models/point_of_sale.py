@@ -560,7 +560,39 @@ class pos_session(models.Model):
                                              self.number_format(currency_id, res[result].get('subtotal')), _('Tax iva'),
                                              self.number_format(currency_id, res[result].get('tax_line')),
                                              self.number_format(currency_id, res[result].get('total')))
-        self.taxes_description = html 
+        self.taxes_description = html
+
+class account_cashbox_bank_statement(models.Model):
+    _name = 'account.bank.statement.cashbox'
+    _inherit = 'account.bank.statement.cashbox'
+
+    @api.model
+    def default_get(self, vals):   
+
+        result = super(account_cashbox_bank_statement, self).default_get(vals)
+
+        _cashbox_lines_ids = []
+        _cashbox_lines_ids.append( (0,0,{'coin_value' : 100000,'number' : 0,'subtotal' : 0}) )
+        _cashbox_lines_ids.append( (0,0,{'coin_value' : 50000,'number' : 0,'subtotal' : 0}) )
+        _cashbox_lines_ids.append( (0,0,{'coin_value' : 20000,'number' : 0,'subtotal' : 0}) )
+        _cashbox_lines_ids.append( (0,0,{'coin_value' : 10000,'number' : 0,'subtotal' : 0}) )
+        _cashbox_lines_ids.append( (0,0,{'coin_value' : 5000,'number' : 0,'subtotal' : 0}) )
+        _cashbox_lines_ids.append( (0,0,{'coin_value' : 2000,'number' : 0,'subtotal' : 0}) )
+        _cashbox_lines_ids.append( (0,0,{'coin_value' : 1000,'number' : 0,'subtotal' : 0}) )
+        _cashbox_lines_ids.append( (0,0,{'coin_value' : 500,'number' : 0,'subtotal' : 0}) )
+        _cashbox_lines_ids.append( (0,0,{'coin_value' : 200,'number' : 0,'subtotal' : 0}) )
+        _cashbox_lines_ids.append( (0,0,{'coin_value' : 100,'number' : 0,'subtotal' : 0}) )
+        _cashbox_lines_ids.append( (0,0,{'coin_value' : 50,'number' : 0,'subtotal' : 0}) )
+
+        
+
+        result.update({
+            'cashbox_lines_ids' : _cashbox_lines_ids
+        })
+
+        
+        return result
+
 
 
 
