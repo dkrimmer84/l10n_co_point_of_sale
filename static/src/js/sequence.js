@@ -204,6 +204,21 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
 
             }
 
+            for( var pos in order.get_orderlines() ){
+                var line = order.get_orderlines(  )[ pos ];
+
+                if( line.get_quantity() == 0 ){
+                    this.gui.show_popup('error',{
+                        title: _t("Sales with quantity '0'"),
+                        body:  _t("Sales with quantity '0' are not allowed. Please re-check your order!"),
+                    });
+                    return false;
+                }
+
+                console.log('line', line);
+            }
+
+
             //var is_valid = self.order_is_valid(force_validation);
             if(order.get_total_with_tax() >= 0) {
                 order.number_next_dian = this.pos.dian_resolution.prefix +
