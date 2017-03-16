@@ -676,7 +676,7 @@ msgstr "Ventas con cantidad '0'"
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:213
 #, python-format
-msgid "Sales with quantity '0' are not allowed. Please re-check your order!"
+msgid "Sales with quantity '0' are not allowed. Please re-check your order!!!"
 msgstr "Ventas con cantidad '0' no son permitidas, Por favor verifique la venta"
 
 #. module: l10n_co_point_of_sale
