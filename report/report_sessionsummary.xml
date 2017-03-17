@@ -112,7 +112,7 @@
                         
                         
                         <t t-foreach="o.statement_ids" t-as="statement">
-                            <t t-if="statement.total_entry_encoding &gt; 0">
+                            <t t-if="statement.total_entry_encoding != 0">
                                 <t t-set="total_transactions" t-value="0"/>
                                     <strong>Journal</strong> : <span t-field="statement.journal_id"/><br/>
                                     <strong>Reference</strong> : <span t-field="statement.name"/><br/>
