@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 9.0c-20161205\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-16 20:34+0000\n"
-"PO-Revision-Date: 2017-03-16 20:34+0000\n"
+"POT-Creation-Date: 2017-03-17 04:33+0000\n"
+"PO-Revision-Date: 2017-03-17 04:33+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -184,6 +184,11 @@ msgid "Account"
 msgstr "Cuenta"
 
 #. module: l10n_co_point_of_sale
+#: model:ir.model,name:l10n_co_point_of_sale.model_account_bank_statement_cashbox
+msgid "Account Bank Statement Cashbox Details"
+msgstr "Detalles de Caja"
+
+#. module: l10n_co_point_of_sale
 #: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_company_tax_amount
 msgid "Amount"
 msgstr "Cantidad"
@@ -323,6 +328,18 @@ msgid "Description"
 msgstr "Descripción"
 
 #. module: l10n_co_point_of_sale
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:626
+#, python-format
+msgid "Devoluciones"
+msgstr "Devoluciones"
+
+#. module: l10n_co_point_of_sale
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:625
+#, python-format
+msgid "Devoluciones POS - Tax"
+msgstr "Devoluciones POS - Tax"
+
+#. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:282
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:478
@@ -331,7 +348,7 @@ msgid "Devolución No.:"
 msgstr "Devolución No.:"
 
 #. module: l10n_co_point_of_sale
-#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:558
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:562
 #, python-format
 msgid "Discount"
 msgstr "Descuento"
@@ -555,6 +572,12 @@ msgid "Not has valid dian"
 msgstr "Not has valid dian"
 
 #. module: l10n_co_point_of_sale
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:626
+#, python-format
+msgid "Number Refunds"
+msgstr "Número Devoluciones"
+
+#. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:308
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:499
@@ -634,6 +657,12 @@ msgid "Refund Order IDs Sequence"
 msgstr "Refund Order IDs Sequence"
 
 #. module: l10n_co_point_of_sale
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:628
+#, python-format
+msgid "Refund Tax iva"
+msgstr "Devolución Tax iva"
+
+#. module: l10n_co_point_of_sale
 #: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_resolution_date
 msgid "Resolution date"
 msgstr "Resolution date"
@@ -654,13 +683,13 @@ msgid "Resolution number to"
 msgstr "Resolution number to"
 
 #. module: l10n_co_point_of_sale
-#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:557
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:561
 #, python-format
 msgid "Sales"
 msgstr "Ventas"
 
 #. module: l10n_co_point_of_sale
-#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:557
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:561
 #, python-format
 msgid "Sales POS - Tax"
 msgstr "Ventas POS - Impuesto : "
@@ -711,7 +740,8 @@ msgstr "Served by"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:559
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:563
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:628
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:378
 #: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_price_subtotal_line
 #: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
@@ -744,7 +774,7 @@ msgid "Tax description"
 msgstr "Tax description"
 
 #. module: l10n_co_point_of_sale
-#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:560
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:564
 #, python-format
 msgid "Tax iva"
 msgstr "Impuesto Iva"
@@ -788,6 +818,11 @@ msgstr "La secuencia es creada automáticamente por Odoo, pero puede cambiarla p
 #: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
 msgid "Total Payment Method"
 msgstr "Total Métodos de Pago"
+
+#. module: l10n_co_point_of_sale
+#: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
+msgid "Total Refund POS"
+msgstr "Total Devoluciones POS"
 
 #. module: l10n_co_point_of_sale
 #: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
