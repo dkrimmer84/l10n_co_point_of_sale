@@ -110,6 +110,14 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
         get_client_formatedNit: function() {
             var client = this.get('client');
             return client ? client.formatedNit : "";
+        },
+        get_client_tel: function() {
+            var client = this.get('client');
+            return client ? client.phone : "";
+        },
+        get_client_address: function() {
+            var client = this.get('client');
+            return client ? client.street : "";
         }
     });
     models.Order = Order;
@@ -203,6 +211,21 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                 value = line.get_price_with_tax();
 
             }
+
+            for( var pos in order.get_orderlines() ){
+                var line = order.get_orderlines(  )[ pos ];
+
+                if( line.get_quantity() == 0 ){
+                    this.gui.show_popup('error',{
+                        title: _t("Sales with quantity '0'"),
+                        body:  _t("Sales with quantity '0' are not allowed. Please re-check your order!!!"),
+                    });
+                    return false;
+                }
+
+                console.log('line', line);
+            }
+
 
             //var is_valid = self.order_is_valid(force_validation);
             if(order.get_total_with_tax() >= 0) {

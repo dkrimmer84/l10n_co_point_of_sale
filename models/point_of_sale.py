@@ -430,6 +430,7 @@ class pos_session(models.Model):
     _inherit = 'pos.session'
 
     taxes_description = fields.Html('taxes Description', compute = 'compute_taxes_description')
+    refund_description = fields.Html('Refund Description', compute = 'compute_refund_description')
     amount_change = fields.Float('Change', compute = 'compute_amount_change')
     mac = fields.Char('MAC')
     macpc = get_mac()
@@ -502,6 +503,7 @@ class pos_session(models.Model):
     def compute_taxes_description(self):
 
         res = {}
+        resul = {}
         currency_id = False
         _cambio = 0
         if self.order_ids:
@@ -544,9 +546,11 @@ class pos_session(models.Model):
                                     'discount_line' : discount_line,
                                     'tax_line' : tax_line,
                                     'total' : total
-                                }               
+                                }
+
         html = ''
         for result in res:
+
             html += """
             <div><h4><strong>%s </strong><span>%s</span></h4></div>
             <div style="float: left;margin-right: 20px;"><strong>%s :</strong></div><div><span>$ %s</span></div>
@@ -560,7 +564,69 @@ class pos_session(models.Model):
                                              self.number_format(currency_id, res[result].get('subtotal')), _('Tax iva'),
                                              self.number_format(currency_id, res[result].get('tax_line')),
                                              self.number_format(currency_id, res[result].get('total')))
+        
         self.taxes_description = html
+        
+
+    @api.one
+    def compute_refund_description(self):
+        resul = {}
+        currency_id = False
+        _cambio = 0
+        n = 0
+        if self.order_ids:
+            for order in self.order_ids:
+                if order.type == 'out_refund':
+                    n += 1
+                    if order.lines:
+                        for line in order.lines:
+                            _id_tax = line.tax_ids_after_fiscal_position.id
+                            
+                            subtotal_dev = line.price_subtotal
+                            tax_line_dev = line.price_subtotal_incl - line.price_subtotal
+                            total_dev = subtotal_dev + tax_line_dev
+                            
+
+                            if _id_tax in resul:
+                                data = resul[_id_tax]
+                                subtotal_dev = data.get('subtotal') + subtotal_dev
+                                tax_line_dev = data.get('tax_line') + tax_line_dev
+                                total_dev = data.get('total') + total_dev
+
+                                resul[_id_tax] = {
+                                    'id' : _id_tax,
+                                    'name' : line.tax_ids_after_fiscal_position.name,
+                                    'subtotal' : subtotal_dev,
+                                    'tax_line' : tax_line_dev,
+                                    'total' : total_dev
+                                }
+
+                            else:
+                                resul[_id_tax] = {
+                                    'id' : _id_tax,
+                                    'name' : line.tax_ids_after_fiscal_position.name,
+                                    'subtotal' : subtotal_dev,
+                                    'tax_line' : tax_line_dev,
+                                    'total' : total_dev
+                                }
+
+        
+        html_dev = ''
+        for resultado in resul:
+            html_dev += """
+            <div><h4><strong>%s </strong><span>%s</span></h4></div>
+            <div style="float: left;margin-right: 20px;"><strong>%s :</strong></div><div><span>%s</span></div>
+            <div style="float: left;margin-right: 20px;"><strong>%s :</strong></div><div><span>$ %s</span></div>
+            <div style="float: left;margin-right: 20px;"><strong>%s : </strong></div><div><span>$ %s</span></div>
+            <div style="float: left;margin-right: 20px;"><strong>%s : </strong></div><div><span>$ %s</span></div>
+            <div style="margin-bottom: 10px;float: left;margin-right: 20px;"><strong>Total : </strong>
+            </div><div><span>$ %s</span></div>""" % (_('Devoluciones POS - Tax'), resul[resultado].get('name'),
+                                             _('Number Refunds'), n , _('Devoluciones'),
+                                             self.number_format(currency_id, resul[resultado].get('subtotal')),
+                                             _('Subtotal'),self.number_format(currency_id, resul[resultado].get('subtotal')), _('Refund Tax iva'),
+                                             self.number_format(currency_id, resul[resultado].get('tax_line')),
+                                             self.number_format(currency_id, resul[resultado].get('total')))
+        self.refund_description = html_dev
 
 class account_cashbox_bank_statement(models.Model):
     _name = 'account.bank.statement.cashbox'
