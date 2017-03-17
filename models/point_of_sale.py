@@ -577,6 +577,7 @@ class pos_session(models.Model):
         if self.order_ids:
             for order in self.order_ids:
                 if order.type == 'out_refund':
+                    n += 1
                     if order.lines:
                         for line in order.lines:
                             _id_tax = line.tax_ids_after_fiscal_position.id
