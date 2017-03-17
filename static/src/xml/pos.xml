@@ -321,6 +321,12 @@
                         NIT: <t t-esc="order.get_client_xidentification()" />
                       </t>
                     </t>
+                    <t t-if="order.get_client_tel()"><br />
+                        Teléfono: <t t-esc="order.get_client_tel()" />
+                    </t>
+                    <t t-if="order.get_client_address()"><br />
+                        Dirección: <t t-esc="order.get_client_address()" />
+                    </t>
                 </t>
               </left><br /><br />
 
@@ -506,6 +512,12 @@
                     <b>Cliente:</b> <t t-esc="order.get_client_name()"/><br />
                     <t t-if="order.get_client_xidentification()">
                         NIT: <t t-esc="order.get_client_xidentification()" />
+                    </t>
+                    <t t-if="order.get_client_tel()"><br />
+                        Teléfono: <t t-esc="order.get_client_tel()" />
+                    </t>
+                    <t t-if="order.get_client_address()"><br />
+                        Dirección: <t t-esc="order.get_client_address()" />
                     </t>
                 </t>
 
