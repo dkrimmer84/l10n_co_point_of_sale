@@ -570,8 +570,6 @@ class pos_session(models.Model):
 
     @api.one
     def compute_refund_description(self):
-
-        res = {}
         resul = {}
         currency_id = False
         _cambio = 0
@@ -579,7 +577,6 @@ class pos_session(models.Model):
         if self.order_ids:
             for order in self.order_ids:
                 if order.type == 'out_refund':
-
                     if order.lines:
                         for line in order.lines:
                             _id_tax = line.tax_ids_after_fiscal_position.id
@@ -589,11 +586,11 @@ class pos_session(models.Model):
                             total_dev = subtotal_dev + tax_line_dev
                             n += 1
 
-                            if _id_tax in res:
-                                data_dev = res[_id_tax]
+                            if _id_tax in resul:
+                                data = resul[_id_tax]
                                 subtotal_dev = data.get('subtotal') + subtotal_dev
                                 tax_line_dev = data.get('tax_line') + tax_line_dev
-                                total_dev = data.get('total') + total_total_dev
+                                total_dev = data.get('total') + total_dev
 
                                 resul[_id_tax] = {
                                     'id' : _id_tax,
