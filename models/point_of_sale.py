@@ -585,7 +585,7 @@ class pos_session(models.Model):
                             subtotal_dev = line.price_subtotal
                             tax_line_dev = line.price_subtotal_incl - line.price_subtotal
                             total_dev = subtotal_dev + tax_line_dev
-                            n += 1
+                            
 
                             if _id_tax in resul:
                                 data = resul[_id_tax]
