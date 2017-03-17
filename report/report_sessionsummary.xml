@@ -51,8 +51,10 @@
                         <div t-raw="o.taxes_description"/>
                     </div>
                     <div class="row mt32 mb32" style="line-height: 24px; margin-top:0 !important;">
-                        <h3 style="font-weight: bold;">Total Refund POS</h3>
-                        <div t-raw="o.refund_description"/>
+                        <t t-if="o.refund_description">
+                            <h3 style="font-weight: bold;">Total Refund POS</h3>
+                            <div t-raw="o.refund_description"/>
+                        </t>
                     </div>
                     <div class="row mt32 mb32" style="line-height: 24px;">
                         <h3 style="font-weight: bold;">Total:</h3>
