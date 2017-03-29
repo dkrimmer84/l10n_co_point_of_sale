@@ -714,16 +714,15 @@ class inherit_report_pos_order(models.Model):
                     and sqm.move_id = sm.id limit 1) as rentabilidad  from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1),
 
-                    (select ( select case when sq.qty > 0 then (sum((l.qty * l.price_unit) * (100 - l.discount) / 100) - (sq.cost * sq.qty)) / sum((l.qty * l.price_unit) * (100 - l.discount) / 100)   else  0 
+                    (select ( select case when sq.qty > 0 then (case when sum((l.qty * l.price_unit) * (100 - l.discount) / 100) > 0 then (sum((l.qty * l.price_unit) * (100 - l.discount) / 100) - (sq.cost * sq.qty)) / sum((l.qty * l.price_unit) * (100 - l.discount) / 100) else 0 end)  else  0 
                     end from stock_quant sq, stock_quant_move_rel sqm where sqm.quant_id = sq.id 
                     and sqm.move_id = sm.id limit 1) as margen_precio  from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1),
 
-                    (select ( select case when sq.qty > 0 then (sum((l.qty * l.price_unit) * (100 - l.discount) / 100) - (sq.cost * sq.qty)) / (sq.cost * sq.qty)  else  0 
+                    (select ( select case when sq.qty > 0 then (case when (sq.cost * sq.qty) > 0 then (sum((l.qty * l.price_unit) * (100 - l.discount) / 100) - (sq.cost * sq.qty)) / (sq.cost * sq.qty) else 0 end) else  0 
                     end from stock_quant sq, stock_quant_move_rel sqm where sqm.quant_id = sq.id 
                     and sqm.move_id = sm.id limit 1) as margen_costo  from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1)
-            
             
                 from pos_order_line as l
                     left join pos_order s on (s.id=l.order_id)
