@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 9.0c-20161205\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-17 04:33+0000\n"
-"PO-Revision-Date: 2017-03-17 04:33+0000\n"
+"POT-Creation-Date: 2017-04-12 21:31+0000\n"
+"PO-Revision-Date: 2017-04-12 21:31+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:524
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:536
 #, python-format
 msgid "% discount"
 msgstr "% discount"
@@ -173,7 +173,7 @@ msgstr "<strong>Fecha de Cierre</strong>:"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:178
+#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:243
 #, python-format
 msgid "? Clicking \"Confirm\" will validate the payment."
 msgstr "? Clicking \"Confirm\" will validate the payment."
@@ -200,28 +200,28 @@ msgstr "Cuenta Analítica"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:170
+#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:235
 #, python-format
 msgid "Are you sure that the customer wants to  pay"
 msgstr "Are you sure that the customer wants to  pay"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:402
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:408
 #, python-format
 msgid "CHANGE"
 msgstr "CHANGE"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:249
+#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:314
 #, python-format
 msgid "Cannot create sales and refund in the same transaction"
 msgstr "No puede crear ventas y devoluciones en la misma transacción"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:159
+#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:224
 #, python-format
 msgid "Cannot return change without a cash payment method"
 msgstr "Cannot return change without a cash payment method"
@@ -238,7 +238,7 @@ msgstr "Change"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:580
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:592
 #, python-format
 msgid "Change:"
 msgstr "Change:"
@@ -254,7 +254,7 @@ msgstr "Ciudad"
 #. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:314
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:506
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:512
 #, python-format
 msgid "Cliente:"
 msgstr "Cliente:"
@@ -328,13 +328,13 @@ msgid "Description"
 msgstr "Descripción"
 
 #. module: l10n_co_point_of_sale
-#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:626
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:624
 #, python-format
 msgid "Devoluciones"
 msgstr "Devoluciones"
 
 #. module: l10n_co_point_of_sale
-#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:625
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:623
 #, python-format
 msgid "Devoluciones POS - Tax"
 msgstr "Devoluciones POS - Tax"
@@ -342,10 +342,18 @@ msgstr "Devoluciones POS - Tax"
 #. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:282
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:478
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:484
 #, python-format
 msgid "Devolución No.:"
 msgstr "Devolución No.:"
+
+#. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:327
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:519
+#, python-format
+msgid "Dirección:"
+msgstr "Dirección:"
 
 #. module: l10n_co_point_of_sale
 #: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:562
@@ -355,15 +363,15 @@ msgstr "Descuento"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:342
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:553
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:348
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:565
 #, python-format
 msgid "Discount:"
 msgstr "Discount:"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:411
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:417
 #, python-format
 msgid "Discounts"
 msgstr "Discounts"
@@ -375,7 +383,7 @@ msgstr "Nombre Público"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:128
+#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:193
 #, python-format
 msgid "Empty Order"
 msgstr "Empty Order"
@@ -397,7 +405,7 @@ msgstr "Error! Tienes errores pendientes, por favor corrígelos antes de termina
 #. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:285
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:475
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:481
 #: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
 #, python-format
 msgid "Factura de Venta No.:"
@@ -406,7 +414,7 @@ msgstr "Factura de Venta No.:"
 #. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:309
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:500
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:506
 #, python-format
 msgid "Fecha de Resolución:"
 msgstr "Fecha de Resolución:"
@@ -414,7 +422,7 @@ msgstr "Fecha de Resolución:"
 #. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:303
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:466
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:472
 #, python-format
 msgid "Fecha:"
 msgstr "Fecha:"
@@ -538,7 +546,7 @@ msgstr "NIT"
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:257
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:316
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:320
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:507
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:513
 #: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
 #, python-format
 msgid "NIT:"
@@ -553,7 +561,7 @@ msgstr "Nombre"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:140
+#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:205
 #, python-format
 msgid "Negative Bank Payment"
 msgstr "Negative Bank Payment"
@@ -572,7 +580,7 @@ msgid "Not has valid dian"
 msgstr "Not has valid dian"
 
 #. module: l10n_co_point_of_sale
-#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:626
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:624
 #, python-format
 msgid "Number Refunds"
 msgstr "Número Devoluciones"
@@ -580,7 +588,7 @@ msgstr "Número Devoluciones"
 #. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:308
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:499
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:505
 #, python-format
 msgid "Número Resolución DIAN:"
 msgstr "Número Resolución DIAN:"
@@ -610,14 +618,14 @@ msgstr "Person type"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:169
+#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:234
 #, python-format
 msgid "Please Confirm Large Amount"
 msgstr "Please Confirm Large Amount"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:250
+#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:315
 #, python-format
 msgid "Please seperate normal sales from refund transactions"
 msgstr "Por favor separe las ventas normales de las devoluciones"
@@ -639,7 +647,7 @@ msgstr "Cantidad"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:498
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:504
 #, python-format
 msgid "Rango Facturación"
 msgstr "Rango Facturación"
@@ -652,12 +660,17 @@ msgid "Rango Facturación:"
 msgstr "Rango Facturación:"
 
 #. module: l10n_co_point_of_sale
+#: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_session_refund_description
+msgid "Refund Description"
+msgstr "Refund Description"
+
+#. module: l10n_co_point_of_sale
 #: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_config_sequence_refund_id
 msgid "Refund Order IDs Sequence"
 msgstr "Refund Order IDs Sequence"
 
 #. module: l10n_co_point_of_sale
-#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:628
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:626
 #, python-format
 msgid "Refund Tax iva"
 msgstr "Devolución Tax iva"
@@ -696,14 +709,14 @@ msgstr "Ventas POS - Impuesto : "
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:212
+#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:277
 #, python-format
 msgid "Sales with quantity '0'"
 msgstr "Ventas con cantidad '0'"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:213
+#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:278
 #, python-format
 msgid "Sales with quantity '0' are not allowed. Please re-check your order!!!"
 msgstr "Ventas con cantidad '0' no son permitidas, Por favor verifique la venta"
@@ -741,8 +754,8 @@ msgstr "Served by"
 #. module: l10n_co_point_of_sale
 #. openerp-web
 #: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:563
-#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:628
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:378
+#: code:addons/l10n_co_point_of_sale/models/point_of_sale.py:626
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:384
 #: model:ir.model.fields,field_description:l10n_co_point_of_sale.field_pos_order_line_price_subtotal_line
 #: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
 #, python-format
@@ -751,14 +764,14 @@ msgstr "Subtotal"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:539
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:551
 #, python-format
 msgid "Subtotal:"
 msgstr "Subtotal:"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:369
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:375
 #, python-format
 msgid "TOTAL"
 msgstr "TOTAL"
@@ -787,13 +800,17 @@ msgid "Tel:"
 msgstr "Tel:"
 
 #. module: l10n_co_point_of_sale
+#. openerp-web
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:324
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:516
 #: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
+#, python-format
 msgid "Teléfono:"
 msgstr "Teléfono:"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:160
+#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:225
 #, python-format
 msgid "There is no cash payment method available in this point of sale to handle the change.\n"
 "\n"
@@ -804,7 +821,7 @@ msgstr "There is no cash payment method available in this point of sale to handl
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:129
+#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:194
 #, python-format
 msgid "There must be at least one product in your order before it can be validated"
 msgstr "There must be at least one product in your order before it can be validated"
@@ -831,14 +848,14 @@ msgstr "Total Ventas POS"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:423
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:429
 #, python-format
 msgid "Total Taxes"
 msgstr "Total Impuestos"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:559
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:571
 #: model:ir.ui.view,arch_db:l10n_co_point_of_sale.report_sessionsummary_inherit
 #, python-format
 msgid "Total:"
@@ -851,14 +868,14 @@ msgstr "Tipo"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:523
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:535
 #, python-format
 msgid "With a"
 msgstr "With a"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:141
+#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:206
 #, python-format
 msgid "You cannot have a negative amount in a Bank payment. Use a cash payment method to return money to the customer."
 msgstr "You cannot have a negative amount in a Bank payment. Use a cash payment method to return money to the customer."
@@ -870,14 +887,14 @@ msgstr "del"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:174
+#: code:addons/l10n_co_point_of_sale/static/src/js/sequence.js:239
 #, python-format
 msgid "for an order of"
 msgstr "for an order of"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
-#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:499
+#: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:505
 #: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
 #, python-format
 msgid "hasta"

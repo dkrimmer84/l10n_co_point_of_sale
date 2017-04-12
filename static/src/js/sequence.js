@@ -11,7 +11,10 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
     var Class = require('web.Class');
     var utils = require('web.utils');
     var PosBaseWidget = require('point_of_sale.BaseWidget');
+    var Model = require('web.DataModel');
     var _t = core._t;
+
+    
 
     models.load_models([
         {
@@ -27,18 +30,18 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
         },
         {
             model: 'ir.sequence.dian_resolution',
-            fields: ['resolution_number', 'date_from', 'number_from', 'number_to', 'number_next', 'active_resolution'],
+            fields: ['resolution_number', 'date_from', 'date_to', 'number_from', 'number_to', 'number_next', 'active_resolution'],
             domain: function(self){
-                /*var ids = [
-                    self.dian_resolution.dian_resolution_ids[0],
-                    self.dian_resolution_refund.dian_resolution_ids[0]
-                ];*/
 
                 var ids = [];
+                self.resolutions_ids = ids;
+
                 var dian_resolution_ids = self.dian_resolution.dian_resolution_ids;
                 for( var resolution in dian_resolution_ids ) {
                     ids.push( dian_resolution_ids[ resolution ] );
                 }
+
+
 
                 return [['id','in', ids],['active_resolution', '=', true]];
             },
@@ -56,6 +59,52 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                         active_resolution: false
                     }
                 }
+
+                setInterval(function(){
+                    var actual_date = new Date().getTime();
+                    var date_to = new Date( self.dian_resolution_sequence.date_to ).getTime();
+
+
+                    /*console.log('testt');
+                    console.log( self.dian_resolution_sequence.number_next );
+                    console.log( self.dian_resolution_sequence.number_from );
+                    console.log( self.dian_resolution_sequence.number_to );
+
+                    console.log( actual_date );
+                    console.log( date_to );*/
+
+                    
+                    var product_screen = $('.product-screen').is(':visible');
+                    /*if( ! product_screen ){
+                        return;
+                    }*/
+
+                    if( self.dian_resolution_sequence.number_next >= self.dian_resolution_sequence.number_from && 
+                        self.dian_resolution_sequence.number_next <= self.dian_resolution_sequence.number_to   &&  
+                        actual_date <= date_to && 
+                        self.dian_resolution_sequence.active_resolution ){
+                        console.log('Vigente');
+
+
+                    } else {
+                        console.log('Vencido');
+                        try{
+                            new Model('ir.sequence').call('check_active_resolution', [self.dian_resolution.id]).then(function(data){
+                                //console.log('El data', data)  ;
+
+                                if( data ){
+                                    location.reload();
+                                }
+
+                            })
+                        } catch( e ){
+
+                        }
+                        
+
+                    }
+
+                }, 10000)
             }
         },
     ])
@@ -231,14 +280,11 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                     return false;
                 }
 
-                console.log('line', line);
             }
 
 
             //var is_valid = self.order_is_valid(force_validation);
             if(order.get_total_with_tax() >= 0) {
-                console.log('test 01', this.pos);
-                console.log('testtt', this.pos.dian_resolution_sequence);
 
                 order.number_next_dian = this.pos.dian_resolution.prefix +
                 this.pos.dian_resolution_sequence.number_next++;
