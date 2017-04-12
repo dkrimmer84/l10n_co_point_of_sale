@@ -104,7 +104,7 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
 
                     }
 
-                }, 10000)
+                }, 3000)
             }
         },
     ])
