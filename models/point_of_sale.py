@@ -668,6 +668,35 @@ class inherit_report_pos_order(models.Model):
     rentabilidad = fields.Float('Rentabilidad', readonly=True)
     margen_precio = fields.Float('Margen Precio', readonly=True)
     margen_costo = fields.Float('Margen Costo', readonly=True)
+
+    @api.model
+    def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
+
+        new_res = []
+
+        res = super(inherit_report_pos_order, self).read_group(domain, fields, groupby, offset=offset, limit=limit, orderby=orderby, lazy=lazy)    
+
+        _logger.info("res original")
+        _logger.info( res )
+
+        for record in res:
+            _logger.info("cantidad")
+            _logger.info( record.get('costo_promedio') )
+            _logger.info( record.get('__count') )
+
+            record.update({
+                'costo_promedio' : record.get('costo_promedio') / record.get('product_qty'),
+                'margen_precio' : record.get('rentabilidad') / record.get('costo_total'),
+                'margen_costo' : record.get('rentabilidad') / record.get('price_total'),
+            })
+
+            new_res.append( record )
+
+        _logger.info("new res")
+        _logger.info(new_res)
+
+
+        return new_res
     
     def init(self, cr):
         tools.drop_view_if_exists(cr, 'report_pos_order')
@@ -704,10 +733,10 @@ class inherit_report_pos_order(models.Model):
                     and sqm.move_id = sm.id limit 1) as costo_total  from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1),
 
-                    (select ( select case when sq.qty > 0 then sq.cost else  0 
+                    (select ( select case when sq.qty > 0 then sq.cost * sq.qty  else  0 
                     end from stock_quant sq, stock_quant_move_rel sqm where sqm.quant_id = sq.id 
-                    and sqm.move_id = sm.id limit 1) as costo_promedio  from stock_move sm 
-                    where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1),
+                    and sqm.move_id = sm.id limit 1) from stock_move sm 
+                    where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1) as costo_promedio,
 
                     (select ( select case when sq.qty > 0 then (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
             from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - (sq.cost * sq.qty)  else  0 
