@@ -699,10 +699,11 @@ class inherit_report_pos_order(models.Model):
             _logger.info('record')
             _logger.info(record)
             _logger.info(product)
+
             record.update({
                 'costo_promedio' : record.get('costo_promedio') / product,
                 'margen_precio' : record.get('rentabilidad') / venta,
-                'margen_costo' : record.get('rentabilidad') / costo,
+                'margen_costo' : record.get('rentabilidad') / costo,})
 
             new_res.append( record )
 
