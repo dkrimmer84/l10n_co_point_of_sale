@@ -60,37 +60,27 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                     }
                 }
 
-                setInterval(function(){
+                var check_active_dian = setInterval(function(){
                     var actual_date = new Date().getTime();
-                    var date_to = new Date( self.dian_resolution_sequence.date_to ).getTime();
 
-
-                    /*console.log('testt');
-                    console.log( self.dian_resolution_sequence.number_next );
-                    console.log( self.dian_resolution_sequence.number_from );
-                    console.log( self.dian_resolution_sequence.number_to );
-
-                    console.log( actual_date );
-                    console.log( date_to );*/
-
-                    
-                    var product_screen = $('.product-screen').is(':visible');
-                    /*if( ! product_screen ){
+                    if( self.dian_resolution_sequence == undefined ){
+                        clearInterval( check_active_dian );
                         return;
-                    }*/
+                    }
+
+
+                    var date_to = new Date( self.dian_resolution_sequence.date_to ).getTime();
 
                     if( self.dian_resolution_sequence.number_next >= self.dian_resolution_sequence.number_from && 
                         self.dian_resolution_sequence.number_next <= self.dian_resolution_sequence.number_to   &&  
                         actual_date <= date_to && 
                         self.dian_resolution_sequence.active_resolution ){
-                        console.log('Vigente');
+
 
 
                     } else {
-                        console.log('Vencido');
                         try{
                             new Model('ir.sequence').call('check_active_resolution', [self.dian_resolution.id]).then(function(data){
-                                //console.log('El data', data)  ;
 
                                 if( data ){
                                     location.reload();
