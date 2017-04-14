@@ -683,11 +683,26 @@ class inherit_report_pos_order(models.Model):
             _logger.info("cantidad")
             _logger.info( record.get('costo_promedio') )
             _logger.info( record.get('__count') )
+            product = 1
+            venta = 1
+            costo = 1
 
+            if record.get('product_qty') > 0:
+                product = record.get('product_qty')
+           
+            if record.get('price_total') > 0:
+                venta = record.get('price_total')
+        
+            if record.get('costo_total') > 0:
+                costo = record.get('costo_total')
+            
+            _logger.info('record')
+            _logger.info(record)
+            _logger.info(product)
             record.update({
-                'costo_promedio' : record.get('costo_promedio') / record.get('product_qty'),
-                'margen_precio' : record.get('rentabilidad') / record.get('costo_total'),
-                'margen_costo' : record.get('rentabilidad') / record.get('price_total'),
+                'costo_promedio' : record.get('costo_promedio') / product,
+                'margen_precio' : record.get('rentabilidad') / venta,
+                'margen_costo' : record.get('rentabilidad') / costo,
             })
 
             new_res.append( record )
