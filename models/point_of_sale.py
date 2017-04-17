@@ -659,6 +659,148 @@ class account_cashbox_bank_statement(models.Model):
         
         return result
 
+class inherit_report_pos_order(models.Model):
+    _name = 'report.pos.order'
+    _inherit = 'report.pos.order'
+
+    costo_total = fields.Float('Costo Total', readonly=True)
+    costo_promedio = fields.Float('Costo Promedio', readonly=True)
+    rentabilidad = fields.Float('Rentabilidad', readonly=True)
+    margen_precio = fields.Float('Margen Precio', readonly=True)
+    margen_costo = fields.Float('Margen Costo', readonly=True)
+
+    @api.model
+    def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
+
+        new_res = []
+
+        res = super(inherit_report_pos_order, self).read_group(domain, fields, groupby, offset=offset, limit=limit, orderby=orderby, lazy=lazy)    
+
+
+        for record in res:
+
+            costo_promedio = record.get('costo_promedio')
+            margen_precio = record.get('rentabilidad')
+            margen_costo = record.get('margen_costo')
+
+            if costo_promedio == None or margen_precio == None or margen_costo == None:
+                new_res.append( record )
+                continue
+
+            product = record.get('product_qty', 1)
+            venta = record.get('price_total', 1)
+            costo = record.get('costo_total', 1)
+
+            """if product <= 0:
+                                                    record.update({
+                                                        'costo_total' : 0,                    
+                                                        'costo_promedio' : 0,
+                                                        'margen_precio' : 0,
+                                                        'margen_costo' : 0,
+                                                        'rentabilidad' : 0,
+                                                        'price_total' : 0
+                                                    })
+                                    
+                                                    new_res.append( record )
+                                                    continue"""
+
+            margen_precio = 0
+            if venta != 0:
+                margen_precio =  record.get('rentabilidad') / venta
+
+            costo_promedio = 0
+            if product != 0:
+                costo_promedio = record.get('costo_promedio') / product
+
+            margen_costo = 0
+            if costo != 0:
+                margen_costo = record.get('rentabilidad') / costo   
+
+
+            record.update({
+                'costo_promedio' : costo_promedio,
+                'margen_precio' : margen_precio,
+                'margen_costo' : margen_costo
+            })
+
+            new_res.append( record )
+
+        return new_res
+    
+    def init(self, cr):
+        tools.drop_view_if_exists(cr, 'report_pos_order')
+        cr.execute("""
+            create or replace view report_pos_order as (
+                select
+                    min(l.id) as id,
+                    count(*) as nbr,
+                    s.date_order as date,
+                    sum(l.qty) as product_qty,
+                    sum(l.qty * l.price_unit) as price_sub_total,
+                    sum((l.qty * l.price_unit) * (100 - l.discount) / 100) as price_total,
+                    sum((l.qty * l.price_unit) * (l.discount / 100)) as total_discount,
+                    (sum(l.qty*l.price_unit)/sum(l.qty * u.factor))::decimal as average_price,
+                    sum(cast(to_char(date_trunc('day',s.date_order) - date_trunc('day',s.create_date),'DD') as int)) as delay_validation,
+                    s.partner_id as partner_id,
+                    s.state as state,
+                    s.user_id as user_id,
+                    s.location_id as location_id,
+                    s.company_id as company_id,
+                    s.sale_journal as journal_id,
+                    l.product_id as product_id,
+                    pt.categ_id as product_categ_id,
+                    p.product_tmpl_id,
+                    ps.config_id,
+                    pt.pos_categ_id,
+                    pc.stock_location_id,
+                    s.pricelist_id,
+                    s.invoice_id IS NOT NULL AS invoiced,
+                    s.picking_id,
+        
+                    (select ( select case when sq.qty > 0 then sq.cost * sq.qty  else  0 
+                    end from stock_quant sq, stock_quant_move_rel sqm where sqm.quant_id = sq.id 
+                    and sqm.move_id = sm.id limit 1) as costo_total  from stock_move sm 
+                    where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1),
+
+                    (select ( select case when sq.qty > 0 then sq.cost * sq.qty  else  0 
+                    end from stock_quant sq, stock_quant_move_rel sqm where sqm.quant_id = sq.id 
+                    and sqm.move_id = sm.id limit 1) from stock_move sm 
+                    where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1) as costo_promedio,
+
+                    (select ( select case when sq.qty > 0 then (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - (sq.cost * sq.qty)  else  0 
+                    end from stock_quant sq, stock_quant_move_rel sqm where sqm.quant_id = sq.id 
+                    and sqm.move_id = sm.id limit 1) as rentabilidad  from stock_move sm 
+                    where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1),
+
+                    (select ( select case when sq.qty > 0 then (case when (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+            from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+            from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - (sq.cost * sq.qty)) / (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+            from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) else 0 end)  else  0 
+                    end from stock_quant sq, stock_quant_move_rel sqm where sqm.quant_id = sq.id 
+                    and sqm.move_id = sm.id limit 1) as margen_precio  from stock_move sm 
+                    where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1),
+
+                    (select ( select case when sq.qty > 0 then (case when (sq.cost * sq.qty) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+            from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - (sq.cost * sq.qty)) / (sq.cost * sq.qty) else 0 end) else  0 
+                    end from stock_quant sq, stock_quant_move_rel sqm where sqm.quant_id = sq.id 
+                    and sqm.move_id = sm.id limit 1) as margen_costo  from stock_move sm 
+                    where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1)
+            
+                from pos_order_line as l
+                    left join pos_order s on (s.id=l.order_id)
+                    left join product_product p on (l.product_id=p.id)
+                    left join product_template pt on (p.product_tmpl_id=pt.id)
+                    left join product_uom u on (u.id=pt.uom_id)
+                    left join pos_session ps on (s.session_id=ps.id)
+                    left join pos_config pc on (ps.config_id=pc.id)
+                group by
+                    s.date_order, s.partner_id,s.state, pt.categ_id,
+                    s.user_id,s.location_id,s.company_id,s.sale_journal,s.pricelist_id,s.invoice_id,l.product_id,s.create_date,pt.categ_id,pt.pos_categ_id,p.product_tmpl_id,ps.config_id,pc.stock_location_id,
+                    s.picking_id, l.price_unit, l.qty, l.discount
+                having
+                    sum(l.qty * u.factor) != 0)""")
+
 
 
 
