@@ -691,10 +691,23 @@ class inherit_report_pos_order(models.Model):
             venta = record.get('price_total', 1)
             costo = record.get('costo_total', 1)
 
+            margen_precio = 0
+            if venta != 0:
+                margen_precio =  record.get('rentabilidad') / venta
+
+            costo_promedio = 0
+            if product != 0:
+                costo_promedio = record.get('costo_promedio') / product
+
+            margen_costo = 0
+            if costo != 0:
+                margen_costo = record.get('rentabilidad') / costo   
+
+
             record.update({
-                'costo_promedio' : record.get('costo_promedio') / product,
-                'margen_precio' : record.get('rentabilidad') / venta,
-                'margen_costo' : record.get('rentabilidad') / costo
+                'costo_promedio' : costo_promedio,
+                'margen_precio' : margen_precio,
+                'margen_costo' : margen_costo
             })
 
             new_res.append( record )
