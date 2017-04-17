@@ -274,8 +274,7 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
 
 
             //var is_valid = self.order_is_valid(force_validation);
-            if(order.get_total_with_tax() >= 0) {
-
+            if(order.get_total_with_tax() >= 0 && this.pos.dian_resolution_sequence != undefined) {
                 order.number_next_dian = this.pos.dian_resolution.prefix +
                 this.pos.dian_resolution_sequence.number_next++;
             } else {
