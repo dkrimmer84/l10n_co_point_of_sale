@@ -14,9 +14,11 @@
 
           <div class="col-xs-12 text-center">
             <span style="color: grey;">
-            <b>Factura de Venta No.: <span t-field="o.name"/></b> |
-              Numero de resolución: <span t-field="o.resolution_number"/> del <span t-field="o.resolution_date"/> |
-              Rango desde <span t-field="o.resolution_number_from"/> hasta <span t-field="o.resolution_number_to"/>
+            Fecha: <span t-field="o.date_order"/> |
+              Documento oficial de autorización de numeración de facturación: <span t-field="o.resolution_number"/> <br />
+Fecha de Autorización: <span t-field="o.resolution_date"/>
+<t t-if="o.resolution_date_to"> | Fecha de Vigencia: <span t-field="o.resolution_date_to"/></t> <br />
+              Rango Facturación: <span t-field="o.resolution_number_from"/> - <span t-field="o.resolution_number_to"/>
             </span><hr></hr>
           </div>
 
@@ -34,7 +36,7 @@
           <div class="col-xs-6">
             <span><b>FACTURADO POR:</b></span><br />
                 <span t-esc="o.user_id.company_id.name" /><br />
-                <em>(Usuario: <span t-field="o.user_id"/>, <span t-field="o.date_order"/>)</em><br/>
+                <em>(Usuario: <span t-field="o.user_id"/>)</em><br/>
                 Dirección: <span t-field="o.company_id.partner_id.street" />, <span t-field="o.company_id.partner_id.state_id" /><br />
           <t t-if="o.company_id.partner_id.formatedNit">NIT: <span t-field="o.company_id.partner_id.formatedNit" /><br /><br /></t>
           <t t-if="o.company_id.partner_id.phone">Teléfono: <span t-field="o.company_id.partner_id.phone" /> | </t>

@@ -55,6 +55,7 @@ class PosOrder(models.Model):
     ], readonly=True, default='out_invoice')
     resolution_number = fields.Char('Resolution number in order')
     resolution_date = fields.Date()
+    resolution_date_to = fields.Date()
     resolution_number_from = fields.Integer("")
     resolution_number_to = fields.Integer("")
 
@@ -146,7 +147,8 @@ class PosOrder(models.Model):
                     'resolution_number': sequence['resolution_number'],
                     'resolution_number_from': sequence['number_from'],
                     'resolution_number_to': sequence['number_to'],
-                    'resolution_date': sequence['date_from']
+                    'resolution_date': sequence['date_from'],
+                    'resolution_date_to': sequence['date_to']
                 })
             values.setdefault('session_id', session.config_id.pricelist_id.id)
         else:
