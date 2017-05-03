@@ -382,7 +382,55 @@ screens.ClientListScreenWidget.include({
         }
 
 
-        this._super(partner);
+
+        //console.log('Guardando', partner);
+        //this._super(partner);
+
+      
+        var fields = {};
+        this.$('.client-details-contents .detail').each(function(idx,el){
+            fields[el.name] = el.value;
+        });
+
+        if (!fields.name) {
+            this.gui.show_popup('error',_t('A Customer Name Is Required'));
+            return;
+        }
+        
+        if (this.uploaded_picture) {
+            fields.image = this.uploaded_picture;
+        }
+
+        fields.id           = partner.id || false;
+        fields.country_id   = fields.country_id || false;
+        fields.barcode      = fields.barcode || '';
+
+
+        new Model('res.partner').call('create_from_ui',[fields]).then(function(partner_id){
+
+            self.saved_client_details(partner_id);
+
+        },function(err,event){
+
+            event.preventDefault();
+            
+            console.log('testtt el error', err);
+
+            if(err.code == 200){
+                self.gui.show_popup('error',{
+                    'title': _t('Identification number must be unique!'),
+                    'body': _t('Identification number must be unique!'),
+                }); 
+
+            } else {
+                self.gui.show_popup('error',{
+                    'title': _t('Error: Could not Save Changes'),
+                    'body': _t('Your Internet connection is probably down.'),
+                });  
+            }
+        });
+
+
         $(".client-identification-number").addClass("detail");
         $(".client-is-company").addClass("detail");
     },
