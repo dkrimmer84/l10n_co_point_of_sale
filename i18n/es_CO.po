@@ -412,8 +412,8 @@ msgstr "Nombre Público"
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:308
 #: code:addons/l10n_co_point_of_sale/static/src/xml/pos.xml:506
 #, python-format
-msgid "Documento oficial de autorización de numeración de facturación:"
-msgstr "Documento oficial de autorización de numeración de facturación:"
+msgid "Autorización DIAN número:"
+msgstr "Autorización DIAN número:"
 
 #. module: l10n_co_point_of_sale
 #. openerp-web
@@ -1004,9 +1004,9 @@ msgstr "taxes Description"
 #. module: l10n_co_point_of_sale
 #: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
 msgid "|\n"
-"              Documento oficial de autorización de numeración de facturación:"
+"              Autorización DIAN número:"
 msgstr "|\n"
-"              Documento oficial de autorización de numeración de facturación:"
+"              Autorización DIAN número:"
 
 #. module: l10n_co_point_of_sale
 #: model:ir.ui.view,arch_db:l10n_co_point_of_sale.l10n_co_point_of_sale_report_receipt
