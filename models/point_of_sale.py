@@ -709,11 +709,11 @@ class inherit_report_pos_order(models.Model):
 
             margen_precio = 0
             if venta != 0:
-                margen_precio =  record.get('rentabilidad') / venta
+                margen_precio =  (record.get('rentabilidad') / venta) * 100
 
             costo_promedio = 0
             if product != 0:
-                costo_promedio = (record.get('costo_promedio') / product) * 100
+                costo_promedio = (record.get('costo_promedio') / product)
 
             margen_costo = 0
             if costo != 0:
