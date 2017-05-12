@@ -9,22 +9,36 @@
                 body{font-size: 12px;}
             </style>
           <div class="col-xs-12 text-center">
+		<t t-if="o.amount_total &gt; 0">
                 <h2>Factura de Venta No.: <span t-field="o.name"/> </h2>
+		</t>
+		<t t-if="o.amount_total &lt; 0">
+                <h2>Devolución No.: <span t-field="o.name"/> </h2>
+                </t>
           </div><br />
+
+
 
           <div class="col-xs-12 text-center">
             <span style="color: grey;">
-            Fecha: <span t-field="o.date_order"/> |
+            Fecha: <span t-field="o.date_order"/>
+	  <t t-if="o.amount_total &gt; 0"> |
                Autorización DIAN número: <span t-field="o.resolution_number"/> <br />
 Fecha de Autorización: <span t-field="o.resolution_date"/>
 <t t-if="o.resolution_date_to"> | Fecha de Vigencia: <span t-field="o.resolution_date_to"/></t> <br />
               Rango Facturación: <span t-field="o.resolution_number_from"/> - <span t-field="o.resolution_number_to"/>
+	</t>
             </span><hr></hr>
           </div>
 
           <t t-if="o.partner_id.name">
             <div class="col-xs-6">
-              <span><b>FACTURADO A:</b></span><br />
+              <span>
+		
+		 <t t-if="o.amount_total &gt; 0"><b>FACTURADO A:</b></t>
+		 <t t-if="o.amount_total &lt; 0"><b>DEVUELTO POR:</b></t>
+
+	     </span><br />
                   <div t-field="o.partner_id"
                       t-field-options='{"widget": "contact", "fields": ["address", "name", "phone", "fax"], "no_marker": true, "phone_icons": true}'/>
                   <t t-if="o.partner_id.formatedNit">NIT: <span t-field="o.partner_id.formatedNit" /><br /> </t>
@@ -34,7 +48,10 @@ Fecha de Autorización: <span t-field="o.resolution_date"/>
           </t>
 
           <div class="col-xs-6">
-            <span><b>FACTURADO POR:</b></span><br />
+            <span>
+		<t t-if="o.amount_total &gt; 0"><b>FACTURADO POR:</b></t>
+                 <t t-if="o.amount_total &lt; 0"><b>CREADO POR:</b></t>
+	    </span><br />
                 <span t-esc="o.user_id.company_id.name" /><br />
                 <em>(Usuario: <span t-field="o.user_id"/>)</em><br/>
                 Dirección: <span t-field="o.company_id.partner_id.street" />, <span t-field="o.company_id.partner_id.state_id" /><br />
