@@ -82,9 +82,10 @@ class PosOrder(models.Model):
                 fp.ensure_one()
 
                 fp_tax_ids = [tax.tax_id.id for tax in fp.tax_ids_invoice]
+                                
                 tax_ids = self.env['account.tax'].browse(fp_tax_ids)
                 taxes = tax_ids.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes']
-
+                
                 for tax in taxes:
                     val = self._prepare_tax_line_vals(tax)
                     key = self.env['account.tax'].browse(tax['id']).get_grouping_key(val)
@@ -95,8 +96,9 @@ class PosOrder(models.Model):
                         tax_grouped[key]['amount'] += val['amount']
             else:
                 raise UserError(_('Debe definir una posicion fiscal para el partner asociado a la compañía actual'))
-
+          
         return tax_grouped
+       
 
     @api.multi
     def _compute_company_taxes(self):
@@ -124,8 +126,6 @@ class PosOrder(models.Model):
     @api.model
     def create(self, values):
         order = super(models.Model, self).create(values)
-        _logger.info('valuesss')
-        _logger.info(values)
         if values.get('session_id'):
 
             # set name based on the sequence specified on the config
@@ -728,8 +728,6 @@ class inherit_report_pos_order(models.Model):
             })
 
             new_res.append( record )
-            _logger.info('pruebaaaaa')
-            _logger.info(new_res)
         return new_res
     
     def init(self, cr):
