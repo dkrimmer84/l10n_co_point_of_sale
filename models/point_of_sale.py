@@ -79,24 +79,37 @@ class PosOrder(models.Model):
             if order.company_id.partner_id.property_account_position_id:
                 fp = self.env['account.fiscal.position'].search(
                     [('id', '=', order.company_id.partner_id.property_account_position_id.id)])
+                
                 fp.ensure_one()
 
-                fp_tax_ids = [tax.tax_id.id for tax in fp.tax_ids_invoice]
-                                
-                tax_ids = self.env['account.tax'].browse(fp_tax_ids)
-                taxes = tax_ids.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes']
-                
-                for tax in taxes:
-                    val = self._prepare_tax_line_vals(tax)
-                    key = self.env['account.tax'].browse(tax['id']).get_grouping_key(val)
+                for taxs in fp.tax_ids_invoice:
 
-                    if key not in tax_grouped:
-                        tax_grouped[key] = val
-                    else:
-                        tax_grouped[key]['amount'] += val['amount']
+                    sql_locations = "Select * from stock_location_taxes_ids_rel slt where tax_id = "+ str(taxs.id)+"" 
+                    self.env.cr.execute( sql_locations )
+                    records = self.env.cr.dictfetchall()
+                    
+                    for loc in records:
+                        if loc.get('location_id') == order.location_id.id:
+                            ql_tax_id = "Select tax_id from account_fiscal_position_base_tax slt where id = "+ str(loc.get('tax_id'))+"" 
+                            self.env.cr.execute( ql_tax_id )
+                            records = self.env.cr.dictfetchall()
+                            fp_tax_ids = [tax.get('tax_id') for tax in records]
+                            tax_ids = self.env['account.tax'].browse(fp_tax_ids)
+                            
+                            taxes = tax_ids.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes']
+                    
+                            for tax in taxes:
+                    
+                                val = self._prepare_tax_line_vals(tax)
+                                key = self.env['account.tax'].browse(tax['id']).get_grouping_key(val)
+
+                                if key not in tax_grouped:
+                                    tax_grouped[key] = val
+                                else:
+                                    tax_grouped[key]['amount'] += val['amount']
+                        
             else:
                 raise UserError(_('Debe definir una posicion fiscal para el partner asociado a la compañía actual'))
-          
         return tax_grouped
        
 
