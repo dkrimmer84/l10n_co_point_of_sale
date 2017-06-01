@@ -83,12 +83,11 @@ class PosOrder(models.Model):
                 fp.ensure_one()
                 
                 for taxs in fp.tax_ids_invoice:
-                    sql_locations = "Select * from stock_location_taxes_ids_rel slt where tax_id = "+ str(taxs.id)+"" 
-                    self.env.cr.execute( sql_locations )
+                    sql_diarios = "Select * from account_journal_taxes_ids_rel slt where tax_id = "+ str(taxs.id)+"" 
+                    self.env.cr.execute( sql_diarios )
                     records = self.env.cr.dictfetchall()
 
                     if not records:
-                       
                         tax_ids = self.env['account.tax'].browse(taxs.tax_id.id)
                         
                         taxes = tax_ids.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes']
@@ -102,32 +101,29 @@ class PosOrder(models.Model):
                             else:
                                 tax_grouped[key]['amount'] += val['amount']
                         
-
-                    for loc in records:
-                        if loc.get('location_id') == order.location_id.id:
-                            tax_grouped = {}
-                            ql_tax_id = "Select tax_id from account_fiscal_position_base_tax slt where id = "+ str(loc.get('tax_id'))+"" 
-                            self.env.cr.execute( ql_tax_id )
-                            records = self.env.cr.dictfetchall()
-                            fp_tax_ids = [tax.get('tax_id') for tax in records]
-                            tax_ids = self.env['account.tax'].browse(fp_tax_ids)
-                            
-                            taxes = tax_ids.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes']
-                    
-                            for tax in taxes:
-                    
-                                val = self._prepare_tax_line_vals(tax)
-                                key = self.env['account.tax'].browse(tax['id']).get_grouping_key(val)
-
-                                if key not in tax_grouped:
-                                    tax_grouped[key] = val
-                                else:
-                                    tax_grouped[key]['amount'] += val['amount']
+                    else:        
+                        for loc in records:
+                            if loc.get('journal_id') == order.sale_journal.id:
+                                ql_tax_id = "Select tax_id from account_fiscal_position_base_tax slt where id = "+ str(loc.get('tax_id'))+"" 
+                                self.env.cr.execute( ql_tax_id )
+                                records = self.env.cr.dictfetchall()
+                                fp_tax_ids = [tax.get('tax_id') for tax in records]
+                                tax_ids = self.env['account.tax'].browse(fp_tax_ids)
+                                
+                                taxes = tax_ids.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes']
                         
+                                for tax in taxes:
+                        
+                                    val = self._prepare_tax_line_vals(tax)
+                                    key = self.env['account.tax'].browse(tax['id']).get_grouping_key(val)
+
+                                    if key not in tax_grouped:
+                                        tax_grouped[key] = val
+                                    else:
+                                        tax_grouped[key]['amount'] += val['amount']
             else:
                 raise UserError(_('Debe definir una posicion fiscal para el partner asociado a la compañía actual'))
-        _logger.info('tax_grouped')
-        _logger.info(tax_grouped)
+        
         return tax_grouped
        
 
