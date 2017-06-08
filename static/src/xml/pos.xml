@@ -306,8 +306,9 @@
                 <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
 
                   Rango Facturación: <t t-esc="receipt.dian_resolution_sequence.number_from" /> - <t t-esc="receipt.dian_resolution_sequence.number_to" /><br />
-                    Número Resolución DIAN: <t t-esc="receipt.dian_resolution_sequence.resolution_number" /><br />
-                  Fecha de Resolución: <t t-esc="moment(receipt.dian_resolution_sequence.date_from).format('DD/MM/YYYY')" />
+                    Autorización DIAN número: <t t-esc="receipt.dian_resolution_sequence.resolution_number" /><br />
+                  Fecha de Autorización: <t t-esc="moment(receipt.dian_resolution_sequence.date_from).format('DD/MM/YYYY')" /><br />
+                  Vigencia de Autorización: <t t-esc="moment(receipt.dian_resolution_sequence.date_to).format('DD/MM/YYYY')" />
                 </t>
                   </t>
                 <t t-if="order.get_client_name()" >
@@ -503,8 +504,9 @@
                     <t t-if="widget.pos.dian_resolution_sequence.active_resolution">
                       <br />
                       Rango Facturación <t t-esc="receipt.dian_resolution_sequence.number_from" /> hasta <t t-esc="receipt.dian_resolution_sequence.number_to" /><br />
-                        Número Resolución DIAN: <t t-esc="receipt.dian_resolution_sequence.resolution_number" /><br />
-                      Fecha de Resolución: <t t-esc="moment(receipt.dian_resolution_sequence.date_from).format('DD/MM/YYYY')" /> <br />
+                        Autorización DIAN número: <t t-esc="receipt.dian_resolution_sequence.resolution_number" /><br />
+                      Fecha de Autorización: <t t-esc="moment(receipt.dian_resolution_sequence.date_from).format('DD/MM/YYYY')" /> <br />
+                  Vigencia de Autorización: <t t-esc="moment(receipt.dian_resolution_sequence.date_to).format('DD/MM/YYYY')" />
                     </t>
                 </t>
                 <t t-if="order.get_client_name()" >

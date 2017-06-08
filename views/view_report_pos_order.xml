@@ -6,11 +6,13 @@
       <field name="inherit_id" ref="point_of_sale.view_report_pos_order_pivot"/>
       <field name="arch" type="xml">
         <xpath expr="//pivot//field[@name='price_total']" position="after">
+          <field name="subtotalmargen" type="measure" invisible="1"/>
            <field name="costo_total" type="measure"/>
            <field name="costo_promedio" type="measure"/>
            <field name="rentabilidad" type="measure"/>
            <field name="margen_precio" type="measure"/>
            <field name="margen_costo" type="measure"/>
+
         </xpath>
       </field>
     </record>

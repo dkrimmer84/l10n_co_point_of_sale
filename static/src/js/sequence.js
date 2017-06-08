@@ -60,6 +60,12 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                     }
                 }
 
+                if( self.dian_resolution_sequence == undefined ){
+                    self.dian_resolution_sequence = {
+                        active_resolution: false
+                    }
+                }
+
                 var check_active_dian = setInterval(function(){
                     var actual_date = new Date().getTime();
 
@@ -128,19 +134,23 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                 receipt.company.street = "compañía sin dirección";
             }
 
-            if(dian_resolution_sequence.active_resolution != false) {
-                function zero_pad(num,size){
-                    var s = ""+num;
-                    while (s.length < size) {
-                        s = "0" + s;
+            if( dian_resolution_sequence != undefined ){
+                if(dian_resolution_sequence.active_resolution != false) {
+                    function zero_pad(num,size){
+                        var s = ""+num;
+                        while (s.length < size) {
+                            s = "0" + s;
+                        }
+                        return s;
                     }
-                    return s;
-                }
-                dian_resolution_sequence.number_from  = zero_pad(dian_resolution_sequence.number_from, 4)
-                dian_resolution_sequence.number_to  = zero_pad(dian_resolution_sequence.number_to, 4)
-                receipt.dian_resolution_sequence = dian_resolution_sequence;
+                    dian_resolution_sequence.number_from  = zero_pad(dian_resolution_sequence.number_from, 4)
+                    dian_resolution_sequence.number_to  = zero_pad(dian_resolution_sequence.number_to, 4)
+                    receipt.dian_resolution_sequence = dian_resolution_sequence;
 
+                }
             }
+
+            
 
             receipt.company.formatedNit = company_partner.formatedNit ? company_partner.formatedNit : "no posee";
 
