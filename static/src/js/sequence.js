@@ -269,6 +269,21 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
 
             }
 
+             for( var pos in order.get_orderlines() ){
+                var line = order.get_orderlines(  )[ pos ];
+
+                if( line.get_price_with_tax() < 0 ){
+                    this.gui.show_popup('error',{
+                        title: _t("Sales with price negative"),
+                        body:  _t("Sales with price negative are not allowed. Please re-check your order!!!"),
+                    });
+                    return false;
+
+                }
+            }
+
+
+
             for( var pos in order.get_orderlines() ){
                 var line = order.get_orderlines(  )[ pos ];
 
