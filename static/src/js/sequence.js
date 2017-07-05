@@ -269,6 +269,7 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
 
             }
 
+
             for( var pos in order.get_orderlines() ){
                 var line = order.get_orderlines(  )[ pos ];
 
