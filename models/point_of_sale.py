@@ -76,6 +76,9 @@ class PosOrder(models.Model):
         tax_grouped = {}
 
         for order in self:
+            tipo_factura = 'sale'
+            if order.type in ('in_invoice', 'in_refund'):
+                tipo_factura = 'purchase'
             if order.company_id.partner_id.property_account_position_id:
                 fp = self.env['account.fiscal.position'].search(
                     [('id', '=', order.company_id.partner_id.property_account_position_id.id)])
@@ -90,16 +93,17 @@ class PosOrder(models.Model):
                     if not records:
                         tax_ids = self.env['account.tax'].browse(taxs.tax_id.id)
                         
-                        taxes = tax_ids.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes']
-                        
-                        for tax in taxes:
-                            val = self._prepare_tax_line_vals(tax)
-                            key = self.env['account.tax'].browse(tax['id']).get_grouping_key(val)
+                        if tax_ids.type_tax_use == tipo_factura:
 
-                            if key not in tax_grouped:
-                                tax_grouped[key] = val
-                            else:
-                                tax_grouped[key]['amount'] += val['amount']
+                            taxes = tax_ids.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes']
+                            for tax in taxes:
+                                val = self._prepare_tax_line_vals(tax)
+                                key = self.env['account.tax'].browse(tax['id']).get_grouping_key(val)
+
+                                if key not in tax_grouped:
+                                    tax_grouped[key] = val
+                                else:
+                                    tax_grouped[key]['amount'] += val['amount']
                         
                     else:        
                         for loc in records:
@@ -109,18 +113,18 @@ class PosOrder(models.Model):
                                 records = self.env.cr.dictfetchall()
                                 fp_tax_ids = [tax.get('tax_id') for tax in records]
                                 tax_ids = self.env['account.tax'].browse(fp_tax_ids)
-                                
-                                taxes = tax_ids.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes']
-                        
-                                for tax in taxes:
-                        
-                                    val = self._prepare_tax_line_vals(tax)
-                                    key = self.env['account.tax'].browse(tax['id']).get_grouping_key(val)
+                                if tax_ids.type_tax_use == tipo_factura:
+                                    taxes = tax_ids.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes']
+                            
+                                    for tax in taxes:
+                                    
+                                        val = self._prepare_tax_line_vals(tax)
+                                        key = self.env['account.tax'].browse(tax['id']).get_grouping_key(val)
 
-                                    if key not in tax_grouped:
-                                        tax_grouped[key] = val
-                                    else:
-                                        tax_grouped[key]['amount'] += val['amount']
+                                        if key not in tax_grouped:
+                                            tax_grouped[key] = val
+                                        else:
+                                            tax_grouped[key]['amount'] += val['amount']
             else:
                 raise UserError(_('Debe definir una posicion fiscal para el partner asociado a la compañía actual'))
         
