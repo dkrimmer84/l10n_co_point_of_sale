@@ -272,8 +272,7 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
 
             }
 
-<<<<<<< HEAD
-=======
+
              for( var pos in order.get_orderlines() ){
                 var line = order.get_orderlines(  )[ pos ];
 
@@ -289,7 +288,7 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
           
 
 
->>>>>>> be20f2905a1a54f51aa102b1d3ae57923f5179d7
+
 
             for( var pos in order.get_orderlines() ){
                 var line = order.get_orderlines(  )[ pos ];
