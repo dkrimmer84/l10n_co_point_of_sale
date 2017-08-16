@@ -157,7 +157,10 @@ class PosOrder(models.Model):
     @api.model
     def create(self, values):
         order = super(models.Model, self).create(values)
+        _logger.info('holaaaaaa')
+        _logger.info(order.amount_total)
         if values.get('session_id'):
+
 
             # set name based on the sequence specified on the config
             session = self.env['pos.session'].browse(values['session_id'])
@@ -791,38 +794,38 @@ class inherit_report_pos_order(models.Model):
                     s.invoice_id IS NOT NULL AS invoiced,
                     s.picking_id,
                     
-                    (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
                     from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) as subtotalmargen,
 
-                    (select case when l.qty > 0 then (sm.price_unit * sm.product_uom_qty) else (sm.price_unit * sm.product_uom_qty)* -1 end as costo_total  from stock_move sm 
+                    (select case when l.qty > 0 then sum(sm.price_unit * sm.product_uom_qty) else sum(sm.price_unit * sm.product_uom_qty)* -1 end as costo_total  from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1),
 
-                    (select case when l.qty > 0 then (sm.price_unit * sm.product_uom_qty) else (sm.price_unit * sm.product_uom_qty) * -1  end from stock_move sm 
+                    (select case when l.qty > 0 then sum(sm.price_unit * sm.product_uom_qty) else sum(sm.price_unit * sm.product_uom_qty) * -1  end from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1) as costo_promedio,
 
-                    (select case when l.qty >  0 then (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - (sm.price_unit * sm.product_uom_qty)  else  
-                    (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - ((sm.price_unit * sm.product_uom_qty)* -1) 
+                    (select case when l.qty >  0 then (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - sum(sm.price_unit * sm.product_uom_qty)  else  
+                    (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - sum((sm.price_unit * sm.product_uom_qty)* -1) 
                     end  as rentabilidad  from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1),
 
-                    (select case when l.qty > 0 then (case when (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - (sm.price_unit * sm.product_uom_qty)) / (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    (select case when l.qty > 0 then (case when (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - sum(sm.price_unit * sm.product_uom_qty)) / (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
                     from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) else 0 end)  else  
             
-                    (case when (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id)* -1 > 0 then (((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id)* -1) - (sm.price_unit * sm.product_uom_qty)) / (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    (case when (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id)* -1 > 0 then (((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id)* -1) - sum(sm.price_unit * sm.product_uom_qty)) / (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
                     from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) else 0 end) 
                             end * 100 as margen_precio  from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1),
 
-                    (select case when l.qty > 0 then (case when (sm.price_unit * sm.product_uom_qty) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - (sm.price_unit * sm.product_uom_qty)) / (sm.price_unit * sm.product_uom_qty) else 0 end) else  
-                    (case when (sm.price_unit * sm.product_uom_qty) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - ((sm.price_unit * sm.product_uom_qty)* -1 )) / (sm.price_unit * sm.product_uom_qty) else 0 end)
+                    (select case when l.qty > 0 then (case when sum(sm.price_unit * sm.product_uom_qty) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - sum(sm.price_unit * sm.product_uom_qty)) / sum(sm.price_unit * sm.product_uom_qty) else 0 end) else  
+                    (case when sum(sm.price_unit * sm.product_uom_qty) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - (sum(sm.price_unit * sm.product_uom_qty)* -1 )) / sum(sm.price_unit * sm.product_uom_qty) else 0 end)
                             end  * 100 as margen_costo  from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1)
             
