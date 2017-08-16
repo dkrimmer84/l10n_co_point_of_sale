@@ -157,8 +157,6 @@ class PosOrder(models.Model):
     @api.model
     def create(self, values):
         order = super(models.Model, self).create(values)
-        _logger.info('holaaaaaa')
-        _logger.info(order.amount_total)
         if values.get('session_id'):
 
 
