@@ -468,6 +468,47 @@ class pos_session(models.Model):
     mac = fields.Char('MAC')
     macpc = get_mac()
 
+    @api.multi
+    def _confirm_orders(self):
+        res = super(pos_session, self)._confirm_orders()
+        if res:
+            aml_model = self.env['account.move.line']
+            for order in self.order_ids:
+                currency = False
+                for aml in order.account_move.line_ids:
+
+                    if aml.account_id.reconcile and not aml.full_reconcile_id:
+                        if not currency and aml.currency_id.id:
+                            currency = aml.currency_id.id
+
+
+                        condition = [('ref', '=', aml.ref),('account_id', '=', aml.account_id.id),
+                        ('name', 'ilike', order.name),('full_reconcile_id', '=', False)]
+
+                        if aml.partner_id:
+                            condition.append( ('partner_id', '=', aml.partner_id.id) )
+                        else:
+                            condition.append( ('partner_id', '=', False) )
+
+                        if order.amount_total > 0:
+                            condition.append( ('credit', '>', 0) ) 
+                        elif order.amount_total < 0:
+                            condition.append( ('debit', '>', 0) ) 
+                            
+
+                        aml2_id = aml_model.search(condition)
+
+                        if aml2_id:
+                            if len( aml2_id ) == 1:
+                                move_lines = aml_model.browse([ aml.id, aml2_id.id ])
+                                move_lines.with_context(skip_full_reconcile_check='amount_currency_excluded', manual_full_reconcile_currency=currency).reconcile()
+                                move_lines_filtered = move_lines.filtered(lambda aml: not aml.reconciled)
+                                if move_lines_filtered:
+                                    move_lines_filtered.with_context(skip_full_reconcile_check='amount_currency_only', manual_full_reconcile_currency=currency).reconcile()
+                                move_lines.compute_full_after_batch_reconcile()
+
+        return res    
+
     @api.model
     def create(self, values):
         macpc = get_mac()
