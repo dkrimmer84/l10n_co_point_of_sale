@@ -469,12 +469,25 @@ class pos_session(models.Model):
     mac = fields.Char('MAC')
     macpc = get_mac()
 
+
+    def conciliar(self):
+        pass
+
     @api.multi
     def _confirm_orders(self):
         res = super(pos_session, self)._confirm_orders()
         if res:
+            self.conciliar()
+
+
+
             aml_model = self.env['account.move.line']
             for order in self.order_ids:
+
+                _logger.info("recorriendo")
+                _logger.info( order.name )
+
+   
                 currency = False
                 for aml in order.account_move.line_ids:
 
@@ -482,31 +495,72 @@ class pos_session(models.Model):
                         if not currency and aml.currency_id.id:
                             currency = aml.currency_id.id
 
+                        _logger.info("Posibles")
+                        _logger.info( aml )
+                        _logger.info( aml.credit )
+                        _logger.info( aml.debit )
 
-                        condition = [('ref', '=', aml.ref),('account_id', '=', aml.account_id.id),
-                        ('name', 'ilike', order.name),('full_reconcile_id', '=', False)]
+                        """if order.amount_total > 0:
+                            if order.amount_total != ( aml.credit + aml.debit ):
+                                continue
+
+                        if order.amount_total < 0:
+                            if order.amount_total != (( aml.credit + aml.debit ) * -1):
+                                continue"""
+
+                        condition = [('ref', '=', aml.ref),('name', 'ilike', order.name),('account_id', '=', aml.account_id.id),('full_reconcile_id', '=', False)]
 
                         if aml.partner_id:
                             condition.append( ('partner_id', '=', aml.partner_id.id) )
                         else:
                             condition.append( ('partner_id', '=', False) )
 
-                        if order.amount_total > 0:
+                        """if order.amount_total > 0:
                             condition.append( ('credit', '>', 0) ) 
                         elif order.amount_total < 0:
-                            condition.append( ('debit', '>', 0) ) 
+                            condition.append( ('debit', '>', 0) ) """
                             
 
                         aml2_id = aml_model.search(condition)
 
+
+                        #_logger.info("Lo encuentra")
+                        #_logger.info( condition )
+                        #_logger.info( aml2_id )
+
+                        _logger.info("Principal")
+                        _logger.info( aml )
+                        _logger.info( aml.credit )
+                        _logger.info( aml.debit )
+                        _logger.info("Lineas")
+
+                        for li in aml2_id:
+                            _logger.info( li )
+                            _logger.info( li.credit )
+                            _logger.info( li.debit )
+
+                     
+
                         if aml2_id:
-                            if len( aml2_id ) == 1:
-                                move_lines = aml_model.browse([ aml.id, aml2_id.id ])
-                                move_lines.with_context(skip_full_reconcile_check='amount_currency_excluded', manual_full_reconcile_currency=currency).reconcile()
-                                move_lines_filtered = move_lines.filtered(lambda aml: not aml.reconciled)
-                                if move_lines_filtered:
-                                    move_lines_filtered.with_context(skip_full_reconcile_check='amount_currency_only', manual_full_reconcile_currency=currency).reconcile()
-                                move_lines.compute_full_after_batch_reconcile()
+                            lines = [ aml.id ]
+                            for li in aml2_id:
+                                lines.append( li.id )
+
+
+                            _logger.info("conciliando")
+                            _logger.info( lines )
+
+                            move_lines = aml_model.browse( lines )
+                            
+                            move_lines.with_context(skip_full_reconcile_check='amount_currency_excluded', manual_full_reconcile_currency=currency).reconcile()
+                            move_lines_filtered = move_lines.filtered(lambda aml: not aml.reconciled)
+                            if move_lines_filtered:
+                                move_lines_filtered.with_context(skip_full_reconcile_check='amount_currency_only', manual_full_reconcile_currency=currency).reconcile()
+                            move_lines.compute_full_after_batch_reconcile()
+
+
+
+        raise UserError(_('error'))
 
         return res    
 
