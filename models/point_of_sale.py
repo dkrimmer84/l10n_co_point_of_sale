@@ -479,18 +479,33 @@ class pos_session(models.Model):
         if res:
             self.conciliar()
 
-
+            
 
             aml_model = self.env['account.move.line']
-            for order in self.order_ids:
+            for order in self.order_ids[0]:
 
-                _logger.info("recorriendo")
-                _logger.info( order.name )
+                #_logger.info("recorriendo")
+                #_logger.info( order.name )
 
+                aml_conci = {}
    
                 currency = False
-                for aml in order.account_move.line_ids:
 
+                aml_sales = []
+                aml_refound = []
+
+                for aml in order.account_move.line_ids:
+                    if aml.account_id.reconcile and not aml.full_reconcile_id:
+                        if not currency and aml.currency_id.id:
+                            currency = aml.currency_id.id
+
+                        if aml.debit > 0:
+                            aml_sales.append( aml.id )
+                        if aml.credit > 0:
+                            aml_refound.append( aml.id )  
+                            
+
+                for aml in order.account_move.line_ids:
                     if aml.account_id.reconcile and not aml.full_reconcile_id:
                         if not currency and aml.currency_id.id:
                             currency = aml.currency_id.id
@@ -499,58 +514,59 @@ class pos_session(models.Model):
                         _logger.info( aml )
                         _logger.info( aml.credit )
                         _logger.info( aml.debit )
+                        _logger.info( aml.partner_id )
 
-                        """if order.amount_total > 0:
-                            if order.amount_total != ( aml.credit + aml.debit ):
-                                continue
+                        _type = False
+                        not_in_ids = []
+                        if aml.id in aml_sales:
+                            _type = 'sales'
+                            not_in_ids = aml_refound
 
-                        if order.amount_total < 0:
-                            if order.amount_total != (( aml.credit + aml.debit ) * -1):
-                                continue"""
+                        if aml.id in aml_refound:
+                            _type = 'refound'
+                            not_in_ids = aml_sales
 
-                        condition = [('ref', '=', aml.ref),('name', 'ilike', order.name),('account_id', '=', aml.account_id.id),('full_reconcile_id', '=', False)]
 
-                        if aml.partner_id:
-                            condition.append( ('partner_id', '=', aml.partner_id.id) )
+
+                        aml_partner_id = aml.partner_id.id if aml.partner_id else False
+
+                        condition = [('account_id', '=', aml.account_id.id),('full_reconcile_id', '=', False),('ref', '=', aml.ref),('id', 'not in', [aml.id] + not_in_ids )]
+
+                        # Ventas que tienen cliente
+                        search_1 = condition
+                        search_1.append( ('partner_id', '=', aml_partner_id) )
+                        if _type == 'sales':
+                            search_1.append( ('name', 'not like', '-DEV') )
                         else:
-                            condition.append( ('partner_id', '=', False) )
-
-                        """if order.amount_total > 0:
-                            condition.append( ('credit', '>', 0) ) 
-                        elif order.amount_total < 0:
-                            condition.append( ('debit', '>', 0) ) """
-                            
-
-                        aml2_id = aml_model.search(condition)
+                            search_1.append( ('name', 'ilike', '-DEV') )
 
 
-                        #_logger.info("Lo encuentra")
-                        #_logger.info( condition )
-                        #_logger.info( aml2_id )
+                        total_credit = 0
+                        total_debit = 0
 
-                        _logger.info("Principal")
-                        _logger.info( aml )
-                        _logger.info( aml.credit )
-                        _logger.info( aml.debit )
-                        _logger.info("Lineas")
+                        #_logger.info("lineas")
+                        _ids = []
+                        search_1 = aml_model.search(condition)
+                        for result in search_1:
+                            _ids.append( result.id )
+                            #_logger.info( result )
+                            #_logger.info( result.credit )
+                            #_logger.info( result.debit )
+                            #_logger.info( result.name )
 
-                        for li in aml2_id:
-                            _logger.info( li )
-                            _logger.info( li.credit )
-                            _logger.info( li.debit )
-
-                     
-
-                        if aml2_id:
-                            lines = [ aml.id ]
-                            for li in aml2_id:
-                                lines.append( li.id )
+                            total_credit += result.credit
+                            total_debit += result.debit
 
 
-                            _logger.info("conciliando")
-                            _logger.info( lines )
+                        _logger.info("total")
+                        _logger.info( total_credit - total_debit )
 
-                            move_lines = aml_model.browse( lines )
+
+                        #_logger.info("busqueda")
+                        #_logger.info( search_1 )
+
+                        if search_1:
+                            move_lines = aml_model.browse( [ aml.id ] + _ids )
                             
                             move_lines.with_context(skip_full_reconcile_check='amount_currency_excluded', manual_full_reconcile_currency=currency).reconcile()
                             move_lines_filtered = move_lines.filtered(lambda aml: not aml.reconciled)
@@ -558,9 +574,9 @@ class pos_session(models.Model):
                                 move_lines_filtered.with_context(skip_full_reconcile_check='amount_currency_only', manual_full_reconcile_currency=currency).reconcile()
                             move_lines.compute_full_after_batch_reconcile()
 
+                        
 
-
-        raise UserError(_('error'))
+        #raise UserError(_('error'))
 
         return res    
 
