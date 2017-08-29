@@ -480,9 +480,6 @@ class pos_session(models.Model):
                 aml_model = self.env['account.move.line']
                 for order in self.order_ids[0]:
 
-                    #_logger.info("recorriendo")
-                    #_logger.info( order.name )
-
                     aml_conci = {}
        
                     currency = False
