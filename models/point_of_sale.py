@@ -470,111 +470,107 @@ class pos_session(models.Model):
     macpc = get_mac()
 
 
-    def conciliar(self):
-        pass
-
     @api.multi
     def _confirm_orders(self):
         res = super(pos_session, self)._confirm_orders()
         if res:
-            self.conciliar()
 
-            
+            if self.order_ids:
 
-            aml_model = self.env['account.move.line']
-            for order in self.order_ids[0]:
+                aml_model = self.env['account.move.line']
+                for order in self.order_ids[0]:
 
-                #_logger.info("recorriendo")
-                #_logger.info( order.name )
+                    #_logger.info("recorriendo")
+                    #_logger.info( order.name )
 
-                aml_conci = {}
-   
-                currency = False
+                    aml_conci = {}
+       
+                    currency = False
 
-                aml_sales = []
-                aml_refound = []
+                    aml_sales = []
+                    aml_refound = []
 
-                for aml in order.account_move.line_ids:
-                    if aml.account_id.reconcile and not aml.full_reconcile_id:
-                        if not currency and aml.currency_id.id:
-                            currency = aml.currency_id.id
+                    for aml in order.account_move.line_ids:
+                        if aml.account_id.reconcile and not aml.full_reconcile_id:
+                            if not currency and aml.currency_id.id:
+                                currency = aml.currency_id.id
 
-                        if aml.debit > 0:
-                            aml_sales.append( aml.id )
-                        if aml.credit > 0:
-                            aml_refound.append( aml.id )  
+                            if aml.debit > 0:
+                                aml_sales.append( aml.id )
+                            if aml.credit > 0:
+                                aml_refound.append( aml.id )  
+                                
+
+                    for aml in order.account_move.line_ids:
+                        if aml.account_id.reconcile and not aml.full_reconcile_id:
+                            if not currency and aml.currency_id.id:
+                                currency = aml.currency_id.id
+
+                            _logger.info("Posibles")
+                            _logger.info( aml )
+                            _logger.info( aml.credit )
+                            _logger.info( aml.debit )
+                            _logger.info( aml.partner_id )
+
+                            _type = False
+                            not_in_ids = []
+                            if aml.id in aml_sales:
+                                _type = 'sales'
+                                not_in_ids = aml_refound
+
+                            if aml.id in aml_refound:
+                                _type = 'refound'
+                                not_in_ids = aml_sales
+
+
+
+                            aml_partner_id = aml.partner_id.id if aml.partner_id else False
+
+                            condition = [('account_id', '=', aml.account_id.id),('full_reconcile_id', '=', False),('ref', '=', aml.ref),('id', 'not in', [aml.id] + not_in_ids )]
+
+                            # Ventas que tienen cliente
+                            search_1 = condition
+                            search_1.append( ('partner_id', '=', aml_partner_id) )
+                            if _type == 'sales':
+                                search_1.append( ('name', 'not like', '-DEV') )
+                            else:
+                                search_1.append( ('name', 'ilike', '-DEV') )
+
+
+                            total_credit = 0
+                            total_debit = 0
+
+                            #_logger.info("lineas")
+                            _ids = []
+                            search_1 = aml_model.search(condition)
+                            for result in search_1:
+                                _ids.append( result.id )
+                                #_logger.info( result )
+                                #_logger.info( result.credit )
+                                #_logger.info( result.debit )
+                                #_logger.info( result.name )
+
+                                total_credit += result.credit
+                                total_debit += result.debit
+
+
+                            _logger.info("total")
+                            _logger.info( total_credit - total_debit )
+
+
+                            #_logger.info("busqueda")
+                            #_logger.info( search_1 )
+
+                            if search_1:
+                                move_lines = aml_model.browse( [ aml.id ] + _ids )
+                                
+                                move_lines.with_context(skip_full_reconcile_check='amount_currency_excluded', manual_full_reconcile_currency=currency).reconcile()
+                                move_lines_filtered = move_lines.filtered(lambda aml: not aml.reconciled)
+                                if move_lines_filtered:
+                                    move_lines_filtered.with_context(skip_full_reconcile_check='amount_currency_only', manual_full_reconcile_currency=currency).reconcile()
+                                move_lines.compute_full_after_batch_reconcile()
+
                             
-
-                for aml in order.account_move.line_ids:
-                    if aml.account_id.reconcile and not aml.full_reconcile_id:
-                        if not currency and aml.currency_id.id:
-                            currency = aml.currency_id.id
-
-                        _logger.info("Posibles")
-                        _logger.info( aml )
-                        _logger.info( aml.credit )
-                        _logger.info( aml.debit )
-                        _logger.info( aml.partner_id )
-
-                        _type = False
-                        not_in_ids = []
-                        if aml.id in aml_sales:
-                            _type = 'sales'
-                            not_in_ids = aml_refound
-
-                        if aml.id in aml_refound:
-                            _type = 'refound'
-                            not_in_ids = aml_sales
-
-
-
-                        aml_partner_id = aml.partner_id.id if aml.partner_id else False
-
-                        condition = [('account_id', '=', aml.account_id.id),('full_reconcile_id', '=', False),('ref', '=', aml.ref),('id', 'not in', [aml.id] + not_in_ids )]
-
-                        # Ventas que tienen cliente
-                        search_1 = condition
-                        search_1.append( ('partner_id', '=', aml_partner_id) )
-                        if _type == 'sales':
-                            search_1.append( ('name', 'not like', '-DEV') )
-                        else:
-                            search_1.append( ('name', 'ilike', '-DEV') )
-
-
-                        total_credit = 0
-                        total_debit = 0
-
-                        #_logger.info("lineas")
-                        _ids = []
-                        search_1 = aml_model.search(condition)
-                        for result in search_1:
-                            _ids.append( result.id )
-                            #_logger.info( result )
-                            #_logger.info( result.credit )
-                            #_logger.info( result.debit )
-                            #_logger.info( result.name )
-
-                            total_credit += result.credit
-                            total_debit += result.debit
-
-
-                        _logger.info("total")
-                        _logger.info( total_credit - total_debit )
-
-
-                        #_logger.info("busqueda")
-                        #_logger.info( search_1 )
-
-                        if search_1:
-                            move_lines = aml_model.browse( [ aml.id ] + _ids )
-                            
-                            move_lines.with_context(skip_full_reconcile_check='amount_currency_excluded', manual_full_reconcile_currency=currency).reconcile()
-                            move_lines_filtered = move_lines.filtered(lambda aml: not aml.reconciled)
-                            if move_lines_filtered:
-                                move_lines_filtered.with_context(skip_full_reconcile_check='amount_currency_only', manual_full_reconcile_currency=currency).reconcile()
-                            move_lines.compute_full_after_batch_reconcile()
-
-                        
 
         #raise UserError(_('error'))
 
