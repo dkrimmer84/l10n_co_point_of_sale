@@ -5,11 +5,11 @@
         <xpath expr="//div[@class='page']" position="replace">
             <t t-if="o.order_ids">
                 <div class="page" style="font-zize:18px !important;">
-                    <h2>Daily POS Sales Report</h2>
+                    <h2 style="font-size:20px; font-weight:bold;">Daily POS Sales Report</h2>
                     <span t-field="o.user_id.company_id.name"/> (<span t-field="o.user_id.company_id.partner_id.formatedNit"/>)
-                    <hr />
+                    <hr style="padding-bottom:4px; margin-bottom:4px;"/>
 
-                    <div class="row mt32 mb32" style="line-height: 21px; padding-top:0; margin-top:0 !important; margin-bottom:0 !important;">
+                    <div class="row mt32 mb32" style="line-height: 21px; padding-top:0; margin-top:0 !important; margin-bottom:0 !important; font-size:12px;">
                         <div class="col-xs-3">
                             <strong>Session No</strong>:
                             <span t-field="o.name"/>
@@ -43,21 +43,21 @@
                             <t t-esc="o.ultima_orden()[0]" />
                         </div>
                     </div>
-                    <hr />
+                    <hr style="margin-top:4px; padding-top:4px;" />
 
-                    <div style="width:50%; float:left;">
-                    <div class="row mt32 mb32" style="line-height: 24px; margin-top:0 !important;">
-                        <h3 style="font-weight: bold;">Total Sales POS</h3>
-                        <div t-raw="o.taxes_description"/>
+                    <div style="padding-left:15px; width:50%; float:left;">
+                    <div class="row mt32 mb32" style="line-height: 20px; margin-top:0 !important; margin-bottom:5px !important;">
+                        <h3 style="font-weight: bold;font-size:20px;">Total Sales POS</h3>
+                        <div style="font-size:13px;" t-raw="o.taxes_description"/>
                     </div>
-                    <div class="row mt32 mb32" style="line-height: 24px; margin-top:0 !important;">
+                    <div class="row mt32 mb32" style="line-height: 20px; margin-top:0 !important;">
                         <t t-if="o.refund_description">
-                            <h3 style="font-weight: bold;">Total Refund POS</h3>
-                            <div t-raw="o.refund_description"/>
+                            <h3 style="font-weight: bold; font-size:20px;">Total Refund POS</h3>
+                            <div style="font-size:13px;" t-raw="o.refund_description"/>
                         </t>
                     </div>
-                    <div class="row mt32 mb32" style="line-height: 24px;">
-                        <h3 style="font-weight: bold;">Total:</h3>
+                    <div class="row mt32 mb32" style="line-height: 20px; font-size:12px;">
+                        <h3 style="font-weight: bold; font-size:20px;">Total:</h3>
                             <t t-set="total" t-value="0"/>
                             <t t-set="subtotal" t-value="0"/>
                             <t t-set="sumsubtotal" t-value="0"/>
@@ -88,7 +88,7 @@
                                 </t>
                             </t>
                             
-                            <strong>Number of Sales Done:</strong>
+                            <strong style="font-size:12px;">Number of Sales Done:</strong>
                             <span t-esc="cnt"/><br/>
                             <strong>Sales:</strong>
                             <span t-esc="subtotal + descuentos" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
@@ -102,8 +102,8 @@
                             <span t-esc="total" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                     </div> 
                     </div>
-                    <div class="row mt32 mb32" style="line-height: 24px; width:50%; float:left; margin-top:0 !important;">
-                        <h3 style="font-weight: bold;">Total Payment Method</h3>
+                    <div class="row mt32 mb32" style="padding-left:15px; font-size:13px; line-height: 24px; width:50%; float:left; margin-top:0 !important;">
+                        <h3 style="font-weight: bold; font-size:20px;">Total Payment Method</h3>
                         <t t-set="total_pyment" t-value="0"/>
                         <t t-set="total_transactions_line" t-value="0"/>
                         <t t-set="total_transactions" t-value="0"/>
