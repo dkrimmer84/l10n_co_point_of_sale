@@ -88,7 +88,7 @@
                                 </t>
                             </t>
                             
-                            <strong style="font-size:12px;">Number of Sales Done:</strong>
+                            <strong style="font-size:12px;">Número de ventas realizadas:</strong>
                             <span t-esc="cnt"/><br/>
                             <strong>Sales:</strong>
                             <span t-esc="subtotal + descuentos" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
