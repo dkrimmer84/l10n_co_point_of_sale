@@ -159,6 +159,7 @@ class PosOrder(models.Model):
         order = super(models.Model, self).create(values)
         if values.get('session_id'):
 
+
             # set name based on the sequence specified on the config
             session = self.env['pos.session'].browse(values['session_id'])
             sequence = None
@@ -467,6 +468,110 @@ class pos_session(models.Model):
     amount_change = fields.Float('Change', compute = 'compute_amount_change')
     mac = fields.Char('MAC')
     macpc = get_mac()
+
+
+    @api.multi
+    def _confirm_orders(self):
+        res = super(pos_session, self)._confirm_orders()
+        if res:
+
+            if self.order_ids:
+
+                aml_model = self.env['account.move.line']
+                for order in self.order_ids[0]:
+
+                    aml_conci = {}
+       
+                    currency = False
+
+                    aml_sales = []
+                    aml_refound = []
+
+                    for aml in order.account_move.line_ids:
+                        if aml.account_id.reconcile and not aml.full_reconcile_id:
+                            if not currency and aml.currency_id.id:
+                                currency = aml.currency_id.id
+
+                            if aml.debit > 0:
+                                aml_sales.append( aml.id )
+                            if aml.credit > 0:
+                                aml_refound.append( aml.id )  
+                                
+
+                    for aml in order.account_move.line_ids:
+                        if aml.account_id.reconcile and not aml.full_reconcile_id:
+                            if not currency and aml.currency_id.id:
+                                currency = aml.currency_id.id
+
+                            _logger.info("Posibles")
+                            _logger.info( aml )
+                            _logger.info( aml.credit )
+                            _logger.info( aml.debit )
+                            _logger.info( aml.partner_id )
+
+                            _type = False
+                            not_in_ids = []
+                            if aml.id in aml_sales:
+                                _type = 'sales'
+                                not_in_ids = aml_refound
+
+                            if aml.id in aml_refound:
+                                _type = 'refound'
+                                not_in_ids = aml_sales
+
+
+
+                            aml_partner_id = aml.partner_id.id if aml.partner_id else False
+
+                            condition = [('account_id', '=', aml.account_id.id),('full_reconcile_id', '=', False),('ref', '=', aml.ref),('id', 'not in', [aml.id] + not_in_ids )]
+
+                            # Ventas que tienen cliente
+                            search_1 = condition
+                            search_1.append( ('partner_id', '=', aml_partner_id) )
+                            if _type == 'sales':
+                                search_1.append( ('name', 'not like', '-DEV') )
+                            else:
+                                search_1.append( ('name', 'ilike', '-DEV') )
+
+
+                            total_credit = 0
+                            total_debit = 0
+
+                            #_logger.info("lineas")
+                            _ids = []
+                            search_1 = aml_model.search(condition)
+                            for result in search_1:
+                                _ids.append( result.id )
+                                #_logger.info( result )
+                                #_logger.info( result.credit )
+                                #_logger.info( result.debit )
+                                #_logger.info( result.name )
+
+                                total_credit += result.credit
+                                total_debit += result.debit
+
+
+                            _logger.info("total")
+                            _logger.info( total_credit - total_debit )
+
+
+                            #_logger.info("busqueda")
+                            #_logger.info( search_1 )
+
+                            if search_1:
+                                move_lines = aml_model.browse( [ aml.id ] + _ids )
+                                
+                                move_lines.with_context(skip_full_reconcile_check='amount_currency_excluded', manual_full_reconcile_currency=currency).reconcile()
+                                move_lines_filtered = move_lines.filtered(lambda aml: not aml.reconciled)
+                                if move_lines_filtered:
+                                    move_lines_filtered.with_context(skip_full_reconcile_check='amount_currency_only', manual_full_reconcile_currency=currency).reconcile()
+                                move_lines.compute_full_after_batch_reconcile()
+
+                            
+
+        #raise UserError(_('error'))
+
+        return res    
 
     @api.model
     def create(self, values):
@@ -791,38 +896,38 @@ class inherit_report_pos_order(models.Model):
                     s.invoice_id IS NOT NULL AS invoiced,
                     s.picking_id,
                     
-                    (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
                     from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) as subtotalmargen,
 
-                    (select case when l.qty > 0 then (sm.price_unit * sm.product_uom_qty) else (sm.price_unit * sm.product_uom_qty)* -1 end as costo_total  from stock_move sm 
+                    (select case when l.qty > 0 then sum(sm.price_unit * sm.product_uom_qty) else sum(sm.price_unit * sm.product_uom_qty)* -1 end as costo_total  from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1),
 
-                    (select case when l.qty > 0 then (sm.price_unit * sm.product_uom_qty) else (sm.price_unit * sm.product_uom_qty) * -1  end from stock_move sm 
+                    (select case when l.qty > 0 then sum(sm.price_unit * sm.product_uom_qty) else sum(sm.price_unit * sm.product_uom_qty) * -1  end from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1) as costo_promedio,
 
-                    (select case when l.qty >  0 then (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - (sm.price_unit * sm.product_uom_qty)  else  
-                    (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - ((sm.price_unit * sm.product_uom_qty)* -1) 
+                    (select case when l.qty >  0 then (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - sum(sm.price_unit * sm.product_uom_qty)  else  
+                    (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - sum((sm.price_unit * sm.product_uom_qty)* -1) 
                     end  as rentabilidad  from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1),
 
-                    (select case when l.qty > 0 then (case when (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - (sm.price_unit * sm.product_uom_qty)) / (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    (select case when l.qty > 0 then (case when (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - sum(sm.price_unit * sm.product_uom_qty)) / (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
                     from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) else 0 end)  else  
             
-                    (case when (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id)* -1 > 0 then (((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id)* -1) - (sm.price_unit * sm.product_uom_qty)) / (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    (case when (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id)* -1 > 0 then (((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id)* -1) - sum(sm.price_unit * sm.product_uom_qty)) / (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
                     from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) else 0 end) 
                             end * 100 as margen_precio  from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1),
 
-                    (select case when l.qty > 0 then (case when (sm.price_unit * sm.product_uom_qty) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - (sm.price_unit * sm.product_uom_qty)) / (sm.price_unit * sm.product_uom_qty) else 0 end) else  
-                    (case when (sm.price_unit * sm.product_uom_qty) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * l.qty) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - ((sm.price_unit * sm.product_uom_qty)* -1 )) / (sm.price_unit * sm.product_uom_qty) else 0 end)
+                    (select case when l.qty > 0 then (case when sum(sm.price_unit * sm.product_uom_qty) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - sum(sm.price_unit * sm.product_uom_qty)) / sum(sm.price_unit * sm.product_uom_qty) else 0 end) else  
+                    (case when sum(sm.price_unit * sm.product_uom_qty) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - (sum(sm.price_unit * sm.product_uom_qty)* -1 )) / sum(sm.price_unit * sm.product_uom_qty) else 0 end)
                             end  * 100 as margen_costo  from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id limit 1)
             

@@ -228,6 +228,9 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                 }
             }
 
+
+
+
             // if the change is too large, it's probably an input error, make the user confirm.
             if (!force_validation && order.get_total_with_tax() > 0 && (order.get_total_with_tax() * 1000 < order.get_total_paid())) {
                 this.gui.show_popup('confirm',{
@@ -268,6 +271,24 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                 value = line.get_price_with_tax();
 
             }
+
+
+             for( var pos in order.get_orderlines() ){
+                var line = order.get_orderlines(  )[ pos ];
+
+                if( line.get_unit_price() <= 0 ){
+                    this.gui.show_popup('error',{
+                        title: _t("Sales with price negative or zero"),
+                        body:  _t("Sales with price negative or zero are not allowed. Please re-check your order!!!"),
+                    });
+                    return false;
+
+                }
+            }
+          
+
+
+
 
             for( var pos in order.get_orderlines() ){
                 var line = order.get_orderlines(  )[ pos ];
