@@ -16,5 +16,32 @@
         </xpath>
       </field>
     </record>
+
+
+    <record model="ir.ui.view" id="view_report_pos_order_search_inherit">
+      <field name="model">report.pos.order</field>
+      <field name="inherit_id" ref="point_of_sale.view_report_pos_order_search"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='date']" position="after">
+
+          <filter string="Ultimos 3 meses" name="three_last_months" domain="[('date','&gt;=',(context_today()-relativedelta(months=3)).strftime('%%Y-%%m-01'))]" help="Actual month" />
+          
+
+        </xpath>
+      </field>
+    </record>
+
+
+    <record id="point_of_sale.action_report_pos_order_all" model="ir.actions.act_window">
+      <field name="name">Orders Analysis</field>
+      <field name="res_model">report.pos.order</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">pivot,graph</field>
+      <field name="search_view_id" ref="point_of_sale.view_report_pos_order_search"/>            
+      <field name="context">{'group_by_no_leaf':1,'group_by':[], 'search_default_three_last_months' : 1}</field>
+    </record>
+
+   
+
   </data>
 </openerp>
