@@ -52,9 +52,7 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                     self.dian_resolution_sequence_refund = resolutions[1];
                 } else {
                     self.dian_resolution_sequence = resolutions[0];
-                    /*self.dian_resolution_sequence = {
-                        active_resolution: false
-                    }*/
+
                     self.dian_resolution_sequence_refund = {
                         active_resolution: false
                     }
@@ -67,7 +65,10 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                 }
 
                 var check_active_dian = setInterval(function(){
-                    var actual_date = new Date().getTime();
+                    var actual_date = new Date();
+                    var actual_date = actual_date.getFullYear() + '-' + (actual_date.getMonth() + 1) + '-' + actual_date.getDate();
+                    var actual_date = new Date( actual_date ).getTime();
+
 
                     if( self.dian_resolution_sequence == undefined ){
                         clearInterval( check_active_dian );
@@ -76,6 +77,7 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
 
 
                     var date_to = new Date( self.dian_resolution_sequence.date_to ).getTime();
+
 
                     if( self.dian_resolution_sequence.number_next >= self.dian_resolution_sequence.number_from && 
                         self.dian_resolution_sequence.number_next <= self.dian_resolution_sequence.number_to   &&  
