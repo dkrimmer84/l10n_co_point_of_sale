@@ -71,6 +71,8 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                     ((actual_date.getMonth() + 1) < 10 ? '0' + (actual_date.getMonth() + 1) : (actual_date.getMonth() + 1) ) 
                     + '-' + actual_date.getDate();
 
+                    console.log('actual_date', actual_date);
+
                     var actual_date = new Date( actual_date ).getTime();
 
 
@@ -79,8 +81,14 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                         return;
                     }
 
-                    
+                    console.log('date_to', self.dian_resolution_sequence.date_to);
                     var date_to = new Date( self.dian_resolution_sequence.date_to ).getTime();
+
+                    console.log(self.dian_resolution_sequence.number_next);
+                    console.log(self.dian_resolution_sequence.number_from);
+                    console.log(self.dian_resolution_sequence.number_to);
+
+                    console.log( actual_date, date_to, self.dian_resolution_sequence.active_resolution );
 
 
                     if( self.dian_resolution_sequence.number_next >= self.dian_resolution_sequence.number_from && 
@@ -88,12 +96,15 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                         actual_date <= date_to && 
                         self.dian_resolution_sequence.active_resolution ){
 
-                        
+                        console.log('VIGENTE');
 
                     } else {
+
+                        console.log('VENCIDA');
                         
                         try{
                             new Model('ir.sequence').call('check_active_resolution', [self.dian_resolution.id]).then(function(data){
+                                console.log('el data', data);
 
                                 if( data ){
                                     location.reload();
@@ -101,7 +112,7 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
 
                             })
                         } catch( e ){
-
+                            console.log('Ocurrio error');
                         }
                         
 
