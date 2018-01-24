@@ -66,7 +66,11 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
 
                 var check_active_dian = setInterval(function(){
                     var actual_date = new Date();
-                    var actual_date = actual_date.getFullYear() + '-' + (actual_date.getMonth() + 1) + '-' + actual_date.getDate();
+
+                    var actual_date = actual_date.getFullYear() + '-' + 
+                    ((actual_date.getMonth() + 1) < 10 ? '0' + (actual_date.getMonth() + 1) : (actual_date.getMonth() + 1) ) 
+                    + '-' + actual_date.getDate();
+
                     var actual_date = new Date( actual_date ).getTime();
 
 
@@ -75,7 +79,7 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                         return;
                     }
 
-
+                    
                     var date_to = new Date( self.dian_resolution_sequence.date_to ).getTime();
 
 
@@ -84,9 +88,10 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                         actual_date <= date_to && 
                         self.dian_resolution_sequence.active_resolution ){
 
-
+                        
 
                     } else {
+                        
                         try{
                             new Model('ir.sequence').call('check_active_resolution', [self.dian_resolution.id]).then(function(data){
 
