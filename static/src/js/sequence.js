@@ -99,7 +99,7 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                         
                         
                         try{
-                            new Model('ir.sequence').call('check_active_resolution', [self.dian_resolution.id]).then(function(data){
+                            new Model('ir.sequence').call('check_active_resolution', [self.dian_resolution.id,  self.dian_resolution_sequence.id]).then(function(data){
                                 console.log('el data', data);
 
                                 if( data ){
