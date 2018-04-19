@@ -7,6 +7,8 @@
               <script type="text/javascript" src="/l10n_co_point_of_sale/static/src/js/main.js"></script>
               <script type="text/javascript" src="/l10n_co_point_of_sale/static/src/js/sequence.js"></script>
               <link rel="stylesheet" href="/l10n_co_point_of_sale/static/src/css/pnpos.css" type="text/css"/>
+
+              <script type="text/javascript" src="/l10n_co_point_of_sale/static/src/js/screens.js"></script>
           </xpath>
       </template>
 
