@@ -19,58 +19,101 @@ odoo.define('l10n_co_point_of_sale.screens', function(require){
 	// Metodo 2 (funciona )
 	var CustomScreen = screens.ReceiptScreenWidget.include({
 		print_web: function(){
-	        console.log("soy el print_web de custom");
-	        window.print();
-    	    this.pos.get_order()._printed = true;
+			console.log("soy el print_web de custom");
+			window.print();
+			this.pos.get_order()._printed = true;
 		},
 		print_xml: function(){
-	        console.log("soy el print_xml de custom");
+			console.log("soy el print_xml de custom");
+			var self = this;
+			
+			function reqListener() {
+				console.log(this.status);
+				var status = this.status;
+				var env = {
+				    widget:  self,	
+				    pos:     self.pos,
+				    order:   self.pos.get_order(),
+				    receipt: self.pos.get_order().export_for_printing(),
+				    paymentlines: self.pos.get_order().get_paymentlines()
+				};
+				var receipt = QWeb.render('XmlReceipt',env);
 
-	        var xhr = new XMLHttpRequest();
-	        var site = window.location.origin+ "/web?rand" + Math.round(Math.random() * 10000);
-	        xhr.open('HEAD', site, true);
-	        xhr.onerror = function(){ return false; };
-	        xhr.onload = function(){ return true; };
-	        xhr.send();
-	        var is_online = xhr.onload()
+				if (status == 200){
+					console.log("Estoy online");
+					self.pos.proxy.print_receipt(receipt);
+				    self.pos.get_order()._printed = true;
+				}
+				// else{        	
+				// 	console.log("No estoy online");
+				//     self.pos.proxy.print_receipt(receipt);
+				//     self.pos.proxy.print_receipt(receipt);
+				//     self.pos.get_order()._printed = true;
+				// }
+			}
 
-	        var env = {
-	            widget:  this,
-	            pos:     this.pos,
-	            order:   this.pos.get_order(),
-	            receipt: this.pos.get_order().export_for_printing(),
-	            paymentlines: this.pos.get_order().get_paymentlines()
-	        };
-	        var receipt = QWeb.render('XmlReceipt',env);
+			function errListener(){
+				console.log(this.status);
+				var status = this.status;
+				var env = {
+				    widget:  self,	
+				    pos:     self.pos,
+				    order:   self.pos.get_order(),
+				    receipt: self.pos.get_order().export_for_printing(),
+				    paymentlines: self.pos.get_order().get_paymentlines()
+				};
+				var receipt = QWeb.render('XmlReceipt',env);
+				console.log("No estoy online");
+			    self.pos.proxy.print_receipt(receipt);
+			    self.pos.proxy.print_receipt(receipt);
+			    self.pos.get_order()._printed = true;
+			}
 
+			var xhr = new XMLHttpRequest();
+			xhr.addEventListener("load", reqListener);
+			xhr.addEventListener("error", errListener);
+			var site = window.location.origin+ "/web?rand" + Math.round(Math.random() * 10000);
+			xhr.open('GET', site);
+			var is_send = xhr.send();
 
-	        if (is_online){
-	        	this.pos.proxy.print_receipt(receipt);
-		        this.pos.get_order()._printed = true;
-	        }
-	        else{        	
-		        this.pos.proxy.print_receipt(receipt);
-		        this.pos.proxy.print_receipt(receipt);
-		        this.pos.get_order()._printed = true;
-	        }
+			// var env = {
+			//     widget:  this,	
+			//     pos:     this.pos,
+			//     order:   this.pos.get_order(),
+			//     receipt: this.pos.get_order().export_for_printing(),
+			//     paymentlines: this.pos.get_order().get_paymentlines()
+			// };
+			// var receipt = QWeb.render('XmlReceipt',env);
+
+			// if (status == 200){
+			// 	console.log("Estoy online");
+			// 	this.pos.proxy.print_receipt(receipt);
+			//     this.pos.get_order()._printed = true;
+			// }
+			// else{        	
+			// 	console.log("No estoy online");
+			//     this.pos.proxy.print_receipt(receipt);
+			//     this.pos.proxy.print_receipt(receipt);
+			//     this.pos.get_order()._printed = true;
+			// }
 		},
-	    print: function() {
-	        var self = this;
-	        console.log("Imprimir");
+		print: function() {
+			var self = this;
+			console.log("Imprimir");
 
-	        if (!this.pos.config.iface_print_via_proxy) { // browser (html) printing
-	            this.lock_screen(true);
+			if (!this.pos.config.iface_print_via_proxy) { // browser (html) printing
+				this.lock_screen(true);
 
-	            setTimeout(function(){
-	                self.lock_screen(false);
-	            }, 1000);
+				setTimeout(function(){
+					self.lock_screen(false);
+				}, 1000);
 
-	            this.print_web();
-	        } else {    // proxy (xml) printing
-	            this.print_xml();
-	            this.lock_screen(false);
-	        }
-	    }
+				this.print_web();
+			} else {    // proxy (xml) printing
+				this.print_xml();
+				this.lock_screen(false);
+			}
+		}
 	});
 
 	// var ScreenWidget = PosBaseWidget;

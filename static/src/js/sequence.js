@@ -84,19 +84,19 @@ odoo.define('l10n_co_pos_sequence.main', function(require) {
                     
                     var date_to = new Date( self.dian_resolution_sequence.date_to ).getTime();
 
-                    console.log('tes');
+                    /*console.log('tes');
                     console.log( actual_date );
                     console.log( date_to );
                     console.log('---');
                     console.log( self.dian_resolution_sequence.number_next, self.dian_resolution_sequence.number_from );
                     console.log('---');
-                    console.log( self.dian_resolution_sequence.number_next,  self.dian_resolution_sequence.number_to );
+                    console.log( self.dian_resolution_sequence.number_next,  self.dian_resolution_sequence.number_to );*/
 
                     
-                    console.log( self.dian_resolution_sequence.number_next >= self.dian_resolution_sequence.number_from && 
+                    /*console.log( self.dian_resolution_sequence.number_next >= self.dian_resolution_sequence.number_from && 
                         self.dian_resolution_sequence.number_next <= self.dian_resolution_sequence.number_to   &&  
                         actual_date <= date_to && 
-                        self.dian_resolution_sequence.active_resolution );
+                        self.dian_resolution_sequence.active_resolution );*/
 
 
                     //return;
