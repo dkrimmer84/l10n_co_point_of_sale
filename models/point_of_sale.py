@@ -850,7 +850,7 @@ class inherit_report_pos_order(models.Model):
 
             costo_promedio = 0
             if product != 0:
-                costo_promedio = (record.get('costo_promedio') / product)
+                costo_promedio = (record.get('costo_promedio'))
 
             margen_costo = 0
             if costo != 0:
@@ -902,7 +902,7 @@ class inherit_report_pos_order(models.Model):
                     (select case when l.qty > 0 then sum(sm.price_unit * sm.product_uom_qty) else sum(sm.price_unit * sm.product_uom_qty)* -1 end as costo_total  from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id and sm.product_uom_qty = l.qty limit 1),
 
-                    (select case when l.qty > 0 then sum(sm.price_unit * sm.product_uom_qty) else sum(sm.price_unit * sm.product_uom_qty) * -1  end from stock_move sm 
+                    (select case when l.qty > 0 then sum(sm.price_unit ) else sum(sm.price_unit) * -1  end from stock_move sm 
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id and sm.product_uom_qty = l.qty limit 1) as costo_promedio,
 
                     (select case when l.qty >  0 then (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) 
