@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
-  <data>
+<odoo>
     <record model="ir.ui.view" id="view_report_pos_order_pivot_inherit">
       <field name="model">report.pos.order</field>
       <field name="inherit_id" ref="point_of_sale.view_report_pos_order_pivot"/>
@@ -43,5 +42,4 @@
 
    
 
-  </data>
-</openerp>
+</odoo>

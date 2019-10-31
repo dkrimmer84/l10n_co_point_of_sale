@@ -1,4 +1,2 @@
-# -*- coding: utf-8 -*-
-
-import res_partner
-import point_of_sale
+from . import res_partner
+from . import point_of_sale

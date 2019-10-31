@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
-<data>
+<odoo>
     <template id="report_sessionsummary_inherit" inherit_id="point_of_sale.report_sessionsummary" name="Informe Diario Sesion">
         <xpath expr="//div[@class='page']" position="replace">
             <t t-if="o.order_ids">
@@ -149,14 +148,13 @@
             </t>
         </xpath>
     </template>
-<template id="report_sessionsummary">
-    <t t-call="report.html_container">
-        <t t-foreach="docs" t-as="o">
-            <t t-call="report.internal_layout">
-                
+    <template id="report_sessionsummary">
+        <t t-call="report.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="report.internal_layout">
+                    
+                </t>
             </t>
         </t>
-    </t>
-</template>
-</data>
-</openerp>
+    </template>
+</odoo>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
-  <data>
+<odoo>
     <template id="l10n_co_point_of_sale_report_receipt" inherit_id="point_of_sale.report_receipt">
 
       <xpath expr="//div[@class='page']/div[1]" position="replace">
@@ -129,5 +128,4 @@ Fecha de Autorización: <span t-field="o.resolution_date"/>
         </xpath>
 
     </template>
-  </data>
-</openerp>
+</odoo>

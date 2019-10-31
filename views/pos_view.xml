@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<openerp>
+<odoo>
     <data>
 
       <template id="l10n_co_point_of_sale_js" name="l10n colombia point_of_sale assets" inherit_id="point_of_sale.assets">
@@ -11,4 +11,4 @@
       </template>
 
     </data>
-</openerp>
+</odoo>

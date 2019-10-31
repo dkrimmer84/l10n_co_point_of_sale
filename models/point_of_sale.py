@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ###############################################################################
 #                                                                             #
 # Copyright (C) 2016  Dominic Krimmer                                         #
@@ -20,19 +19,17 @@
 import logging
 import time
 
-import openerp.addons.decimal_precision as dp
-from openerp import tools, models, SUPERUSER_ID
-from openerp import fields, api
-from openerp.tools import float_is_zero
-from openerp.tools.translate import _
-from openerp.exceptions import UserError
+import odoo.addons.decimal_precision as dp
+from odoo import tools, models, SUPERUSER_ID
+from odoo import fields, api
+from odoo.tools import float_is_zero
+from odoo.exceptions import UserError
 from datetime import datetime
 
 from uuid import getnode as get_mac
-from openerp import api, fields as Fields
+from odoo import api, models, fields, _
 import locale
-from openerp.tools.misc import formatLang
-from openerp.osv import osv
+from odoo.tools.misc import formatLang
 
 _logger = logging.getLogger(__name__)
 
@@ -44,8 +41,8 @@ _logger = logging.getLogger(__name__)
 
     base_tax = fields.Float('Base Tax')"""
 
+
 class PosOrder(models.Model):
-    _name = "pos.order"
     _inherit = "pos.order"
 
     company_taxes = fields.One2many('pos.order.line.company_tax', 'order_id', 'Order Company Taxes')
@@ -58,7 +55,6 @@ class PosOrder(models.Model):
     resolution_date_to = fields.Date()
     resolution_number_from = fields.Integer("")
     resolution_number_to = fields.Integer("")
-
 
     def _prepare_tax_line_vals(self, tax):
         return {
@@ -82,17 +78,17 @@ class PosOrder(models.Model):
             if order.company_id.partner_id.property_account_position_id:
                 fp = self.env['account.fiscal.position'].search(
                     [('id', '=', order.company_id.partner_id.property_account_position_id.id)])
-                
+
                 fp.ensure_one()
-                
+
                 for taxs in fp.tax_ids_invoice:
-                    sql_diarios = "Select * from account_journal_taxes_ids_rel slt where tax_id = "+ str(taxs.id)+"" 
+                    sql_diarios = "Select * from account_journal_taxes_ids_rel slt where tax_id = "+ str(taxs.id)+""
                     self.env.cr.execute( sql_diarios )
                     records = self.env.cr.dictfetchall()
 
                     if not records:
                         tax_ids = self.env['account.tax'].browse(taxs.tax_id.id)
-                        
+
                         if tax_ids.type_tax_use == tipo_factura:
 
                             taxes = tax_ids.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes']
@@ -104,20 +100,20 @@ class PosOrder(models.Model):
                                     tax_grouped[key] = val
                                 else:
                                     tax_grouped[key]['amount'] += val['amount']
-                        
-                    else:        
+
+                    else:
                         for loc in records:
                             if loc.get('journal_id') == order.sale_journal.id:
-                                ql_tax_id = "Select tax_id from account_fiscal_position_base_tax slt where id = "+ str(loc.get('tax_id'))+"" 
+                                ql_tax_id = "Select tax_id from account_fiscal_position_base_tax slt where id = "+ str(loc.get('tax_id'))+""
                                 self.env.cr.execute( ql_tax_id )
                                 records = self.env.cr.dictfetchall()
                                 fp_tax_ids = [tax.get('tax_id') for tax in records]
                                 tax_ids = self.env['account.tax'].browse(fp_tax_ids)
                                 if tax_ids.type_tax_use == tipo_factura:
                                     taxes = tax_ids.compute_all(order.amount_total - order.amount_tax, order.pricelist_id.currency_id, partner=order.partner_id)['taxes']
-                            
+
                                     for tax in taxes:
-                                    
+
                                         val = self._prepare_tax_line_vals(tax)
                                         key = self.env['account.tax'].browse(tax['id']).get_grouping_key(val)
 
@@ -127,9 +123,9 @@ class PosOrder(models.Model):
                                             tax_grouped[key]['amount'] += val['amount']
             else:
                 raise UserError(_('Debe definir una posicion fiscal para el partner asociado a la compañía actual'))
-        
+
         return tax_grouped
-       
+
 
     @api.multi
     def _compute_company_taxes(self):
@@ -226,16 +222,17 @@ class PosOrder(models.Model):
     def _create_account_move_line(self, session=None, move_id=None):
         res = super(PosOrder, self)._create_account_move_line(session, move_id)
 
-        move = self.env['account.move'].sudo().browse(move_id)
+        move = move_id
+        move_id = move.id 
         move.ensure_one()
 
         all_lines = []
         items = {}
         taxes = {}
         for order in self:
-            
+
             for line in order.company_taxes:
-                
+
                 key = (order.type, order.partner_id.id or "", line.tax_id.id)
                 val = self._prepare_tax_vals(line, order.partner_id)
 
@@ -244,13 +241,13 @@ class PosOrder(models.Model):
                 else:
                     taxes[key]['amount'] += val['amount']
                     #taxes[key]['subtotal'] += val['subtotal']
-                   
+
             if order.company_id.anglo_saxon_accounting:
                 for i_line in order.lines:
                     anglo_saxon_lines = order._anglo_saxon_sale_move_lines(i_line)
                     all_lines.extend(anglo_saxon_lines)
-                
-        for key,val in taxes.iteritems():
+
+        for key,val in taxes.items():
             type, dummy, dummy = key
             if type in 'out_refund':
                 name = 'Refund ' + val['name']
@@ -339,12 +336,12 @@ class PosOrder(models.Model):
 
 
 class PosOrderLine(models.Model):
-    _name = 'pos.order.line'
     _inherit = 'pos.order.line'
+
     price_subtotal_line = fields.Float('Subtotal', compute='_compute_amount_line_all', digits=0, store=True)
 
     @api.model
-    def create(self, values):   
+    def create(self, values):
 
         if 'order_id' in values:
             pos_order = self.env['pos.order']
@@ -412,7 +409,6 @@ class PosOrderLineCompanyTaxes(models.Model):
 
 
 class PosConfig(models.Model):
-    _name = 'pos.config'
     _inherit = 'pos.config'
 
     @api.multi
@@ -459,16 +455,15 @@ class PosConfig(models.Model):
 
         return super(PosConfig, self).create(values)
 
-class pos_session(models.Model):
 
+class pos_session(models.Model):
     _inherit = 'pos.session'
 
     taxes_description = fields.Html('taxes Description', compute = 'compute_taxes_description')
     refund_description = fields.Html('Refund Description', compute = 'compute_refund_description')
     amount_change = fields.Float('Change', compute = 'compute_amount_change')
     mac = fields.Char('MAC')
-    macpc = get_mac()
-
+    #macpc = get_mac()
 
     @api.multi
     def _confirm_orders(self):
@@ -481,7 +476,7 @@ class pos_session(models.Model):
                 for order in self.order_ids[0]:
 
                     aml_conci = {}
-       
+
                     currency = False
 
                     aml_sales = []
@@ -495,19 +490,13 @@ class pos_session(models.Model):
                             if aml.debit > 0:
                                 aml_sales.append( aml.id )
                             if aml.credit > 0:
-                                aml_refound.append( aml.id )  
-                                
+                                aml_refound.append( aml.id )
+
 
                     for aml in order.account_move.line_ids:
                         if aml.account_id.reconcile and not aml.full_reconcile_id:
                             if not currency and aml.currency_id.id:
                                 currency = aml.currency_id.id
-
-                            _logger.info("Posibles")
-                            _logger.info( aml )
-                            _logger.info( aml.credit )
-                            _logger.info( aml.debit )
-                            _logger.info( aml.partner_id )
 
                             _type = False
                             not_in_ids = []
@@ -518,9 +507,6 @@ class pos_session(models.Model):
                             if aml.id in aml_refound:
                                 _type = 'refound'
                                 not_in_ids = aml_sales
-
-
-
                             aml_partner_id = aml.partner_id.id if aml.partner_id else False
 
                             condition = [('account_id', '=', aml.account_id.id),('full_reconcile_id', '=', False),('ref', '=', aml.ref),('id', 'not in', [aml.id] + not_in_ids )]
@@ -533,7 +519,6 @@ class pos_session(models.Model):
                             else:
                                 search_1.append( ('name', 'ilike', '-DEV') )
 
-
                             total_credit = 0
                             total_debit = 0
 
@@ -542,36 +527,22 @@ class pos_session(models.Model):
                             search_1 = aml_model.search(condition)
                             for result in search_1:
                                 _ids.append( result.id )
-                                #_logger.info( result )
-                                #_logger.info( result.credit )
-                                #_logger.info( result.debit )
-                                #_logger.info( result.name )
-
                                 total_credit += result.credit
                                 total_debit += result.debit
-
-
-                            _logger.info("total")
-                            _logger.info( total_credit - total_debit )
-
-
-                            #_logger.info("busqueda")
-                            #_logger.info( search_1 )
-
                             if search_1:
                                 move_lines = aml_model.browse( [ aml.id ] + _ids )
-                                
-                                move_lines.with_context(skip_full_reconcile_check='amount_currency_excluded', manual_full_reconcile_currency=currency).reconcile()
+                                move_lines.with_context(
+                                    skip_full_reconcile_check='amount_currency_excluded',
+                                    manual_full_reconcile_currency=currency
+                                ).reconcile()
                                 move_lines_filtered = move_lines.filtered(lambda aml: not aml.reconciled)
                                 if move_lines_filtered:
-                                    move_lines_filtered.with_context(skip_full_reconcile_check='amount_currency_only', manual_full_reconcile_currency=currency).reconcile()
+                                    move_lines_filtered.with_context(
+                                        skip_full_reconcile_check='amount_currency_only',
+                                        manual_full_reconcile_currency=currency
+                                ).reconcile()
                                 move_lines.compute_full_after_batch_reconcile()
-
-                            
-
-        #raise UserError(_('error'))
-
-        return res    
+        return res
 
     @api.model
     def create(self, values):
@@ -584,7 +555,7 @@ class pos_session(models.Model):
             pass
             #self.val_metodos_pago_ids( res )
 
-        return res 
+        return res
 
     def number_format( self, currency_id, amount ):
         return formatLang(self.env, amount, currency_obj = currency_id, digits=0 ).replace(",", ".")
@@ -601,12 +572,12 @@ class pos_session(models.Model):
                     break
                 else:
                     i = i - 1
-        
-        return _order_first         
-    @api.one
+        return _order_first
+
+    @api.multi
     def ultima_orden(self):
         res = {}
-        _order_end = False
+        order_end = False
         i = 0
         if self.order_ids:
             for order in self.order_ids:
@@ -616,28 +587,24 @@ class pos_session(models.Model):
                     break
                 else:
                     i = i + 1
-        
-        return _order_end                    
 
-    @api.one
+        return order_end
+
+    @api.multi
     def compute_amount_change(self):
 
         res = {}
         currency_id = False
-        _change = 0
+        change = 0
         if self.order_ids:
             for order in self.order_ids:
                 if order.type != 'out_refund':
-                    for change  in order.statement_ids:
-                        if change.amount < 0:  
-                            _change = _change + change.amount           
+                    for statement  in order.statement_ids:
+                        if statement.amount < 0:
+                            change = change + statement.amount
+        self.amount_change = change
 
-        #html = """
-        #<div style="float: left;margin-right: 20px;"><strong>Amount Change : </strong></div><div><span>%s</span></div>
-        #""" % (self.number_format(currency_id, _change))
-        self.amount_change = _change    
-
-    @api.one
+    @api.multi
     def compute_taxes_description(self):
 
         res = {}
@@ -651,15 +618,15 @@ class pos_session(models.Model):
 
                         for line in order.lines:
                             _id_tax = line.tax_ids_after_fiscal_position.id
-                            
-                            if line.tax_ids_after_fiscal_position.price_include: 
+
+                            if line.tax_ids_after_fiscal_position.price_include:
                                 discount_line = round((((line.price_unit / (1 + (line.tax_ids_after_fiscal_position.amount /100))) * line.qty) * line.discount)/100 , 0)
                             else:
                                 discount_line = round(((line.price_unit  * line.qty) * line.discount)/100 , 0)
                             subtotal = line.price_subtotal
                             tax_line = line.price_subtotal_incl - line.price_subtotal
                             total = subtotal + tax_line
-                            
+
                             if _id_tax in res:
                                 data = res[_id_tax]
                                 discount_line = data.get('discount_line') + discount_line
@@ -680,7 +647,7 @@ class pos_session(models.Model):
                                 res[_id_tax] = {
                                     'id' : _id_tax,
                                     'name' : line.tax_ids_after_fiscal_position.name,
-                                    'subtotal' : subtotal,                                
+                                    'subtotal' : subtotal,
                                     'discount_line' : discount_line,
                                     'tax_line' : tax_line,
                                     'total' : total
@@ -702,9 +669,9 @@ class pos_session(models.Model):
                                              self.number_format(currency_id, res[result].get('subtotal')), _('Tax iva'),
                                              self.number_format(currency_id, res[result].get('tax_line')),
                                              self.number_format(currency_id, res[result].get('total')))
-        
+
         self.taxes_description = html
-        
+
 
     @api.one
     def compute_refund_description(self):
@@ -719,11 +686,11 @@ class pos_session(models.Model):
                     if order.lines:
                         for line in order.lines:
                             _id_tax = line.tax_ids_after_fiscal_position.id
-                            
+
                             subtotal_dev = line.price_subtotal
                             tax_line_dev = line.price_subtotal_incl - line.price_subtotal
                             total_dev = subtotal_dev + tax_line_dev
-                            
+
 
                             if _id_tax in resul:
                                 data = resul[_id_tax]
@@ -748,7 +715,6 @@ class pos_session(models.Model):
                                     'total' : total_dev
                                 }
 
-        
         html_dev = ''
         for resultado in resul:
             html_dev += """
@@ -767,11 +733,10 @@ class pos_session(models.Model):
         self.refund_description = html_dev
 
 class account_cashbox_bank_statement(models.Model):
-    _name = 'account.bank.statement.cashbox'
     _inherit = 'account.bank.statement.cashbox'
 
     @api.model
-    def default_get(self, vals):   
+    def default_get(self, vals):
 
         result = super(account_cashbox_bank_statement, self).default_get(vals)
 
@@ -788,17 +753,14 @@ class account_cashbox_bank_statement(models.Model):
         _cashbox_lines_ids.append( (0,0,{'coin_value' : 100,'number' : 0,'subtotal' : 0}) )
         _cashbox_lines_ids.append( (0,0,{'coin_value' : 50,'number' : 0,'subtotal' : 0}) )
 
-        
-
         result.update({
             'cashbox_lines_ids' : _cashbox_lines_ids
         })
 
-        
         return result
 
-class inherit_report_pos_order(models.Model):
-    _name = 'report.pos.order'
+
+class ReportPosOrder(models.Model):
     _inherit = 'report.pos.order'
 
     costo_total = fields.Float('Costo Total', readonly=True)
@@ -813,7 +775,7 @@ class inherit_report_pos_order(models.Model):
 
         new_res = []
 
-        res = super(inherit_report_pos_order, self).read_group(domain, fields, groupby, offset=offset, limit=limit, orderby=orderby, lazy=lazy)    
+        res = super(inherit_report_pos_order, self).read_group(domain, fields, groupby, offset=offset, limit=limit, orderby=orderby, lazy=lazy)
 
 
         for record in res:
@@ -833,14 +795,14 @@ class inherit_report_pos_order(models.Model):
 
             """if product <= 0:
                                                     record.update({
-                                                        'costo_total' : 0,                    
+                                                        'costo_total' : 0,
                                                         'costo_promedio' : 0,
                                                         'margen_precio' : 0,
                                                         'margen_costo' : 0,
                                                         'rentabilidad' : 0,
                                                         'price_total' : 0
                                                     })
-                                    
+
                                                     new_res.append( record )
                                                     continue"""
 
@@ -854,7 +816,7 @@ class inherit_report_pos_order(models.Model):
 
             margen_costo = 0
             if costo != 0:
-                margen_costo = (record.get('rentabilidad') / costo) * 100   
+                margen_costo = (record.get('rentabilidad') / costo) * 100
 
 
             record.update({
@@ -865,8 +827,9 @@ class inherit_report_pos_order(models.Model):
 
             new_res.append( record )
         return new_res
-    
-    def init(self, cr):
+
+    def init(self):
+        cr = self.env.cr
         tools.drop_view_if_exists(cr, 'report_pos_order')
         sql = """
             create or replace view report_pos_order as (
@@ -895,54 +858,54 @@ class inherit_report_pos_order(models.Model):
                     s.pricelist_id,
                     s.invoice_id IS NOT NULL AS invoiced,
                     s.picking_id,
-                    
-                    (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+
+                    (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end)
                     from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) as subtotalmargen,
 
-                    (select case when l.qty > 0 then sum(sm.price_unit * sm.product_uom_qty) else sum(sm.price_unit * sm.product_uom_qty)* -1 end as costo_total  from stock_move sm 
+                    (select case when l.qty > 0 then sum(sm.price_unit * sm.product_uom_qty) else sum(sm.price_unit * sm.product_uom_qty)* -1 end as costo_total  from stock_move sm
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id and sm.product_uom_qty = l.qty limit 1),
 
-                    (select case when l.qty > 0 then sum(sm.price_unit ) else sum(sm.price_unit) * -1  end from stock_move sm 
+                    (select case when l.qty > 0 then sum(sm.price_unit ) else sum(sm.price_unit) * -1  end from stock_move sm
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id and sm.product_uom_qty = l.qty limit 1) as costo_promedio,
 
-                    (select case when l.qty >  0 then (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) 
-                    else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - sum(sm.price_unit * sm.product_uom_qty)  else  
-                    (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) 
-                    else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = 
-                    ptr.prod_id and pt.id = p.product_tmpl_id) - sum((sm.price_unit * sm.product_uom_qty)* -1) 
-                    end  as rentabilidad  from stock_move sm 
+                    (select case when l.qty >  0 then (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100)
+                    else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end)
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - sum(sm.price_unit * sm.product_uom_qty)  else
+                    (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100)
+                    else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end)
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id =
+                    ptr.prod_id and pt.id = p.product_tmpl_id) - sum((sm.price_unit * sm.product_uom_qty)* -1)
+                    end  as rentabilidad  from stock_move sm
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id and sm.product_uom_qty = l.qty limit 1),
 
-                    (select case when l.qty > 0 then (case when (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - sum(sm.price_unit * sm.product_uom_qty)) / (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) else 0 end)  else  
+                    (select case when l.qty > 0 then (case when (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end)
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end)
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - sum(sm.price_unit * sm.product_uom_qty)) / (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end)
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) else 0 end)  else
 
-                    (case when (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id)* -1 > 0 then (((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id)* -1) - sum(sm.price_unit * sm.product_uom_qty)) / (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) else 0 end) 
-                        end * 100 as margen_precio  from stock_move sm 
+                    (case when (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end)
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id)* -1 > 0 then (((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end)
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id)* -1) - sum(sm.price_unit * sm.product_uom_qty)) / (select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end)
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) else 0 end)
+                        end * 100 as margen_precio  from stock_move sm
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id and sm.product_uom_qty = l.qty limit 1),
 
-                    (select case when l.qty > 0 then (case when sum(sm.price_unit * sm.product_uom_qty) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
-                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - sum(sm.price_unit * sm.product_uom_qty)) / sum(sm.price_unit * sm.product_uom_qty) else 0 end) else  
-                    (case when sum(sm.price_unit * sm.product_uom_qty) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end) 
+                    (select case when l.qty > 0 then (case when sum(sm.price_unit * sm.product_uom_qty) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end)
+                    from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - sum(sm.price_unit * sm.product_uom_qty)) / sum(sm.price_unit * sm.product_uom_qty) else 0 end) else
+                    (case when sum(sm.price_unit * sm.product_uom_qty) > 0 then ((select  sum( case when atx.price_include then ((l.price_unit / (1 + (atx.amount/100))) * sum(l.qty)) * ((100 - l.discount) / 100) else (l.price_unit * l.qty) * ((100 - l.discount) / 100) end)
                     from account_tax atx, product_taxes_rel ptr, product_template pt where atx.id = ptr.tax_id and pt.id = ptr.prod_id and pt.id = p.product_tmpl_id) - (sum(sm.price_unit * sm.product_uom_qty)* -1 )) / sum(sm.price_unit * sm.product_uom_qty) else 0 end)
-                        end  * 100 as margen_costo  from stock_move sm 
+                        end  * 100 as margen_costo  from stock_move sm
                     where sm.picking_id = s.picking_id and sm.product_id = l.product_id and sm.product_uom_qty = l.qty limit 1)
 
-            
+
                 from pos_order_line as l
                     left join pos_order s on (s.id=l.order_id)
                     left join product_product p on (l.product_id=p.id)
                     left join product_template pt on (p.product_tmpl_id=pt.id)
-                    left join product_uom u on (u.id=pt.uom_id)
+                    left join uom_uom u on (u.id=pt.uom_id)
                     left join pos_session ps on (s.session_id=ps.id)
                     left join pos_config pc on (ps.config_id=pc.id)
-                
+
                 group by
                     s.date_order, s.partner_id,s.state, pt.categ_id,
                     s.user_id,s.location_id,s.company_id,s.sale_journal,s.pricelist_id,s.invoice_id,l.product_id,s.create_date,pt.categ_id,pt.pos_categ_id,p.product_tmpl_id,ps.config_id,pc.stock_location_id,
@@ -954,8 +917,4 @@ class inherit_report_pos_order(models.Model):
         _logger.info( sql )
 
         cr.execute(sql)
-
-
-
-
 
