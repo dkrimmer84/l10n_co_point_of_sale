@@ -1,10 +1,10 @@
-from openerp.osv import osv
+from odoo import models, fields, api
 
 
-class res_partner(osv.osv):
+class ResPartner(models.Model):
     _inherit = 'res.partner'
 
-    def create_from_ui(self, cr, uid, partner, context=None):
+    def create_from_ui(self):
         if('doctype' in partner):
             doctype = int(partner['doctype'])
             del partner['doctype']
@@ -15,5 +15,5 @@ class res_partner(osv.osv):
             del partner['personType']
             partner['personType'] = personType
 
-        return super(res_partner, self).create_from_ui(cr, uid, partner,
-                                                       context)
+        return super(res_partner, self).create_from_ui()
+
