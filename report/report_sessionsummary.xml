@@ -1,160 +1,205 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="report_sessionsummary_inherit" inherit_id="point_of_sale.report_sessionsummary" name="Informe Diario Sesion">
-        <xpath expr="//div[@class='page']" position="replace">
-            <t t-if="o.order_ids">
-                <div class="page" style="font-zize:18px !important;">
-                    <h2 style="font-size:20px; font-weight:bold;">Daily POS Sales Report</h2>
+
+    <report id="report_sessionsummary_id" model="pos.session"
+                string="Resumen reporte de sesión" name="l10n_co_point_of_sale.report_sessionsummary_content"
+                file="Reporte de sesión" report_type="qweb-pdf" />
+
+    <template id="report_sessionsummary_content" name="Informe Diario Sesion">
+        <t t-call="web.html_container">
+             <t t-foreach="docs" t-as="o">
+                  <t t-if="o.order_ids">
+                   <div class="header">
+                     <br />
+                     <br />
+                     <table width="100%">
+                      <tr>
+                        <td align="right"> 
+                           <span class="page"/>/<span class="topage"/>
+                        </td>        
+                      </tr>
+                    </table>
+                   </div>                
+
+                   <div class="page" style="font-zize:18px !important;">
+                   <div align="center">
+                        <span t-field="o.user_id.company_id.name"/> <br/> 
+                        (<span t-field="o.user_id.company_id.partner_id.formatedNit"/>)
+                    </div>
+                    <h2 style="font-size:20px; font-weight:bold;">Informe Diario de Ventas POS</h2>
                     <span t-field="o.user_id.company_id.name"/> (<span t-field="o.user_id.company_id.partner_id.formatedNit"/>)
                     <hr style="padding-bottom:4px; margin-bottom:4px;"/>
+                       <table width="100%" style="font-size:12px">
+                          <tr>
+                              <td>
+                                  <strong>Sesión No</strong>:
+                                  <br/>
+                                  <span t-field="o.name"/>
+                              </td>
+                              <td>
+                                  <strong>Fecha de Comprobante</strong>:
+                                  <br/>
+                                  <span t-field="o.stop_at"/>
+                              </td>
+                              <td>
+                                   <strong>Responsable</strong>:
+                                  <br/>
+                                   <span t-field="o.user_id"/>
+                              </td>
+                               <td>
+                                   <strong>Punto de Venta</strong>:
+                                   <br/>
+                                   <span t-field="o.config_id.name"/>
+                               </td>
+                            </tr>
+                            <tr>
+                               <td>
+                                   <strong>Fecha Inicial</strong>:
+                                    <br/>
+                                    <span t-field="o.start_at"/>
+                              </td>
+                               <td>
+                                   <strong>Fecha de Cierree</strong>:
+                                   <br/>
+                                   <span t-field="o.stop_at"/>
+                               </td>
+                                <td>
+                                    <strong>No. Registro Inicial</strong>:
+                                    <br/>
+                                    <t t-esc="o.first_orden()[0]" />
+                                </td>
+                                <td>
+                                    <strong>No.Registro Final</strong>:
+                                    <br/>
+                                    <!--  <t t-esc="o.ultima_orden()[0]" /> -->
+                                </td>
+                          </tr>
+                    </table>
 
-                    <div class="row mt32 mb32" style="line-height: 21px; padding-top:0; margin-top:0 !important; margin-bottom:0 !important; font-size:12px;">
-                        <div class="col-xs-3">
-                            <strong>Session No</strong>:
-                            <span t-field="o.name"/>
-                        </div>
-                        <div class="col-xs-3">
-                            <strong>Voucher Date</strong>:
-                            <span t-field="o.stop_at"/>
-                        </div>
-                        <div class="col-xs-3">
-                            <strong>Responsable</strong>:
-                            <span t-field="o.user_id"/>
-                        </div>
-                        <div class="col-xs-3">
-                            <strong>Point of sale</strong>:
-                            <span t-field="o.config_id.name"/>
-                        </div>
-                        <div class="col-xs-3">
-                            <strong>Initial date</strong>:
-                            <span t-field="o.start_at"/>
-                        </div>
-                        <div class="col-xs-3">
-                            <strong>Closing Date</strong>:
-                            <span t-field="o.stop_at"/>
-                        </div>
-                        <div class="col-xs-3">
-                            <strong>No. Initial Registration</strong>:
-                            <t t-esc="o.first_orden()[0]" />
-                        </div>
-                        <div class="col-xs-3">
-                            <strong>No. Final Registration</strong>:
-                            <t t-esc="o.ultima_orden()[0]" />
-                        </div>
-                    </div>
+
                     <hr style="margin-top:4px; padding-top:4px;" />
+                    <table width="100%">
+                        <tr>
+                           <th width="40%"><h3>Total Ventas POS</h3></th>
+                           <th width="60%"><h3>Total Métodos de Pago</h3></th>
+                        </tr>
+                        <tr>
+                           <td width="40%">
+                                <div style="font-size:13px;" t-raw="o.taxes_description"/>
+                           </td>
+                          
+                           <td width="60%" rowspan="2">
 
-                    <div style="padding-left:15px; width:50%; float:left;">
-                    <div class="row mt32 mb32" style="line-height: 20px; margin-top:0 !important; margin-bottom:5px !important;">
-                        <h3 style="font-weight: bold;font-size:20px;">Total Sales POS</h3>
-                        <div style="font-size:13px;" t-raw="o.taxes_description"/>
-                    </div>
-                    <div class="row mt32 mb32" style="line-height: 20px; margin-top:0 !important;">
-                        <t t-if="o.refund_description">
-                            <h3 style="font-weight: bold; font-size:20px;">Total Refund POS</h3>
-                            <div style="font-size:13px;" t-raw="o.refund_description"/>
-                        </t>
-                    </div>
-                    <div class="row mt32 mb32" style="line-height: 20px; font-size:12px;">
-                        <h3 style="font-weight: bold; font-size:20px;">Total:</h3>
-                            <t t-set="total" t-value="0"/>
-                            <t t-set="subtotal" t-value="0"/>
-                            <t t-set="sumsubtotal" t-value="0"/>
-                            <t t-set="subtotaldiscount" t-value="0"/>
-                            <t t-set="descuentos" t-value="0"/>
-                            <t t-set="iva" t-value="0"/>
-                            <t t-set="cnt" t-value="0"/>
-                            <t t-set="impuesto" t-value="Iva"/>
-                            
-                            <t t-foreach="o.order_ids" t-as="order">
-                                <t t-if="order.type != 'out_refund'">
-                                    <t t-set="cnt" t-value="cnt + 1"/>
-                                    <t t-foreach="order.lines" t-as="lineas">
-                                        <t t-set="impuesto" t-value="lineas.tax_ids_after_fiscal_position.name"/>
-                                        <t t-if="impuesto == lineas.tax_ids_after_fiscal_position.name">
-                                            <t t-if="lineas.tax_ids_after_fiscal_position.price_include">
-                                                <t t-set="descuentos" t-value="descuentos + round(((lineas.price_unit / (1 + (lineas.tax_ids_after_fiscal_position.amount /100)))* lineas.qty)*(lineas.discount)/100)"/>
-                                            </t>
-                                            <t t-if="not lineas.tax_ids_after_fiscal_position.price_include">
-                                                <t t-set="descuentos" t-value="descuentos + round((lineas.price_unit * lineas.qty)*(lineas.discount)/100)"/>
-                                            </t>
-                                            <t t-set="subtotal" t-value="subtotal + lineas.price_subtotal"/>            
-                                        </t>
+                           <div class="row mt32 mb32" style="padding-left:15px; font-size:13px; line-height: 24px; width:50%; float:left; margin-top:0 !important;">
+                             <t t-set="total_pyment" t-value="0"/>
+                             <t t-set="total_transactions_line" t-value="0"/>
+                             <t t-set="total_transactions" t-value="0"/>
+                             <t t-set="box_cash_in" t-value="0"/>
+                             <t t-set="box_cash_out" t-value="0"/>
 
-                                    </t>
-                                    <t t-set="total" t-value="total + order.amount_total" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
-                                    <t t-set="iva" t-value="iva + order.amount_tax" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
-                                </t>
-                            </t>
-                            
-                            <strong style="font-size:12px;">Número de ventas realizadas:</strong>
-                            <span t-esc="cnt"/><br/>
-                            <strong>Sales:</strong>
-                            <span t-esc="subtotal + descuentos" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
-                            <strong>Total Discount:</strong>
-                            <span t-esc="descuentos" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
-                            <strong>Subtotal:</strong>
-                            <span t-esc="subtotal" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
-                            <strong>Valor Iva: </strong>
-                            <span t-esc="iva" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
-                            <strong>Total: </strong>
-                            <span t-esc="total" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
-                    </div> 
-                    </div>
-                    <div class="row mt32 mb32" style="padding-left:15px; font-size:13px; line-height: 24px; width:50%; float:left; margin-top:0 !important;">
-                        <h3 style="font-weight: bold; font-size:20px;">Total Payment Method</h3>
-                        <t t-set="total_pyment" t-value="0"/>
-                        <t t-set="total_transactions_line" t-value="0"/>
-                        <t t-set="total_transactions" t-value="0"/>
-                        <t t-set="box_cash_in" t-value="0"/>
-                        <t t-set="box_cash_out" t-value="0"/>
-                        
-                        
-                        <t t-foreach="o.statement_ids" t-as="statement">
-                            <t t-if="statement.total_entry_encoding != 0">
+
+                             <t t-foreach="o.statement_ids" t-as="statement">
+                              <t t-if="statement.total_entry_encoding != 0">
                                 <t t-set="total_transactions" t-value="0"/>
-                                    <strong>Journal</strong> : <span t-field="statement.journal_id"/><br/>
-                                    <strong>Reference</strong> : <span t-field="statement.name"/><br/>
+                                    <strong>Diario</strong> : <span t-field="statement.journal_id"/><br/>
+                                    <strong>Referencia</strong> : <span t-field="statement.name"/><br/>
                                     <t t-foreach="statement.line_ids" t-as="statement_line">
                                         <t t-if="statement_line.pos_statement_id and statement_line.ref and statement_line.amount &gt; 0 ">
                                             <t t-set="total_transactions_line" t-value="statement_line.amount"/>
                                             <t t-set="total_transactions" t-value="total_transactions + total_transactions_line "/>
                                         </t>
                                     </t>
-                                    <strong>Total Transactions Sales </strong> : 
+                                    <strong>Total Transacciones Ventas </strong> :
                                     <t t-if="statement.journal_id.type == 'cash' and 'Efectivo' in statement.journal_id.name">
                                         <span t-esc="total_transactions + o.amount_change" t-esc-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
-                            
+ 
                                         <t t-set="total_pyment" t-value="total_pyment + total_transactions + o.amount_change"/>
                                     </t>
                                     <t t-if="statement.journal_id.type != 'cash'">
                                         <span t-esc="total_transactions" t-esc-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
-                            
+ 
                                         <t t-set="total_pyment" t-value="total_pyment + total_transactions"/>
                                     </t>
                                     <br />
                                 </t>
-                            </t>    
-                    
-                        <hr />
-                        <strong style="font-size:18px;">Total Payments Method : </strong>
-                        <span style="font-size:18px;" t-esc="total_pyment" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
-                    </div>            
-                </div>
+                            </t>
 
-            </t>
-            <t t-if="not o.order_ids">
-                <h2><span>No se encontró ventas para esta sesión</span></h2>
-            </t>
-        </xpath>
-    </template>
-    <template id="report_sessionsummary">
-        <t t-call="report.html_container">
-            <t t-foreach="docs" t-as="o">
-                <t t-call="report.internal_layout">
-                    
-                </t>
+                        <hr />
+                        <strong style="font-size:18px;">Total Métodos de Pago : </strong>
+                        <span style="font-size:18px;" t-esc="total_pyment" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
+                    </div>
+
+                        </td>
+                     </tr>
+                        
+
+                     <tr>
+                           <t t-esc="o.refund_description"/>
+                     </tr>
+                   </table>
+
+                  <table>
+                    <tr>
+                       <td>
+                          <div class="row mt32 mb32" style="line-height: 20px; font-size:12px;">
+                               <h3 style="font-weight: bold; font-size:20px;">Total:</h3>
+                                <t t-set="total" t-value="0"/>
+                                <t t-set="subtotal" t-value="0"/>
+                                <t t-set="sumsubtotal" t-value="0"/>
+                                <t t-set="subtotaldiscount" t-value="0"/>
+                                <t t-set="descuentos" t-value="0"/>
+                                <t t-set="iva" t-value="0"/>
+                                <t t-set="cnt" t-value="0"/>
+                                <t t-set="impuesto" t-value="Iva"/>
+                                 
+                                <t t-foreach="o.order_ids" t-as="order">
+                                    <t t-if="order.type != 'out_refund'">
+                                       <t t-set="cnt" t-value="cnt + 1"/>
+                                       <t t-foreach="order.lines" t-as="lineas">
+                                           <t t-set="impuesto" t-value="lineas.tax_ids_after_fiscal_position.name"/>
+                                           <t t-if="impuesto == lineas.tax_ids_after_fiscal_position.name">
+                                              <t t-if="lineas.tax_ids_after_fiscal_position.price_include">
+                                                 <t t-set="descuentos" t-value="descuentos + round(((lineas.price_unit / (1 + (lineas.tax_ids_after_fiscal_position.amount /100)))* lineas.qty)*(lineas.discount)/100)"/>
+                                               </t>
+                                               <t t-if="not lineas.tax_ids_after_fiscal_position.price_include">
+                                                  <t t-set="descuentos" t-value="descuentos + round((lineas.price_unit * lineas.qty)*(lineas.discount)/100)"/>
+                                                </t>
+                                               <t t-set="subtotal" t-value="subtotal + lineas.price_subtotal"/>
+                                            </t>
+                                       </t>
+                                          <t t-set="total" t-value="total + order.amount_total" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
+                                          <t t-set="iva" t-value="iva + order.amount_tax" t-field-options='{"widget": "monetary", "display_currency": "pos_order.currency_id"}'/>
+                                     </t>
+                                 </t>
+                      
+                                 <strong style="font-size:12px;">Número de ventas realizadas:</strong>
+                                 <span t-esc="cnt"/><br/>
+                                 <strong>Sales:</strong>
+                                 <span t-esc="subtotal + descuentos" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
+                                 <strong>Total Discount:</strong>
+                                 <span t-esc="descuentos" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
+                                 <strong>Subtotal:</strong>
+                                 <span t-esc="subtotal" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
+                                 <strong>Valor Iva: </strong>
+                                 <span t-esc="iva" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
+                                 <strong>Total: </strong>
+                                 <span t-esc="total" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
+                           </div>                  
+                      </td>
+                   </tr>
+                 </table>                           
+                </div>
+                </t>  
+
+                 <t t-if="not o.order_ids">
+                      <h2><span>No se encontró ventas para esta sesión</span></h2>
+                 </t> 
             </t>
         </t>
     </template>
+
+   <record id="report_sessionsummary_id" model="ir.actions.report">
+            <field name="paperformat_id" ref="paperformat_a4"/>
+   </record>
+
 </odoo>
