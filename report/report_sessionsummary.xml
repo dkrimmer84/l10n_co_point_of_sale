@@ -71,7 +71,7 @@
                                 <td>
                                     <strong>No.Registro Final</strong>:
                                     <br/>
-                                    <!--  <t t-esc="o.ultima_orden()[0]" /> -->
+                                     <t t-esc="o.ultima_orden()" />
                                 </td>
                           </tr>
                     </table>

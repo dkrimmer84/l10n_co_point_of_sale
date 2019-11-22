@@ -583,7 +583,7 @@ class pos_session(models.Model):
             for order in self.order_ids:
                 _logger.info(self.order_ids[i])
                 if self.order_ids[i].type != 'out_refund':
-                    _order_end = self.order_ids[i].name
+                    order_end = self.order_ids[i].name
                     break
                 else:
                     i = i + 1
