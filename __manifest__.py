@@ -29,9 +29,10 @@ Colombia Point of Sale:
         'l10n_co_tax_extension'
     ],
     'data': [
+        'data/papel.xml',
         'views/pos_view.xml',
         'views/point_of_sale_view.xml',
-        #'report/report_sessionsummary.xml',
+        'report/report_sessionsummary.xml',
         'security/ir.model.access.csv',
         #'views/report_receipt.xml',
         'views/view_report_pos_order.xml'
