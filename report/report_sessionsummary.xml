@@ -90,7 +90,7 @@
                           
                            <td width="60%" rowspan="2">
 
-                           <div class="row mt32 mb32" style="padding-left:15px; font-size:13px; line-height: 24px; width:50%; float:left; margin-top:0 !important;">
+                           <div class="row mt32 mb32" style="padding-left:15px; font-size:13px; line-height: 24px; width:100%; float:left; margin-top:0 !important;">
                              <t t-set="total_pyment" t-value="0"/>
                              <t t-set="total_transactions_line" t-value="0"/>
                              <t t-set="total_transactions" t-value="0"/>
@@ -111,12 +111,12 @@
                                     </t>
                                     <strong>Total Transacciones Ventas </strong> :
                                     <t t-if="statement.journal_id.type == 'cash' and 'Efectivo' in statement.journal_id.name">
-                                        <span t-esc="total_transactions + o.amount_change" t-esc-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
+                                        <span t-esc="'%.2f'%(total_transactions + o.amount_change)" t-esc-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
  
                                         <t t-set="total_pyment" t-value="total_pyment + total_transactions + o.amount_change"/>
                                     </t>
                                     <t t-if="statement.journal_id.type != 'cash'">
-                                        <span t-esc="total_transactions" t-esc-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
+                                        <span t-esc="'%.2f'%(total_transactions)" t-field-options='{"widget": "monetary", "display_currency": "statement.currency_id"}'/><br/>
  
                                         <t t-set="total_pyment" t-value="total_pyment + total_transactions"/>
                                     </t>
@@ -125,8 +125,8 @@
                             </t>
 
                         <hr />
-                        <strong style="font-size:18px;">Total Métodos de Pago : </strong>
-                        <span style="font-size:18px;" t-esc="total_pyment" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
+                        <strong style="font-size:18px;">Total Métodos de Pago: </strong>
+                        <span style="font-size:17px;" t-esc="'%.2f'%(total_pyment)" t-field-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/><br/>
                     </div>
 
                         </td>
