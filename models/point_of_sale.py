@@ -166,10 +166,14 @@ class PosOrder(models.Model):
                                .search([('sequence_id','=',session.config_id.sequence_id.id),
                                         ('active_resolution','=',True)], limit=1)
             else:
-                values['name'] = session.config_id.sequence_refund_id._next()
-                sequence = self.env['ir.sequence.dian_resolution'] \
+                if session.config_id.sequence_refund_id:
+                    values['name'] = session.config_id.sequence_refund_id._next()
+                    sequence = self.env['ir.sequence.dian_resolution'] \
                                .search([('sequence_id','=',session.config_id.sequence_refund_id.id),
                                         ('active_resolution','=',True)], limit=1)
+                else:
+                    raise UserError('Debe agregar una secuencia para devoluciones')
+
             if sequence.exists():
                 order.write({
                     'resolution_number': sequence['resolution_number'],
@@ -436,7 +440,7 @@ class PosConfig(models.Model):
                         pass # This is when the resolution it's spent and we keep generating numbers
 
     not_has_valid_dian = fields.Boolean(compute='_get_has_valid_dian_info', default=False)
-    sequence_refund_id = fields.Many2one('ir.sequence', 'Refund Order IDs Sequence', readonly=True,
+    sequence_refund_id = fields.Many2one('ir.sequence', 'Refund Order IDs Sequence',
                                   help="This sequence is automatically created by Odoo but you can change it "\
                                   "to customize the reference numbers of your orders.", copy=False)
 
@@ -447,11 +451,15 @@ class PosConfig(models.Model):
         val = {
             'name': 'POS Refund %s' % values['name'],
             'padding': 4,
+            'implementation': 'no_gap',
             'prefix': "%s/" % values['name'],
+            'number_increment': 1,
             'code': "pos.order",
-            'company_id': values.get('company_id', False)
+            'company_id': values.get('company_id', False),
+            'use_date_range': False
         }
-        values['sequence_refund_id'] = IrSequence.create(val).id
+
+        values['sequence_refund_id'] = IrSequence.sudo().create(val).id
 
         return super(PosConfig, self).create(values)
 
